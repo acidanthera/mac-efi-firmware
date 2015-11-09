@@ -1,0 +1,31 @@
+[Defines]
+  BASE_NAME      = AppleEvent
+  FILE_GUID      = 4391aa92-6644-4d9a-9a84-ddd405c312f3
+  INF_VERSION    = 0x00010005
+  MODULE_TYPE    = DXE_DRIVER
+  VERSION_STRING = 1.0
+  ENTRY_POINT    = AppleEventMain
+
+[Packages]
+  ApplePkg/ApplePkg.dec
+  AppleModulePkg/AppleModulePkg.dec
+  EfiMiscPkg/EfiMiscPkg.dec
+  EdkBridgePkg/EdkBridgePkg.dec
+
+[Protocols]
+  gAppleEventProtocolGuid  ## PRODUCES
+
+[LibraryClasses]
+  EfiDriverLib
+  EfiCommonLib
+  EdkFrameworkGuidLib
+  EfiProtocolLib
+  EdkProtocolLib
+  AppleEventImpl
+
+[Sources]
+  ../../Include/Driver/AppleEvent.h
+  AppleEvent.c
+
+[Depex]
+  TRUE

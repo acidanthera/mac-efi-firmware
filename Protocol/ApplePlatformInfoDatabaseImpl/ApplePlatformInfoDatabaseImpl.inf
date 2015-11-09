@@ -1,0 +1,21 @@
+[Defines]
+  BASE_NAME     = ApplePlatformInfoDatabaseImpl
+  INF_VERSION   = 0x00010005
+  MODULE_TYPE   = UEFI_DRIVER
+  LIBRARY_CLASS = ApplePlatformInfoDatabaseImpl
+
+[Packages]
+  ApplePkg/ApplePkg.dec
+  AppleModulePkg/AppleModulePkg.dec
+  EdkBridgePkg/EdkBridgePkg.dec
+
+[LibraryClasses]
+  EfiDriverLib
+  EfiCommonLib
+  EdkFrameworkGuidLib
+  EfiProtocolLib
+  EdkProtocolLib
+
+[Sources]
+  ../../Include/Protocol/ApplePlatformInfoDatabaseImpl.h
+  ApplePlatformInfoDatabaseImpl.c

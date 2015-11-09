@@ -1,0 +1,43 @@
+## @file 
+#
+# This Package provides all definitions(including functions, MACROs, structures and library classes)
+# and libraries instances, which are only used by Duet platform.
+#
+# Copyright (c) 2007 - 2011, Intel Corporation. All rights reserved.<BR>
+#
+# This program and the accompanying materials are licensed and made available under
+# the terms and conditions of the BSD License which accompanies this distribution.
+# The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+[Defines]
+  PACKAGE_NAME                   = AppleModulePkg
+  PACKAGE_GUID                   = 0abcc78e-2fdc-4481-998d-8684a7b602e9 # REPLACE
+  PACKAGE_VERSION                = 1.0
+  DEC_SPECIFICATION              = 0x00010005
+
+[Includes]
+  Include
+
+[LibraryClasses]
+  ##  @libraryclass  
+  AppleBootPolicyImpl|AppleModulePkg/Include/Protocol/AppleBootPolicyImpl.h
+
+  ##  @libraryclass  
+  AppleEventImpl|AppleModulePkg/Include/Protocol/AppleEventImpl.h
+
+  ##  @libraryclass  
+  AppleKeyMapImpl|AppleModulePkg/Include/Protocol/AppleKeyMapImpl.h
+
+  ##  @libraryclass  
+  ApplePlatformInfoDatabaseImpl|AppleModulePkg/Include/Protocol/ApplePlatformInfoDatabaseImpl.h
+
+  ##  @libraryclass  
+  DevicePathPropertyDatabaseImpl|AppleModulePkg/Include/Protocol/DevicePathPropertyDatabaseImpl.h
+
+  ##  @libraryclass  
+  OsIdentificationImpl|AppleModulePkg/Include/Protocol/OsIdentificationImpl.h

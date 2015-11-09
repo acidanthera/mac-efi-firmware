@@ -1,0 +1,34 @@
+[Defines]
+  BASE_NAME     = AppleEventImpl
+  INF_VERSION   = 0x00010005
+  MODULE_TYPE   = UEFI_DRIVER
+  LIBRARY_CLASS = AppleEventImpl
+
+[Packages]
+  ApplePkg/ApplePkg.dec
+  AppleModulePkg/AppleModulePkg.dec
+  EfiMiscPkg/EfiMiscPkg.dec
+  EdkBridgePkg/EdkBridgePkg.dec
+
+[Guids]
+  gAppleVendorNvramGuid  ## CONSUMES
+
+[Protocols]
+  gAppleKeyMapAggregatorProtocolGuid  ## CONSUMES
+
+[LibraryClasses]
+  EfiDriverLib
+  EfiCommonLib
+  EdkFrameworkGuidLib
+  EfiProtocolLib
+  EdkProtocolLib
+  AppleKeyMapLib
+  AppleKeyMapAggregatorLib
+  EdkIIGlueBaseLib
+
+[Sources]
+  ../../Include/Protocol/AppleEventImpl.h
+  AppleEventImplLib.c
+  AppleEventImplSimplePointer.c
+  AppleEventImplKeyHandler.c
+  AppleEventImpl.c

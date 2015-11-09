@@ -1,0 +1,17 @@
+[Defines]
+  PACKAGE_NAME                   = AppleBootPolicy
+  PACKAGE_GUID                   = 4391AA92-6644-4D8A-9A84-DDD405C312F3
+  PACKAGE_VERSION                = 1.0
+  DEC_SPECIFICATION              = 0x00010005
+
+[Includes]
+  ../../../EdkCompatibilityPkg/Foundation
+  ../../../EdkCompatibilityPkg/Foundation/Framework
+  ../../../EdkCompatibilityPkg/Foundation/Efi
+  ../../../EdkCompatibilityPkg/Foundation/Include
+  ../../../EdkCompatibilityPkg/Foundation/Efi/Include
+  ../../../EdkCompatibilityPkg/Foundation/Framework/Include
+  ../../../EdkCompatibilityPkg/Foundation/Library/Dxe/Include
+
+[Protocols]
+  gAppleBootPolicyProtocolGuid = {0x62257758, 0x350c, 0x4d0a, {0xb0, 0xbd, 0xf6, 0xbe, 0x2e, 0x1e, 0x27, 0x2c}}
