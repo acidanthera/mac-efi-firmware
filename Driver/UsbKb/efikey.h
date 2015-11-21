@@ -18,9 +18,11 @@ Abstract:
 
 Revision History
 --*/
-#define APPLE_EXTENSIONS
+
 #ifndef _USB_KB_H
 #define _USB_KB_H
+
+#include <AppleEfi.h>
 
 //
 // Driver Consumed Protocol Prototypes

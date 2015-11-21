@@ -21,7 +21,7 @@ Revision History
 
 --*/
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiDriverLib.h"
 
 #include EFI_PROTOCOL_DEFINITION (LegacyBios)

@@ -179,11 +179,11 @@ AppleEventRemoveUnregisteredEvents (
 
       if (!CurrentEvent->Registered) {
         if (CurrentEvent->Name != NULL) {
-          gBS->FreePool (CurrentEvent->Name);
+          gBS->FreePool ((VOID *)CurrentEvent->Name);
         }
 
         RemoveEntryList (NextEvent->This.BackLink);
-        gBS->FreePool (CurrentEvent);
+        gBS->FreePool ((VOID *)CurrentEvent);
       }
 
       CurrentEvent = NextEvent;
@@ -332,7 +332,7 @@ QueryEventNotifyFunction (
         }
 
         if (((EventQuery->Information->EventType & APPLE_ALL_KEYBOARD_EVENTS) != 0)
-         && (((VOID *)EventQuery->Information->EventData.AppleKeyEventData) != NULL)) {
+         && (EventQuery->Information->EventData.AppleKeyEventData != NULL)) {
           gBS->FreePool ((VOID *)EventQuery->Information->EventData.AppleKeyEventData);
         }
 

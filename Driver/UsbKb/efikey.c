@@ -142,7 +142,7 @@ USBKeyboardCheckForKey (
   );
 
 EFI_GUID  gEfiUsbKeyboardDriverGuid = {
-  0xa05f5f78, 0xfb3, 0x4d10, 0x90, 0x90, 0xac, 0x4, 0x6e, 0xeb, 0x7c, 0x3c
+  0xa05f5f78, 0xfb3, 0x4d10, { 0x90, 0x90, 0xac, 0x4, 0x6e, 0xeb, 0x7c, 0x3c }
 };
 
 //
@@ -221,7 +221,7 @@ USBKeyboardDriverBindingSupported (
   OpenStatus = gBS->OpenProtocol (
                       Controller,
                       &gEfiUsbIoProtocolGuid,
-                      &UsbIo,
+                      (VOID **)&UsbIo,
                       This->DriverBindingHandle,
                       Controller,
                       EFI_OPEN_PROTOCOL_BY_DRIVER
@@ -301,7 +301,7 @@ USBKeyboardDriverBindingStart (
   Status = gBS->OpenProtocol (
                   Controller,
                   &gEfiUsbIoProtocolGuid,
-                  &UsbIo,
+                  (VOID **)&UsbIo,
                   This->DriverBindingHandle,
                   Controller,
                   EFI_OPEN_PROTOCOL_BY_DRIVER
@@ -669,7 +669,7 @@ USBKeyboardDriverBindingStop (
   Status = gBS->OpenProtocol (
                   Controller,
                   &gEfiSimpleTextInProtocolGuid,
-                  &SimpleInput,
+                  (VOID **)&SimpleInput,
                   This->DriverBindingHandle,
                   Controller,
                   EFI_OPEN_PROTOCOL_GET_PROTOCOL

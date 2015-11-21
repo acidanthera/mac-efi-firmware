@@ -1,5 +1,5 @@
-#ifndef _APPLE_PLATFORM_INFO_DATABASE_IMPL_H_
-#define _APPLE_PLATFORM_INFO_DATABASE_IMPL_H_
+#ifndef __APPLE_PLATFORM_INFO_DATABASE_IMPL_H__
+#define __APPLE_PLATFORM_INFO_DATABASE_IMPL_H__
 
 #include EFI_PROTOCOL_CONSUMER (FirmwareVolume)
 #include <Protocol/ApplePlatformInfoDatabase.h>
@@ -105,4 +105,4 @@ extern EFI_GUID gAppleHob3Guid;
 // gAppleFile1Guid
 extern EFI_GUID gAppleFile1Guid;
 
-#endif // ifndef _APPLE_PLATFORM_INFO_DATABASE_IMPL_H_
+#endif // ifndef __APPLE_PLATFORM_INFO_DATABASE_IMPL_H__

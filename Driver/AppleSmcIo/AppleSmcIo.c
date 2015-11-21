@@ -5,41 +5,29 @@
 
 #include <IndustryStandard/AppleSmc.h>
 
-#include <Protocol/CpuIo/CpuIo.h>
-
-#include <Library/EdkIIGlueIoLib.h>
-
-#define APPLE_SMC_SIGNATURE  EFI_SIGNATURE_64 ('A', 'p', 'p', 'l', 'e', 'S', 'm', 'c')
-
-FORWARD_DECLARATION (APPLE_SMC_IO_PROTOCOL);
+#include EFI_PROTOCOL_CONSUMER (CpuIo)
+#include <Protocol/AppleSmcIo.h>
 
 #define IS_VALID_ASCII(x) (((x) >= 0x20) && ((x) <= 0x7f))
 
+#define APPLE_SMC_IO_PROTOCOL_REVISION  0x33
+
+#define SMC_DEV_SIGNATURE    EFI_SIGNATURE_64 ('A', 'p', 'p', 'l', 'e', 'S', 'm', 'c')
 #define SMC_DEV_FROM_THIS(x) CR ((x), APPLE_SMC_DEV, SmcIo)
 
-#define APPLE_SMC_IO_PROTOCOL_VERSION  0x33
-
-struct _APPLE_SMC_IO_PROTOCOL {
-  UINTN Revision;
-  UINTN Index;
-  UINTN Address;
-};
-
 #pragma pack(1)
+
+// _APPLE_SMC_DEV
 typedef struct _APPLE_SMC_DEV {
   UINT64                Signature;
   EFI_HANDLE            Handle;
   EFI_LOCK              Lock;
+  UINT32                __reserved[3];
   APPLE_SMC_IO_PROTOCOL SmcIo;
   EFI_CPU_IO_PROTOCOL   *CpuIo;
 } APPLE_SMC_DEV;
+
 #pragma pop()
-
-APPLE_SMC_IO_PROTOCOL SmcIoProtocol = {
-  999
-};
-
-EFI_GUID gAppleSmcIoProtocolGuid;
 
 SMC_STATUS
 SmcReadStatus (
@@ -48,7 +36,7 @@ SmcReadStatus (
 {
   SMC_STATUS Status;
 
-  SmcDev->CpuIo->Io.Read (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_STATUS), 1, (VOID *)&Status);
+  SmcDev->CpuIo->Io.Read (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_STATUS), sizeof (Status), (VOID *)&Status);
 
   return Status;
 }
@@ -60,7 +48,7 @@ SmcReadResult (
 {
   SMC_RESULT Result;
 
-  SmcDev->CpuIo->Io.Read (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_RESULT), 1, (VOID *)&Result);
+  SmcDev->CpuIo->Io.Read (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_RESULT), sizeof (Result), (VOID *)&Result);
 
   return Result;
 }
@@ -68,7 +56,7 @@ SmcReadResult (
 EFI_STATUS
 SmcWriteCommand (
   IN  APPLE_SMC_DEV  *SmcDev,
-  OUT SMC_COMMAND    Command
+  OUT UINT32         Command
   )
 {
   EFI_STATUS  Status;
@@ -94,11 +82,11 @@ SmcWriteCommand (
     } while ((SmcStatus & SMC_STATUS_IB_CLOSED) != 0);
   }
 
-  SmcDev->CpuIo->Io.Write (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_CMD), 1, (VOID *)&Command);
+  SmcDev->CpuIo->Io.Write (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_COMMAND), sizeof(SMC_COMMAND), (VOID *)&(SMC_COMMAND)Command);
 
   Index = 20000;
 
-  if ((SmcStatus & SMC_STATUS_BUSY) != 0) {
+  if ((SmcStatus & SMC_STATUS_BUSY) == 0) {
     do {
       SmcStatus = SmcReadStatus (SmcDev);
 
@@ -110,7 +98,7 @@ SmcWriteCommand (
       --Index;
 
       gBS->Stall (50);
-    } while ((SmcStatus & SMC_STATUS_BUSY) != 0);
+    } while ((SmcStatus & SMC_STATUS_BUSY) == 0);
   }
 
   Status = EFI_SUCCESS;
@@ -121,8 +109,8 @@ SmcWriteCommand (
 
 EFI_STATUS
 SmcReadData8 (
-  IN APPLE_SMC_DEV  *SmcDev,
-  IN SMC_DATA       *Data
+  IN  APPLE_SMC_DEV  *SmcDev,
+  OUT SMC_DATA       *Data
   )
 {
   EFI_STATUS Status;
@@ -134,7 +122,7 @@ SmcReadData8 (
   Index     = 60000;
   SmcStatus = SmcReadStatus (SmcDev);
 
-  if ((SmcStatus & 5) == SMC_STATUS_BUSY) {
+  if ((SmcStatus & (SMC_STATUS_AWAITING_MORE_BYTES | SMC_STATUS_BUSY)) == SMC_STATUS_BUSY) {
     do {
       SmcStatus = SmcReadStatus (SmcDev);
 
@@ -146,11 +134,11 @@ SmcReadData8 (
       --Index;
 
       gBS->Stall (50);
-    } while ((SmcStatus & 5) == SMC_STATUS_BUSY);
+    } while ((SmcStatus & (SMC_STATUS_AWAITING_MORE_BYTES | SMC_STATUS_BUSY)) == SMC_STATUS_BUSY);
   }
 
-  if ((SmcStatus & 4) != 0) {
-    SmcDev->CpuIo->Io.Read (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_DATA), 1, (VOID *)&Buffer);
+  if ((SmcStatus & SMC_STATUS_BUSY) != 0) {
+    SmcDev->CpuIo->Io.Read (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_DATA), sizeof (Buffer), (VOID *)&Buffer);
 
     Status = EFI_SUCCESS;
     *Data  = Buffer;
@@ -238,7 +226,7 @@ SmcWriteData8 (
   }
 
   if ((SmcStatus & SMC_STATUS_BUSY) != 0) {
-    SmcDev->CpuIo->Io.Write (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_DATA), 1, (VOID *)&Data);
+    SmcDev->CpuIo->Io.Write (SmcDev->CpuIo, EfiCpuIoWidthUint8, (SmcDev->SmcIo.Address + SMC_PORT_DATA), sizeof (Data), (VOID *)&Data);
 
     Status = EFI_SUCCESS;
   } else {
@@ -246,6 +234,25 @@ SmcWriteData8 (
   }
 
 Return:
+  return Status;
+}
+
+EFI_STATUS
+SmcWriteData16 (
+  IN APPLE_SMC_DEV  *SmcDev,
+  IN UINT16         Data
+  )
+{
+  EFI_STATUS Status;
+
+  if (!EFI_ERROR (Status)) {
+    Status = SmcWriteData8 (SmcDev, (SMC_DATA)(Data >> 8));
+
+    if (!EFI_ERROR (Status)) {
+      Status = SmcWriteData8 (SmcDev, (SMC_DATA)Data);
+    }
+  }
+
   return Status;
 }
 
@@ -309,6 +316,40 @@ Return:
 }
 
 EFI_STATUS
+SmcTimeoutLongWaitingForBusyClear (
+  IN APPLE_SMC_DEV  *SmcDev
+  )
+{
+  EFI_STATUS Status;
+
+  SMC_STATUS SmcStatus;
+  UINTN      Index;
+
+  Index     = 100000;
+  SmcStatus = SmcReadStatus (SmcDev);
+
+  if ((SmcStatus & SMC_STATUS_BUSY) != 0) {
+    do {
+      SmcStatus = SmcReadStatus (SmcDev);
+
+      if (Index == 0) {
+        Status = EFI_TIMEOUT;
+        goto Return;
+      }
+
+      --Index;
+
+      gBS->Stall (50);
+    } while ((SmcStatus & SMC_STATUS_BUSY) != 0);
+  }
+
+  Status = EFI_SUCCESS;
+
+Return:
+  return Status;
+}
+
+EFI_STATUS
 SmcSmcInABadState (
   IN APPLE_SMC_DEV  *SmcDev
   )
@@ -333,7 +374,7 @@ EFIAPI
 SmcReadValue (
   IN  APPLE_SMC_IO_PROTOCOL  *This,
   IN  SMC_KEY                Key,
-  IN  SMC_DATA_SIZE        Length,
+  IN  SMC_DATA_SIZE          Size,
   OUT VOID                   *Value
   )
 {
@@ -343,9 +384,8 @@ SmcReadValue (
   SMC_RESULT    SmcResult;
   SMC_DATA      *Buffer;
 
-  SmcDev = SMC_DEV_FROM_THIS (This);
-
-  if (((Length - 1) <= 31) && (Value != NULL)) {
+  if (((Size - 1) <= 31) && (Value != NULL)) {
+    SmcDev = SMC_DEV_FROM_THIS (This);
     Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
     if (!EFI_ERROR (Status)) {
@@ -358,7 +398,7 @@ SmcReadValue (
           Status = SmcWriteData32 (SmcDev, (UINT32)Key);
 
           if (!EFI_ERROR (Status)) {
-            Status = SmcWriteData8 (SmcDev, (SMC_DATA)Length);
+            Status = SmcWriteData8 (SmcDev, (SMC_DATA)Size);
 
             if (!EFI_ERROR (Status)) {
               Buffer = (SMC_DATA *)Value;
@@ -371,10 +411,10 @@ SmcReadValue (
                   break;
                 }
 
-                --Length;
-              } while (Length > 0);
+                --Size;
+              } while (Size > 0);
 
-              if (Length == 0) {
+              if (Size == 0) {
                 Status = SmcTimeoutWaitingForBusyClear (SmcDev);
               }
             }
@@ -404,7 +444,7 @@ EFIAPI
 SmcWriteValue (
   IN  APPLE_SMC_IO_PROTOCOL  *This,
   IN  SMC_KEY                Key,
-  IN  SMC_DATA_SIZE           Size,
+  IN  SMC_DATA_SIZE          Size,
   OUT VOID                   *Value
   )
 {
@@ -414,9 +454,8 @@ SmcWriteValue (
   SMC_RESULT    SmcResult;
   SMC_DATA      *Buffer;
 
-  SmcDev = SMC_DEV_FROM_THIS (This);
-
   if (((Size - 1) <= 31) && (Value != NULL)) {
+    SmcDev = SMC_DEV_FROM_THIS (This);
     Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
     if (!EFI_ERROR (Status)) {
@@ -473,8 +512,8 @@ SmcWriteValue (
 EFI_STATUS
 EFIAPI
 SmcMakeKey (
-  IN  CHAR8   *Name,
-  OUT SMC_KEY *Key
+  IN  CHAR8    *Name,
+  OUT SMC_KEY  *Key
   )
 {
   EFI_STATUS Status;
@@ -510,14 +549,14 @@ EFI_STATUS
 EFIAPI
 SmcGetKeyCount (
   IN APPLE_SMC_IO_PROTOCOL  *This,
-  IN UINT32                 *Count
+  OUT UINT32                *Count
   )
 {
   EFI_STATUS Status;
 
   SMC_KEY    Key;
 
-  Status = SmcMakeKey ('#KEY', &Key);
+  Status = SmcMakeKey ("#Key", &Key);
 
   if (!EFI_ERROR (Status)) {
     Status = SmcReadValue (This, Key, sizeof (*Count), (VOID *)Count);
@@ -528,7 +567,7 @@ SmcGetKeyCount (
 
 EFI_STATUS
 EFIAPI
-SmcGetKeyByIndex (
+SmcGetKeyFromIndex (
   IN  APPLE_SMC_IO_PROTOCOL  *This,
   IN  SMC_INDEX              Index,
   OUT SMC_KEY                *Key
@@ -539,9 +578,8 @@ SmcGetKeyByIndex (
   APPLE_SMC_DEV *SmcDev;
   SMC_RESULT    SmcResult;
 
-  SmcDev = SMC_DEV_FROM_THIS (This);
-
   if (Key != NULL) {
+    SmcDev = SMC_DEV_FROM_THIS (This);
     Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
     if (!EFI_ERROR (Status)) {
@@ -583,11 +621,11 @@ SmcGetKeyByIndex (
 EFI_STATUS
 EFIAPI
 SmcGetKeyInfo (
-  IN APPLE_SMC_IO_PROTOCOL  *This,
-  IN SMC_KEY                Key,
-  IN SMC_DATA_SIZE           *Size,
-  IN SMC_KEY_TYPE           *Type,
-  IN SMC_KEY_ATTRIBUTES     *Attributes
+  IN     APPLE_SMC_IO_PROTOCOL  *This,
+  IN     SMC_KEY                Key,
+  IN OUT SMC_DATA_SIZE          *Size,
+  IN OUT SMC_KEY_TYPE           *Type,
+  IN OUT SMC_KEY_ATTRIBUTES     *Attributes
   )
 {
   EFI_STATUS    Status;
@@ -595,9 +633,8 @@ SmcGetKeyInfo (
   APPLE_SMC_DEV *SmcDev;
   SMC_RESULT    SmcResult;
 
-  SmcDev = SMC_DEV_FROM_THIS (This);
-
   if ((Size != NULL) && (Attributes != NULL)) {
+    SmcDev = SMC_DEV_FROM_THIS (This);
     Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
     if (!EFI_ERROR (Status)) {
@@ -646,6 +683,231 @@ SmcGetKeyInfo (
 
 EFI_STATUS
 EFIAPI
+SmcReset (
+  IN APPLE_SMC_IO_PROTOCOL  *This,
+  IN SMC_RESET_MODE         Mode
+  )
+{
+  EFI_STATUS    Status;
+
+  APPLE_SMC_DEV *SmcDev;
+  SMC_RESULT    SmcResult;
+
+  SmcDev = SMC_DEV_FROM_THIS (This);
+  Status = EfiAcquireLockOrFail (&SmcDev->Lock);
+
+  if (!EFI_ERROR (Status)) {
+    Status = SmcSmcInABadState (SmcDev);
+
+    if (!EFI_ERROR (Status)) {
+      Status = SmcWriteCommand (SmcDev, SmcCmdReset);
+
+      if (!EFI_ERROR (Status)) {
+        SmcWriteData8 (SmcDev, (SMC_DATA)Mode);
+
+        if (!EFI_ERROR (Status)) {
+          Status = SmcLongTimeoutWaitingForBusyClear (SmcDev);
+        }
+      }
+    }
+
+    SmcResult = SmcReadResult (SmcDev);
+
+    if (Status == EFI_TIMEOUT) {
+      Status = EFI_SMC_TIMEOUT_ERROR;
+    } else if (SmcResult != SMC_SUCCESS) {
+      Status = EFIERR (Status);
+    }
+
+    EfiReleaseLock (&SmcDev->Lock);
+  }
+
+  return Status;
+}
+
+EFI_STATUS
+EFIAPI
+SmcFlashType (
+  IN APPLE_SMC_IO_PROTOCOL  *This,
+  IN UINT32                 Type
+  )
+{
+  EFI_STATUS    Status;
+
+  APPLE_SMC_DEV *SmcDev;
+  SMC_RESULT    SmcResult;
+  SMC_DATA      Value;
+
+  SmcDev = SMC_DEV_FROM_THIS (This);
+  Status = EfiAcquireLockOrFail (&SmcDev->Lock);
+
+  if (!EFI_ERROR (Status)) {
+    Status = SmcSmcInABadState (SmcDev);
+
+    if (!EFI_ERROR (Status)) {
+      Status = SmcWriteCommand (SmcDev, SmcCmdFlashType);
+
+      if (!EFI_ERROR (Status)) {
+        Status = SmcWriteData8 (SmcDev, (SMC_DATA)(SMC_FLASH_TYPE)Type);
+
+        if (!EFI_ERROR (Status)) {
+          Status = SmcTimeoutWaitingForBusyClear (SmcDev);
+        }
+      }
+    }
+
+    SmcResult = SmcReadResult (SmcDev);
+
+    if (Status == EFI_TIMEOUT) {
+      Status = EFI_SMC_TIMEOUT_ERROR;
+    } else if (SmcResult != SMC_SUCCESS) {
+      Status = EFIERR (Status);
+    }
+
+    EfiReleaseLock (&SmcDev->Lock);
+  }
+
+  return Status;
+}
+
+EFI_STATUS
+EFIAPI
+SmcFlashWrite (
+  IN APPLE_SMC_IO_PROTOCOL  *This,
+  IN UINT32                 Unknown,
+  IN UINT16                 Size,
+  IN SMC_DATA               *Data
+  )
+{
+  EFI_STATUS    Status;
+
+  APPLE_SMC_DEV *SmcDev;
+  SMC_RESULT    SmcResult;
+  SMC_DATA      Value;
+
+  if ((Size != 0) && (Size <= 0x800) && (Data != NULL)) {
+    SmcDev = SMC_DEV_FROM_THIS (This);
+    Status = EfiAcquireLockOrFail (&SmcDev->Lock);
+
+    if (!EFI_ERROR (Status)) {
+      Status = SmcSmcInABadState (SmcDev);
+
+      if (!EFI_ERROR (Status)) {
+        Status = SmcWriteCommand (SmcDev, SmcCmdFlashWrite);
+
+        if (!EFI_ERROR (Status)) {
+          Status = SmcWriteData32 (SmcDev, Unknown);
+
+          if (!EFI_ERROR (Status)) {
+            Status = SmcWriteData16 (SmcDev, Size);
+
+            if (!EFI_ERROR (Status)) {
+              do {
+                Status = SmcWriteData8 (SmcDev, (SMC_DATA)*Data);
+
+                if (EFI_ERROR (Status)) {
+                  break;
+                }
+
+                ++Data;
+                --Size;
+              } while (Size != 0);
+
+              do {
+                Status = SmcReadData8 (SmcDev, &Value);
+              } while (Status == EFI_SUCCESS);
+            }
+          }
+        }
+      }
+
+      SmcResult = SmcReadResult (SmcDev);
+
+      if (Status == EFI_TIMEOUT) {
+        Status = EFI_SMC_TIMEOUT_ERROR;
+      } else if (SmcResult != SMC_SUCCESS) {
+        Status = EFIERR (Status);
+      }
+
+      EfiReleaseLock (&SmcDev->Lock);
+    }
+  }
+
+  return Status;
+}
+
+EFI_STATUS
+EFIAPI
+SmcFlashAuth (
+  IN APPLE_SMC_IO_PROTOCOL  *This,
+  IN UINT16                 Size,
+  IN SMC_DATA               *Data
+  )
+{
+  EFI_STATUS    Status;
+
+  APPLE_SMC_DEV *SmcDev;
+  SMC_RESULT    SmcResult;
+  SMC_DATA      Value;
+
+  if ((Size != 0) && (Size <= 0x800) && (Data != NULL)) {
+    SmcDev = SMC_DEV_FROM_THIS (This);
+    Status = EfiAcquireLockOrFail (&SmcDev->Lock);
+
+    if (!EFI_ERROR (Status)) {
+      Status = SmcSmcInABadState (SmcDev);
+
+      if (!EFI_ERROR (Status)) {
+        Status = SmcWriteCommand (SmcDev, SmcCmdFlashAuth);
+
+        if (!EFI_ERROR (Status)) {
+          Status = SmcWriteData16 (SmcDev, Size);
+
+          if (!EFI_ERROR (Status)) {
+            do {
+              Status = SmcWriteData8 (SmcDev, (SMC_DATA)*Data);
+
+              if (EFI_ERROR (Status)) {
+                break;
+              }
+
+              ++Data;
+              --Size;
+            } while (Size != 0);
+
+            do {
+              Status = SmcReadData8 (SmcDev, &Value);
+            } while (Status == EFI_SUCCESS);
+          }
+        }
+      }
+
+      SmcResult = SmcReadResult (SmcDev);
+
+      if (Status == EFI_TIMEOUT) {
+        Status = EFI_SMC_TIMEOUT_ERROR;
+      } else if (SmcResult != SMC_SUCCESS) {
+        Status = EFIERR (Status);
+      }
+
+      EfiReleaseLock (&SmcDev->Lock);
+    }
+  }
+
+  return Status;
+}
+
+EFI_STATUS
+EFIAPI
+SmcUnsupported (
+  VOID
+  )
+{
+  return EFI_UNSUPPORTED;
+}
+
+EFI_STATUS
+EFIAPI
 AppleSmcIoMain (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
@@ -657,13 +919,13 @@ AppleSmcIoMain (
   APPLE_SMC_DEV       *SmcDev;
   UINT8               NoSmc;
   UINT8               Index;
-  UINT8               SmcIndex;
-  UINT32              SmcAddress;
+  SMC_INDEX           SmcIndex;
+  SMC_ADDRESS         SmcAddress;
   APPLE_SMC_DEV       *SmcDevChild;
 
   EfiInitializeDriverLib (ImageHandle, SystemTable);
 
-  Status = gBS->LocateProtocol (&gEfiCpuIoProtocolGuid, NULL, (VOID **)CpuIo);
+  Status = gBS->LocateProtocol (&gEfiCpuIoProtocolGuid, NULL, (VOID **)&CpuIo);
 
   if (!EFI_ERROR (Status)) {
     SmcDev = (APPLE_SMC_DEV *)EfiLibAllocateZeroPool (sizeof (*SmcDev));
@@ -671,7 +933,7 @@ AppleSmcIoMain (
     if (SmcDev == NULL) {
       Status = EFI_OUT_OF_RESOURCES;
     } else {
-      SmcDev->Signature = APPLE_SMC_SIGNATURE;
+      SmcDev->Signature = SMC_DEV_SIGNATURE;
       SmcDev->CpuIo     = CpuIo;
 
       EfiInitializeLock (&SmcDev->Lock, EFI_TPL_NOTIFY);
@@ -703,7 +965,7 @@ AppleSmcIoMain (
                 SmcDevChild = (APPLE_SMC_DEV *)EfiLibAllocateZeroPool (sizeof (*SmcDevChild));
 
                 if (SmcDevChild != NULL) {
-                  SmcDevChild->Signature = APPLE_SMC_SIGNATURE;
+                  SmcDevChild->Signature = SMC_DEV_SIGNATURE;
                   SmcDevChild->CpuIo     = CpuIo;
 
                   EfiInitializeLock (&SmcDevChild->Lock, EFI_TPL_NOTIFY);
@@ -732,3 +994,21 @@ AppleSmcIoMain (
 
   return Status;
 }
+
+static APPLE_SMC_IO_PROTOCOL SmcIoProtocol = {
+  APPLE_SMC_IO_PROTOCOL_REVISION,
+  SmcReadValue,
+  SmcWriteValue,
+  SmcGetKeyCount,
+  SmcMakeKey,
+  SmcGetKeyFromIndex,
+  SmcGetKeyInfo,
+  SmcReset,
+  SmcFlashType,
+  SmcUnsupported,
+  SmcFlashWrite,
+  SmcFlashAuth,
+  0,
+  SMC_PORT_BASE,
+  FALSE
+};

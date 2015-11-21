@@ -2,7 +2,7 @@
   BASE_NAME      = AppleKeyMapAggregator
   FILE_GUID      = AC4CE557-F5CD-439E-963C-40F09683DAC5
   INF_VERSION    = 0x00010005
-  MODULE_TYPE    = DXE_DRIVER
+  MODULE_TYPE    = UEFI_DRIVER
   VERSION_STRING = 1.0
   ENTRY_POINT    = AppleKeyMapAggregatorMain
 
@@ -27,6 +27,3 @@
 [Sources]
   ../../Include/Driver/AppleKeyMapAggregator.h
   AppleKeyMapAggregator.c
-
-[Depex]
-  TRUE

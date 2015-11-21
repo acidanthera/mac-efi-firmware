@@ -24,7 +24,7 @@ Revision History
 #ifndef _EFI_BDS_BBS_SUPPORT_H
 #define _EFI_BDS_BBS_SUPPORT_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiDriverLib.h"
 #include "EfiPrintLib.h"
 #include "bdslib.h"

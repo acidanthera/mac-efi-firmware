@@ -24,7 +24,7 @@ Revision History
 #ifndef _LANGUAGE_H
 #define _LANGUAGE_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiDriverLib.h"
 
 #include "BdsLib.h"

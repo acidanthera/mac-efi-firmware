@@ -17,8 +17,8 @@
 //   Decompiled by Download-Fritz
 //
 
-#ifndef _APPLE_KEY_MAP_IMPL_H_
-#define _APPLE_KEY_MAP_IMPL_H_
+#ifndef __APPLE_KEY_MAP_IMPL_H__
+#define __APPLE_KEY_MAP_IMPL_H__
 
 #define APPLE_KEY_MAP_PROTOCOLS_REVISION            0x010000
 #define APPLE_KEY_MAP_DATABASE_PROTOCOL_REVISION    APPLE_KEY_MAP_PROTOCOLS_REVISION
@@ -160,4 +160,4 @@ AppleKeyMapContainsKeyStrokesImpl (
   IN     BOOLEAN                            ExactMatch
   );
 
-#endif // ifndef _APPLE_KEY_MAP_IMPL_H_
+#endif // ifndef __APPLE_KEY_MAP_IMPL_H__

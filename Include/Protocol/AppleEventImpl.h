@@ -1,5 +1,5 @@
-#ifndef _APPLE_EVENT_IMPL_H_
-#define _APPLE_EVENT_IMPL_H_
+#ifndef __APPLE_EVENT_IMPL_H__
+#define __APPLE_EVENT_IMPL_H__
 
 // APPLE_EVENT_PROTOCOL_REVISION
 #define APPLE_EVENT_PROTOCOL_REVISION  0x07
@@ -209,4 +209,4 @@ AppleEventCreatePollEvents (
   VOID
   );
 
-#endif // ifndef _APPLE_EVENT_IMPL_H_
+#endif // ifndef __APPLE_EVENT_IMPL_H__

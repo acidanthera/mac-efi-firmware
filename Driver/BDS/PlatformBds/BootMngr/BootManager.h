@@ -24,7 +24,7 @@ Revision History
 #ifndef _EFI_BOOT_MANAGER_H
 #define _EFI_BOOT_MANAGER_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "Bds.h"
 #include "BdsLib.h"
 #include "BdsPlatform.h"

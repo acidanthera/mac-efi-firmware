@@ -19,36 +19,43 @@
 #
 #--*/
 
-[Defines]
-  INF_VERSION                    = 0x00010005
-  BASE_NAME                      = UsbKb
-  FILE_GUID                      = 2D2E62CF-9ECF-43B7-8219-94E7FC713DFE
-  MODULE_TYPE                    = UEFI_DRIVER
-  ENTRY_POINT                    = USBKeyboardDriverBindingEntryPoint
+[defines]
+BASE_NAME            = UsbKb
+FILE_GUID            = 2D2E62CF-9ECF-43b7-8219-94E7FC713DFE
+COMPONENT_TYPE       = BS_DRIVER
 
-[Sources]
+[sources.common]
   efikey.h
   keyboard.h
   efikey.c
   keyboard.c
   ComponentName.c
 
-[Packages]
-  EdkBridgePkg/EdkBridgePkg.dec
-  EfiMiscPkg/EfiMiscPkg.dec
-  ApplePkg/ApplePkg.dec
+[includes.common]
+  $(EDK_SOURCE)\Foundation
+  $(EDK_SOURCE)\Foundation\Framework
+  $(EDK_SOURCE)\Foundation\Efi
+  .
+  $(EDK_SOURCE)\Foundation\Include
+  $(EDK_SOURCE)\Foundation\Efi\Include
+  $(EDK_SOURCE)\Foundation\Framework\Include
+  $(EDK_SOURCE)\Foundation\Include\IndustryStandard
+  $(EDK_SOURCE)\Foundation\Core\Dxe
+  $(EDK_SOURCE)\Foundation\Library\Dxe\Include
+  $(EDK_SOURCE)\Foundation\Library\Dxe\UefiEfiIfrSupportLib
+  ..\..\UsbBus\Dxe
+  ..\..\UsbLib\Dxe
+  $(WORKSPACE)\EfiMiscPkg\Include
+  $(WORKSPACE)\ApplePkg\Include
 
-[Protocols]
-  gAppleKeyMapDatabaseProtocolGuid        ## CONSUMES
-  gApplePlatformInfoDatabaseProtocolGuid  ## SOMETIMES_CONSUMES
-  gEfiKeyboardInfoProtocolGuid            ## SOMETIMES_PRODUCES
-
-[LibraryClasses]
+[libraries.common]
   EdkGuidLib
   EfiProtocolLib
-  EdkProtocolLib
-  EfiCommonLib
-  EdkFrameworkGuidLib
   EfiDriverLib
   UefiEfiIfrSupportLib
+  AppleProtocolLib
   UsbDxeLib
+
+[nmake.common]
+  IMAGE_ENTRY_POINT=USBKeyboardDriverBindingEntryPoint
+

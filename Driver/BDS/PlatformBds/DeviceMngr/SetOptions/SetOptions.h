@@ -22,7 +22,7 @@ Abstract:
 #ifndef _SET_OPTIONS_H
 #define _SET_OPTIONS_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiDriverLib.h"
 #include "IfrLibrary.h"
 #include "EfiPrintLib.h"

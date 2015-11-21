@@ -1,7 +1,7 @@
 // 18/07/2015
 
-#ifndef _OS_IDENTIFICATION_IMPL_H_
-#define _OS_IDENTIFICATION_IMPL_H_
+#ifndef __OS_IDENTIFICATION_IMPL_H__
+#define __OS_IDENTIFICATION_IMPL_H__
 
 // OS_IDENTIFICATION_PROTOCOL_REVISION
 #define OS_IDENTIFICATION_PROTOCOL_REVISION  0x01
@@ -18,8 +18,9 @@ AppleOsIdentificationOSName (
 
 // OSVendor
 VOID
+EFIAPI
 AppleOsIdentificationOSVendor (
 	IN CHAR8 *OSVendor
 	);
 
-#endif // ifndef _OS_IDENTIFICATION_IMPL_H_
+#endif // ifndef __OS_IDENTIFICATION_IMPL_H__

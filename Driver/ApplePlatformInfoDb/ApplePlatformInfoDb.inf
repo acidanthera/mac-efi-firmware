@@ -1,10 +1,9 @@
 [Defines]
-  BASE_NAME      = ApplePlatformInfoDb
-  FILE_GUID      = 4391aa92-6644-4d8a-9a84-ddb405c312f3
+  BASE_NAME      = ApplePlatformInfoDB
+  FILE_GUID      = 8B24E4D4-C84C-4FFC-81E5-D3EACC3F08D
   INF_VERSION    = 0x00010005
   MODULE_TYPE    = DXE_DRIVER
-  VERSION_STRING = 1.0
-  ENTRY_POINT    = ApplePlatformInfoDbMain
+  ENTRY_POINT    = ApplePlatformInfoDBMain
 
 [Packages]
   ApplePkg/ApplePkg.dec
@@ -25,7 +24,7 @@
   ApplePlatformInfoDatabaseImpl
 
 [Sources]
-  ApplePlatformInfoDb.c
+  ApplePlatformInfoDB.c
 
 [Depex]
-  TRUE
+  gEfiFirmwareVolumeProtocolGuid AND gEfiFvbExtensionProtocolGuid

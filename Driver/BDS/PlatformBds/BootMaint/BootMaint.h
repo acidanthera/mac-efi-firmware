@@ -21,7 +21,7 @@ Revision History
 
 #ifndef _BOOT_MAINT_H
 #define _BOOT_MAINT_H
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiPrintLib.h"
 #include "EfiImage.h"
 #include "IfrLibrary.h"

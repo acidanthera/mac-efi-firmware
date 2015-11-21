@@ -15,6 +15,9 @@
 #include <Library/AppleKeyMapLib.h>
 #include <Library/AppleKeyMapAggregatorLib.h>
 #include <Library/AppleEventLib.h>
+#ifdef CPU_IA32
+#include <Library/AppleMathLib.h>
+#endif // ifdef CPU_IA32
 
 #include <Protocol/AppleEventImpl.h>
 
@@ -414,20 +417,6 @@ HandleButtonInteraction (
   ++PointerInfo->Polls;
 }
 
-#ifndef CPU_X64
-
-// DivS64x64Remainder
-/// Forward definition of the EdkIIGlueBaseLib function for platforms other than X64.
-INT64
-EFIAPI
-DivS64x64Remainder (
-  IN      INT64                     Dividend,
-  IN      INT64                     Divisor,
-  OUT     INT64                     *Remainder  OPTIONAL
-  );
-
-#endif // ifndef CPU_X64
-
 // SimplePointerPollNotifyFunction
 VOID
 EFIAPI
@@ -467,13 +456,13 @@ SimplePointerPollNotifyFunction (
         UiScaleX  = GetUiScaleData ((INTN)State.RelativeMovementX);
         UiScaleY  = GetUiScaleData ((INTN)State.RelativeMovementY);
 
-#ifdef CPU_X64
+#ifndef CPU_IA32
         MovementY = (UiScaleY / (INT64)Interface->Mode->ResolutionY);
         MovementX = (UiScaleX / (INT64)Interface->Mode->ResolutionX);
 #else
-        MovementY = DivS64x64Remainder (UiScaleY, (INT64)Interface->Mode->ResolutionY, NULL);
-        MovementX = DivS64x64Remainder (UiScaleX, (INT64)Interface->Mode->ResolutionX, NULL);
-#endif // ifdef CPU_X64
+        MovementY = DivS64x64 (UiScaleY, (INT64)Interface->Mode->ResolutionY);
+        MovementX = DivS64x64 (UiScaleX, (INT64)Interface->Mode->ResolutionX);
+#endif // ifndef CPU_IA32
 
         if ((State.RelativeMovementX != 0) && (MovementX == 0)) {
           MovementX = -1;

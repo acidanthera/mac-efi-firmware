@@ -24,7 +24,7 @@ Revision History
 #ifndef _BDS_H
 #define _BDS_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "PeiHob.h"
 #include "EfiDriverLib.h"
 

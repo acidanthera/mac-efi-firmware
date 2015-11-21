@@ -22,7 +22,7 @@ Abstract:
 #ifndef _BDS_LIB_H_
 #define _BDS_LIB_H_
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiDriverLib.h"
 #include "EfiPrintLib.h"
 #include "BmMachine.h"

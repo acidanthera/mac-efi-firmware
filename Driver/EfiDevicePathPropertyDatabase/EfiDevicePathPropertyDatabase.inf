@@ -2,8 +2,7 @@
   BASE_NAME      = EfiDevicePathPropertyDatabase
   FILE_GUID      = BDFDE060-7E41-4EAE-AD9B-E5BBA7A48A3A
   INF_VERSION    = 0x00010005
-  MODULE_TYPE    = DXE_DRIVER
-  VERSION_STRING = 1.0
+  MODULE_TYPE    = UEFI_DRIVER
   ENTRY_POINT    = EfiDevicePathPropertyDatabaseMain
 
 [Packages]
@@ -28,6 +27,3 @@
 [Sources]
   ../../Include/Driver/EfiDevicePathPropertyDatabase.h
   EfiDevicePathPropertyDatabase.c
-
-[Depex]
-  TRUE

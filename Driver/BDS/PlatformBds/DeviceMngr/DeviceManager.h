@@ -24,7 +24,7 @@ Revision History
 #ifndef _DEVICE_MANAGER_H
 #define _DEVICE_MANAGER_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "Bds.h"
 #include "FrontPage.h"
 

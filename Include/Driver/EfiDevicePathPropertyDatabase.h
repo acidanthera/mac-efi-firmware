@@ -17,8 +17,8 @@
 //   Decompiled by Download-Fritz
 //
 
-#ifndef _DEVICE_PATH_PROPERTY_DATABASE_DRV_H_
-#define _DEVICE_PATH_PROPERTY_DATABASE_DRV_H_
+#ifndef __DEVICE_PATH_PROPERTY_DATABASE_H__
+#define __DEVICE_PATH_PROPERTY_DATABASE_H__
 
 // EfiDevicePathPropertyDatabaseMain
 ///
@@ -35,4 +35,4 @@ EfiDevicePathPropertyDatabaseMain (
 	IN EFI_SYSTEM_TABLE  *SystemTable
 	);
 
-#endif // ifndef _DEVICE_PATH_PROPERTY_DATABASE_DRV_H_
+#endif // ifndef __DEVICE_PATH_PROPERTY_DATABASE_H__

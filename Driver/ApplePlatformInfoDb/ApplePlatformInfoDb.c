@@ -8,7 +8,7 @@
 #include <Protocol/ApplePlatformInfoDatabase.h>
 #include <Protocol/ApplePlatformInfoDatabaseImpl.h>
 
-#include <Driver/ApplePlatformInfoDb.h>
+#include <Driver/ApplePlatformInfoDB.h>
 
 EFI_GUID gAppleFile1Guid = APPLE_FILE_1_GUID;
 
@@ -18,16 +18,16 @@ EFI_GUID gAppleHob2Guid = APPLE_HOB_2_GUID;
 
 EFI_GUID gAppleHob3Guid = APPLE_HOB_3_GUID;
 
-// mApplePlatformInfoDbProtocol
-static APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDbProtocol = {
+// mApplePlatformInfoDBProtocol
+static APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDBProtocol = {
   APPLE_PLATFORM_INFO_DATABASE_PROTOCOL_REVISION,
-  ApplePlatformInfoDbGetFirstPlatformInfoDataImpl,
-  ApplePlatformInfoDbGetFirstPlatformInfoDataSizeImpl,
-  ApplePlatformInfoDbGetPlatformInfoDataImpl,
-  ApplePlatformInfoDbGetPlatformInfoDataSizeImpl
+  ApplePlatformInfoDBGetFirstPlatformInfoDataImpl,
+  ApplePlatformInfoDBGetFirstPlatformInfoDataSizeImpl,
+  ApplePlatformInfoDBGetPlatformInfoDataImpl,
+  ApplePlatformInfoDBGetPlatformInfoDataSizeImpl
 };
 
-// ApplePlatformInfoDbMain
+// ApplePlatformInfoDBMain
 ///
 ///
 /// @param[in] ImageHandle The firmware allocated handle for the EFI image.  
@@ -37,7 +37,7 @@ static APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDbProtocol = {
 /// @retval EFI_ALREADY_STARTED The protocol has already been installed.
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbMain (
+ApplePlatformInfoDBMain (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   ) // start
@@ -95,7 +95,7 @@ ApplePlatformInfoDbMain (
 
         if (!EFI_ERROR (Status)) {
           while (!IsDevicePathEnd (DevicePath)) {
-            if ((DevicePathType (DevicePath) == HARDWARE_DEVICE_PATH) && (DevicePathSubType (DevicePath) == HW_MEMMAP_DP) && (((MEMMAP_DEVICE_PATH *)DevicePath)->StartingAddress == (EFI_PHYSICAL_ADDRESS)Buffer)) {
+            if ((DevicePathType (DevicePath) == HARDWARE_DEVICE_PATH) && (DevicePathSubType (DevicePath) == HW_MEMMAP_DP) && (((MEMMAP_DEVICE_PATH *)DevicePath)->StartingAddress == (EFI_PHYSICAL_ADDRESS)(UINTN)Buffer)) {
               Status = gBS->HandleProtocol (HandleBuffer[Index], &gEfiFirmwareVolumeProtocolGuid, (VOID **)&FirmwareVolumeProtocol);
 
               if (EFI_ERROR (Status)) {
@@ -153,7 +153,7 @@ ApplePlatformInfoDbMain (
     PlatformInfoDatabase->FirmwareVolumeHandle   = NULL; ////
     PlatformInfoDatabase->FirmwareVolumeProtocol = FirmwareVolumeProtocol;
 
-    EfiCopyMem ((VOID *)&PlatformInfoDatabase->Protocol, (VOID *)&mApplePlatformInfoDbProtocol, sizeof (mApplePlatformInfoDbProtocol));
+    EfiCopyMem ((VOID *)&PlatformInfoDatabase->Protocol, (VOID *)&mApplePlatformInfoDBProtocol, sizeof (mApplePlatformInfoDBProtocol));
     
     Status = gBS->InstallProtocolInterface (PlatformInfoDatabase->FirmwareVolumeHandle, &gApplePlatformInfoDatabaseProtocolGuid, EFI_NATIVE_INTERFACE, (VOID *)&PlatformInfoDatabase->Protocol);
   }

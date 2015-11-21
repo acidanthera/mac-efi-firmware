@@ -24,7 +24,7 @@ Revision History
 #ifndef _FRONT_PAGE_H
 #define _FRONT_PAGE_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiDriverLib.h"
 #include "IfrLibrary.h"
 #include "DeviceManager.h"

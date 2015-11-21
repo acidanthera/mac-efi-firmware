@@ -219,7 +219,7 @@ DevicePathPropertyDbGetPropertyValue (
 /// @param[in]  DevicePath The device path of the device to set the property of.
 /// @param[in]  Name       The Name of the desired property.
 /// @param[in]  Value      The buffer holding the value to set the property to.
-/// @param[out] Size     The size of the Value buffer.
+/// @param[out] Size       The size of the Value buffer.
 ///
 /// @return                      The status of the operation is returned.
 /// @retval EFI_OUT_OF_RESOURCES The memory necessary to complete the operation could not be allocated.

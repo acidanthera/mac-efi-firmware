@@ -24,7 +24,7 @@
   EdkProtocolLib
   AppleKeyMapLib
   AppleKeyMapAggregatorLib
-  EdkIIGlueBaseLib
+  AppleMathLib
 
 [Sources]
   ../../Include/Protocol/AppleEventImpl.h

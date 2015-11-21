@@ -1,5 +1,5 @@
-#ifndef _APPLE_OS_IDENTIFICATION_DRV_H_
-#define _APPLE_OS_IDENTIFICATION_DRV_H_
+#ifndef __APPLE_OS_IDENTIFICATION_H__
+#define __APPLE_OS_IDENTIFICATION_H__
 
 // AppleOsIdentificationMain
 /// 
@@ -16,4 +16,4 @@ AppleOsIdentificationMain (
 	IN EFI_SYSTEM_TABLE  *SystemTable
 	);
 
-#endif // ifndef _APPLE_OS_IDENTIFICATION_DRV_H_
+#endif // ifndef __APPLE_OS_IDENTIFICATION_H__

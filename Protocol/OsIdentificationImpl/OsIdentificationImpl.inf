@@ -16,6 +16,9 @@
   EfiProtocolLib
   EdkProtocolLib
 
+[Guids]
+  gAppleOsLoadedNamedEventGuid  ## SOMETIMES_PRODUCES # Event
+
 [Sources]
   ../../Include/Protocol/OsIdentificationImpl.h
   OsIdentificationImpl.c

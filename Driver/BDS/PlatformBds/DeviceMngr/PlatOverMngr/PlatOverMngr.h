@@ -22,7 +22,7 @@ Abstract:
 #ifndef _PLAT_OVER_MNGR_H
 #define _PLAT_OVER_MNGR_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiDriverLib.h"
 #include "IfrLibrary.h"
 #include "EfiPrintLib.h"

@@ -25,7 +25,7 @@ Revision History
 #ifndef _HW_ERR_REC_SUPPORT_H
 #define _HW_ERR_REC_SUPPORT_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiDriverLib.h"
 
 #include EFI_GUID_DEFINITION (GlobalVariable)

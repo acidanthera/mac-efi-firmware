@@ -36,9 +36,9 @@ static BOOLEAN mPreviouslyCLockActive;
 static
 EFI_STATUS
 AppleKeyEventDataFromInputKey (
-     OUT APPLE_EVENT_DATA     *EventData,
-  IN     CONST APPLE_KEY      *AppleKey,
-  IN     CONST EFI_INPUT_KEY  *InputKey
+  OUT APPLE_EVENT_DATA  *EventData,
+  IN  APPLE_KEY         *AppleKey,
+  IN  EFI_INPUT_KEY    *InputKey
   ) // sub_1257
 {
   EFI_STATUS           Status;

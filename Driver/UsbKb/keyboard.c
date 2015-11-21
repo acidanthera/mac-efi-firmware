@@ -34,106 +34,106 @@ Revision History
 //
 STATIC
 UINT8 KeyConvertionTable[USB_KEYCODE_MAX_MAKE][3] = {
-    SCAN_NULL,      'a',      'A',      // 0x04
-    SCAN_NULL,      'b',      'B',      // 0x05
-    SCAN_NULL,      'c',      'C',      // 0x06
-    SCAN_NULL,      'd',      'D',      // 0x07
-    SCAN_NULL,      'e',      'E',      // 0x08
-    SCAN_NULL,      'f',      'F',      // 0x09
-    SCAN_NULL,      'g',      'G',      // 0x0A
-    SCAN_NULL,      'h',      'H',      // 0x0B
-    SCAN_NULL,      'i',      'I',      // 0x0C
-    SCAN_NULL,      'j',      'J',      // 0x0D
-    SCAN_NULL,      'k',      'K',      // 0x0E
-    SCAN_NULL,      'l',      'L',      // 0x0F
-    SCAN_NULL,      'm',      'M',      // 0x10
-    SCAN_NULL,      'n',      'N',      // 0x11
-    SCAN_NULL,      'o',      'O',      // 0x12
-    SCAN_NULL,      'p',      'P',      // 0x13
-    SCAN_NULL,      'q',      'Q',      // 0x14
-    SCAN_NULL,      'r',      'R',      // 0x15
-    SCAN_NULL,      's',      'S',      // 0x16
-    SCAN_NULL,      't',      'T',      // 0x17
-    SCAN_NULL,      'u',      'U',      // 0x18
-    SCAN_NULL,      'v',      'V',      // 0x19
-    SCAN_NULL,      'w',      'W',      // 0x1A
-    SCAN_NULL,      'x',      'X',      // 0x1B
-    SCAN_NULL,      'y',      'Y',      // 0x1C
-    SCAN_NULL,      'z',      'Z',      // 0x1D
-    SCAN_NULL,      '1',      '!',      // 0x1E
-    SCAN_NULL,      '2',      '@',      // 0x1F
-    SCAN_NULL,      '3',      '#',      // 0x20
-    SCAN_NULL,      '4',      '$',      // 0x21
-    SCAN_NULL,      '5',      '%',      // 0x22
-    SCAN_NULL,      '6',      '^',      // 0x23
-    SCAN_NULL,      '7',      '&',      // 0x24
-    SCAN_NULL,      '8',      '*',      // 0x25
-    SCAN_NULL,      '9',      '(',      // 0x26
-    SCAN_NULL,      '0',      ')',      // 0x27
-    SCAN_NULL,      0x0d,     0x0d,     // 0x28   Enter
-    SCAN_ESC,       0x00,     0x00,     // 0x29   Esc
-    SCAN_NULL,      0x08,     0x08,     // 0x2A   Backspace
-    SCAN_NULL,      0x09,     0x09,     // 0x2B   Tab
-    SCAN_NULL,      ' ',      ' ',      // 0x2C   Spacebar
-    SCAN_NULL,      '-',      '_',      // 0x2D
-    SCAN_NULL,      '=',      '+',      // 0x2E
-    SCAN_NULL,      '[',      '{',      // 0x2F
-    SCAN_NULL,      ']',      '}',      // 0x30
-    SCAN_NULL,      '\\',     '|',      // 0x31
-    SCAN_NULL,      '\\',     '|',      // 0x32  Keyboard US \ and |
-    SCAN_NULL,      ';',      ':',      // 0x33
-    SCAN_NULL,      '\'',     '"',      // 0x34
-    SCAN_NULL,      '`',      '~',      // 0x35  Keyboard Grave Accent and Tlide
-    SCAN_NULL,      ',',      '<',      // 0x36
-    SCAN_NULL,      '.',      '>',      // 0x37
-    SCAN_NULL,      '/',      '?',      // 0x38
-    SCAN_NULL,      0x00,     0x00,     // 0x39   CapsLock
-    SCAN_F1,        0x00,     0x00,     // 0x3A
-    SCAN_F2,        0x00,     0x00,     // 0x3B
-    SCAN_F3,        0x00,     0x00,     // 0x3C
-    SCAN_F4,        0x00,     0x00,     // 0x3D
-    SCAN_F5,        0x00,     0x00,     // 0x3E
-    SCAN_F6,        0x00,     0x00,     // 0x3F
-    SCAN_F7,        0x00,     0x00,     // 0x40
-    SCAN_F8,        0x00,     0x00,     // 0x41
-    SCAN_F9,        0x00,     0x00,     // 0x42
-    SCAN_F10,       0x00,     0x00,     // 0x43
-    SCAN_F11,       0x00,     0x00,     // 0x44   F11
-    SCAN_F12,       0x00,     0x00,     // 0x45   F12
-    SCAN_NULL,      0x00,     0x00,     // 0x46   PrintScreen
-    SCAN_NULL,      0x00,     0x00,     // 0x47   Scroll Lock
-    SCAN_NULL,      0x00,     0x00,     // 0x48   Pause
-    SCAN_INSERT,    0x00,     0x00,     // 0x49
-    SCAN_HOME,      0x00,     0x00,     // 0x4A
-    SCAN_PAGE_UP,   0x00,     0x00,     // 0x4B
-    SCAN_DELETE,    0x00,     0x00,     // 0x4C
-    SCAN_END,       0x00,     0x00,     // 0x4D
-    SCAN_PAGE_DOWN, 0x00,     0x00,     // 0x4E
-    SCAN_RIGHT,     0x00,     0x00,     // 0x4F
-    SCAN_LEFT,      0x00,     0x00,     // 0x50
-    SCAN_DOWN,      0x00,     0x00,     // 0x51
-    SCAN_UP,        0x00,     0x00,     // 0x52
-    SCAN_NULL,      0x00,     0x00,     // 0x53   NumLock
-    SCAN_NULL,      '/',      '/',      // 0x54
-    SCAN_NULL,      '*',      '*',      // 0x55
-    SCAN_NULL,      '-',      '-',      // 0x56
-    SCAN_NULL,      '+',      '+',      // 0x57
-    SCAN_NULL,      0x0d,     0x0d,     // 0x58
-    SCAN_END,       '1',      '1',      // 0x59
-    SCAN_DOWN,      '2',      '2',      // 0x5A
-    SCAN_PAGE_DOWN, '3',      '3',      // 0x5B
-    SCAN_LEFT,      '4',      '4',      // 0x5C
-    SCAN_NULL,      '5',      '5',      // 0x5D
-    SCAN_RIGHT,     '6',      '6',      // 0x5E
-    SCAN_HOME,      '7',      '7',      // 0x5F
-    SCAN_UP,        '8',      '8',      // 0x60
-    SCAN_PAGE_UP,   '9',      '9',      // 0x61
-    SCAN_INSERT,    '0',      '0',      // 0x62
-    SCAN_DELETE,    '.',      '.',      // 0x63
-    SCAN_NULL,      '\\',     '|',      // 0x64 Keyboard Non-US \ and |
-    SCAN_NULL,      0x00,     0x00,     // 0x65 Keyboard Application
-    SCAN_NULL,      0x00,     0x00,     // 0x66 Keyboard Power
-    SCAN_NULL,      '=' ,     '='       // 0x67 Keypad =
+  { SCAN_NULL,      'a',      'A'  },     // 0x04
+  { SCAN_NULL,      'b',      'B'  },     // 0x05
+  { SCAN_NULL,      'c',      'C'  },     // 0x06
+  { SCAN_NULL,      'd',      'D'  },     // 0x07
+  { SCAN_NULL,      'e',      'E'  },     // 0x08
+  { SCAN_NULL,      'f',      'F'  },     // 0x09
+  { SCAN_NULL,      'g',      'G'  },     // 0x0A
+  { SCAN_NULL,      'h',      'H'  },     // 0x0B
+  { SCAN_NULL,      'i',      'I'  },     // 0x0C
+  { SCAN_NULL,      'j',      'J'  },     // 0x0D
+  { SCAN_NULL,      'k',      'K'  },     // 0x0E
+  { SCAN_NULL,      'l',      'L'  },     // 0x0F
+  { SCAN_NULL,      'm',      'M'  },     // 0x10
+  { SCAN_NULL,      'n',      'N'  },     // 0x11
+  { SCAN_NULL,      'o',      'O'  },     // 0x12
+  { SCAN_NULL,      'p',      'P'  },     // 0x13
+  { SCAN_NULL,      'q',      'Q'  },     // 0x14
+  { SCAN_NULL,      'r',      'R'  },     // 0x15
+  { SCAN_NULL,      's',      'S'  },     // 0x16
+  { SCAN_NULL,      't',      'T'  },     // 0x17
+  { SCAN_NULL,      'u',      'U'  },     // 0x18
+  { SCAN_NULL,      'v',      'V'  },     // 0x19
+  { SCAN_NULL,      'w',      'W'  },     // 0x1A
+  { SCAN_NULL,      'x',      'X'  },     // 0x1B
+  { SCAN_NULL,      'y',      'Y'  },     // 0x1C
+  { SCAN_NULL,      'z',      'Z'  },     // 0x1D
+  { SCAN_NULL,      '1',      '!'  },     // 0x1E
+  { SCAN_NULL,      '2',      '@'  },     // 0x1F
+  { SCAN_NULL,      '3',      '#'  },     // 0x20
+  { SCAN_NULL,      '4',      '$'  },     // 0x21
+  { SCAN_NULL,      '5',      '%'  },     // 0x22
+  { SCAN_NULL,      '6',      '^'  },     // 0x23
+  { SCAN_NULL,      '7',      '&'  },     // 0x24
+  { SCAN_NULL,      '8',      '*'  },     // 0x25
+  { SCAN_NULL,      '9',      '('  },     // 0x26
+  { SCAN_NULL,      '0',      ')'  },     // 0x27
+  { SCAN_NULL,      0x0d,     0x0d },     // 0x28   Enter
+  { SCAN_ESC,       0x00,     0x00 },     // 0x29   Esc
+  { SCAN_NULL,      0x08,     0x08 },     // 0x2A   Backspace
+  { SCAN_NULL,      0x09,     0x09 },     // 0x2B   Tab
+  { SCAN_NULL,      ' ',      ' '  },     // 0x2C   Spacebar
+  { SCAN_NULL,      '-',      '_'  },     // 0x2D
+  { SCAN_NULL,      '=',      '+'  },     // 0x2E
+  { SCAN_NULL,      '[',      '{'  },     // 0x2F
+  { SCAN_NULL,      ']',      '}'  },     // 0x30
+  { SCAN_NULL,      '\\',     '|'  },     // 0x31
+  { SCAN_NULL,      '\\',     '|'  },     // 0x32  Keyboard US \ and |
+  { SCAN_NULL,      ';',      ':'  },     // 0x33
+  { SCAN_NULL,      '\'',     '"'  },     // 0x34
+  { SCAN_NULL,      '`',      '~'  },     // 0x35  Keyboard Grave Accent and Tlide
+  { SCAN_NULL,      ',',      '<'  },     // 0x36
+  { SCAN_NULL,      '.',      '>'  },     // 0x37
+  { SCAN_NULL,      '/',      '?'  },     // 0x38
+  { SCAN_NULL,      0x00,     0x00 },     // 0x39   CapsLock
+  { SCAN_F1,        0x00,     0x00 },     // 0x3A
+  { SCAN_F2,        0x00,     0x00 },     // 0x3B
+  { SCAN_F3,        0x00,     0x00 },     // 0x3C
+  { SCAN_F4,        0x00,     0x00 },     // 0x3D
+  { SCAN_F5,        0x00,     0x00 },     // 0x3E
+  { SCAN_F6,        0x00,     0x00 },     // 0x3F
+  { SCAN_F7,        0x00,     0x00 },     // 0x40
+  { SCAN_F8,        0x00,     0x00 },     // 0x41
+  { SCAN_F9,        0x00,     0x00 },     // 0x42
+  { SCAN_F10,       0x00,     0x00 },     // 0x43
+  { SCAN_F11,       0x00,     0x00 },     // 0x44   F11
+  { SCAN_F12,       0x00,     0x00 },     // 0x45   F12
+  { SCAN_NULL,      0x00,     0x00 },     // 0x46   PrintScreen
+  { SCAN_NULL,      0x00,     0x00 },     // 0x47   Scroll Lock
+  { SCAN_NULL,      0x00,     0x00 },     // 0x48   Pause
+  { SCAN_INSERT,    0x00,     0x00 },     // 0x49
+  { SCAN_HOME,      0x00,     0x00 },     // 0x4A
+  { SCAN_PAGE_UP,   0x00,     0x00 },     // 0x4B
+  { SCAN_DELETE,    0x00,     0x00 },     // 0x4C
+  { SCAN_END,       0x00,     0x00 },     // 0x4D
+  { SCAN_PAGE_DOWN, 0x00,     0x00 },     // 0x4E
+  { SCAN_RIGHT,     0x00,     0x00 },     // 0x4F
+  { SCAN_LEFT,      0x00,     0x00 },     // 0x50
+  { SCAN_DOWN,      0x00,     0x00 },     // 0x51
+  { SCAN_UP,        0x00,     0x00 },     // 0x52
+  { SCAN_NULL,      0x00,     0x00 },     // 0x53   NumLock
+  { SCAN_NULL,      '/',      '/'  },     // 0x54
+  { SCAN_NULL,      '*',      '*'  },     // 0x55
+  { SCAN_NULL,      '-',      '-'  },     // 0x56
+  { SCAN_NULL,      '+',      '+'  },     // 0x57
+  { SCAN_NULL,      0x0d,     0x0d },     // 0x58
+  { SCAN_END,       '1',      '1'  },     // 0x59
+  { SCAN_DOWN,      '2',      '2'  },     // 0x5A
+  { SCAN_PAGE_DOWN, '3',      '3'  },     // 0x5B
+  { SCAN_LEFT,      '4',      '4'  },     // 0x5C
+  { SCAN_NULL,      '5',      '5'  },     // 0x5D
+  { SCAN_RIGHT,     '6',      '6'  },     // 0x5E
+  { SCAN_HOME,      '7',      '7'  },     // 0x5F
+  { SCAN_UP,        '8',      '8'  },     // 0x60
+  { SCAN_PAGE_UP,   '9',      '9'  },     // 0x61
+  { SCAN_INSERT,    '0',      '0'  },     // 0x62
+  { SCAN_DELETE,    '.',      '.'  },     // 0x63
+  { SCAN_NULL,      '\\',     '|'  },     // 0x64 Keyboard Non-US \ and |
+  { SCAN_NULL,      0x00,     0x00 },     // 0x65 Keyboard Application
+  { SCAN_NULL,      0x00,     0x00 },     // 0x66 Keyboard Power
+  { SCAN_NULL,      '=' ,     '='  }      // 0x67 Keypad =
 };
 
 STATIC KB_MODIFIER  KB_Mod[8] = {
@@ -465,7 +465,6 @@ KeyboardHandler (
 
   CurModifierMap  = CurKeyCodeBuffer[0];
 
-#ifdef APPLE_EXTENSIONS
   NoKeys = 0;
 
   //
@@ -485,7 +484,6 @@ KeyboardHandler (
                                  NoKeys,
                                  &Keys[0]
                                  );
-#endif
 
   //
   // Parse the modifier key
@@ -1095,13 +1093,8 @@ SetKeyLED (
   // Set each field in Led map.
   //
   Led.CapsLock   = (UINT8) UsbKeyboardDevice->CapsOn;
-#ifndef APPLE_EXTENSIONS
-  Led.NumLock    = (UINT8) UsbKeyboardDevice->NumLockOn;
-  Led.ScrollLock = (UINT8) UsbKeyboardDevice->ScrollOn;
-#else
   Led.NumLock    = 0;
   Led.ScrollLock = 0;
-#endif
   Led.Resrvd     = 0;
 
   ReportId       = 0;
@@ -1114,7 +1107,7 @@ SetKeyLED (
     ReportId,
     HID_OUTPUT_REPORT,
     1,
-    (CHAR8 *) &Led
+    (UINT8 *)&Led
     );
 
   return EFI_SUCCESS;

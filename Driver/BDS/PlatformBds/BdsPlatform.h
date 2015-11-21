@@ -22,7 +22,7 @@ Abstract:
 #ifndef _PLATFORM_SPECIFIC_BDS_PLATFORM_H_
 #define _PLATFORM_SPECIFIC_BDS_PLATFORM_H_
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "Bds.h"
 #include "BdsLib.h"
 #include "GraphicsLib.h"

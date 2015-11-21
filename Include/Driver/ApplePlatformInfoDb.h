@@ -1,7 +1,7 @@
-#ifndef _APPLE_PLATFORM_INFO_DB_DRV_H_
-#define _APPLE_PLATFORM_INFO_DB_DRV_H_
+#ifndef __APPLE_PLATFORM_INFO_DB_H__
+#define __APPLE_PLATFORM_INFO_DB_H__
 
-// ApplePlatformInfoDbMain
+// ApplePlatformInfoDBMain
 ///
 ///
 /// @param[in] ImageHandle The firmware allocated handle for the EFI image.  
@@ -11,9 +11,9 @@
 /// @retval EFI_ALREADY_STARTED The protocol has already been installed.
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbMain (
+ApplePlatformInfoDBMain (
 	IN EFI_HANDLE        ImageHandle,
 	IN EFI_SYSTEM_TABLE  *SystemTable
 	);
 
-#endif // ifndef _APPLE_PLATFORM_INFO_DB_DRV_H_
+#endif // ifndef __APPLE_PLATFORM_INFO_DB_H__

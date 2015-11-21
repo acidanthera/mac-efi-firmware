@@ -1,9 +1,8 @@
 [Defines]
   BASE_NAME      = AppleEvent
-  FILE_GUID      = 4391aa92-6644-4d9a-9a84-ddd405c312f3
+  FILE_GUID      = E364A338-2842-4F57-A7C7-CDC8CFDF6CD7
   INF_VERSION    = 0x00010005
-  MODULE_TYPE    = DXE_DRIVER
-  VERSION_STRING = 1.0
+  MODULE_TYPE    = UEFI_DRIVER
   ENTRY_POINT    = AppleEventMain
 
 [Packages]
@@ -26,6 +25,3 @@
 [Sources]
   ../../Include/Driver/AppleEvent.h
   AppleEvent.c
-
-[Depex]
-  TRUE

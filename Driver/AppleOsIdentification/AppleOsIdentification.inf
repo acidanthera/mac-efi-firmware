@@ -1,9 +1,8 @@
 [Defines]
   BASE_NAME      = AppleOsIdentification
-  FILE_GUID      = 4391aa92-6644-4d8a-9a84-ddd405c312f3
+  FILE_GUID      = 2ECED69B-2793-4388-BA3C-823040EBCCD2
   INF_VERSION    = 0x00010005
-  MODULE_TYPE    = DXE_DRIVER
-  VERSION_STRING = 1.0
+  MODULE_TYPE    = UEFI_DRIVER
   ENTRY_POINT    = AppleOsIdentificationMain
 
 [Packages]
@@ -24,6 +23,3 @@
 
 [Sources]
   AppleOsIdentification.c
-
-[Depex]
-  TRUE

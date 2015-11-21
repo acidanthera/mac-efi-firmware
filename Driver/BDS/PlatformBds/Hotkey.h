@@ -25,7 +25,7 @@ Revision History
 #ifndef _HOTKEY_H
 #define _HOTKEY_H
 
-#include "Tiano.h"
+#include "AppleEfi.h"
 #include "EfiDriverLib.h"
 #include "BdsPlatform.h"
 #include "BdsLib.h"

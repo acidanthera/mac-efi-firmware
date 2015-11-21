@@ -19,8 +19,8 @@
 //   Decompiled by Download-Fritz
 //
 
-#ifndef _APPLE_BOOT_POLICY_IMPL_H_
-#define _APPLE_BOOT_POLICY_IMPL_H_
+#ifndef __APPLE_BOOT_POLICY_IMPL_H__
+#define __APPLE_BOOT_POLICY_IMPL_H__
 
 // APPLE_BOOT_POLICY_PROTOCOL_REVISION
 #define APPLE_BOOT_POLICY_PROTOCOL_REVISION  0x01
@@ -47,4 +47,4 @@ AppleBootPolicyGetBootFileImpl (
 	OUT FILEPATH_DEVICE_PATH  **BootFilePath
 	);
 
-#endif // ifndef _APPLE_BOOT_POLICY_IMPL_H_
+#endif // ifndef __APPLE_BOOT_POLICY_IMPL_H__
