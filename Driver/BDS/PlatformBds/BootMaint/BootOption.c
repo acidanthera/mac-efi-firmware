@@ -237,7 +237,7 @@ Routine Description
   Including Handles that support Simple File System
   protocol, Load File protocol.
 
-  Building up the FileSystem Menu for user selection
+  Building up the gFileSystem Menu for user selection
   All file system will be stored in FsOptionMenu 
   for future use.
 

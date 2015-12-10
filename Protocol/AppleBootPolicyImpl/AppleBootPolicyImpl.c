@@ -1,5 +1,18 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
 ///
-/// @file      ProtocolImpl/AppleBootPolicy/AppleBootPolicy.c
+/// @file      Protocol//AppleBootPolicyImpl/AppleBootPolicyImpl.c
 ///
 ///            Apple protocol to get a volume's bootable file.
 ///
@@ -7,26 +20,17 @@
 /// @date      19/12/2014: Initial version
 /// @date      23/02/2015: Minor tweaks
 /// @date      15/03/2015: Updated documentation and restructuring
-/// @copyright The decompilation is of an educational purpose to better understand the behavior of the
-///            Apple EFI implementation and making use of it. In no way is the content's usage licensed
-///            or allowed. All rights remain at Apple Inc. To be used under the terms of 'Fair use'.
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
 
-//
-// CREDITS:
-//   Reversed from AppleBootPolicy.efi, which is Apple Inc. property
-//   Relies on HFSPlus.efi which is Apple Inc. property as well
-//   Decompiled by Download-Fritz
-//
-
 #include <AppleEfi.h>
-#include <EfiDriverLib.h>
 #include <EfiDebug.h>
+
+#include <EfiDriverLib.h>
 
 #include <Guid/AppleBless.h>
 
 #include EFI_PROTOCOL_CONSUMER (SimpleFileSystem)
-#include <Protocol/AppleBootPolicy.h>
 #include <Protocol/AppleBootPolicyImpl.h>
 
 // mBootFilePaths
@@ -38,15 +42,16 @@ static CHAR16 *mBootFilePaths[4] = {
   APPLE_BOOTER_FILE_NAME
 };
 
-// AppleBootPolicyFileExists
+// BootPolicyFileExists
 /// Checks whether the given file exists or not.
 ///
 /// @param[in] Root     The volume's opened root.
 /// @param[in] FileName The path of the file to check.
 ///
 /// @return Returned is whether the specified file exists or not.
+static
 BOOLEAN
-AppleBootPolicyFileExists (
+BootPolicyFileExists (
   IN EFI_FILE_HANDLE  Root,
   IN CHAR16           *FileName
   )
@@ -72,7 +77,7 @@ AppleBootPolicyFileExists (
   return Exists;
 }
 
-// AppleBootPolicyGetBootFileImpl
+// BootPolicyGetBootFileImpl
 /// Locates the bootable file of the given volume. Prefered are the values blessed,
 /// though if unavailable, hard-coded names are being verified and used if existing.
 ///
@@ -89,7 +94,7 @@ AppleBootPolicyFileExists (
 /// @retval other                The status of an operation used to complete this operation is returned.
 EFI_STATUS
 EFIAPI
-AppleBootPolicyGetBootFileImpl (
+BootPolicyGetBootFileImpl (
   IN  EFI_HANDLE            Device,
   OUT FILEPATH_DEVICE_PATH  **BootFilePath
   )
@@ -127,7 +132,7 @@ AppleBootPolicyGetBootFileImpl (
             *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiDuplicateDevicePath (FilePath.DevPath);
 
             gBS->FreePool ((VOID *)FilePath.DevPath);
-            goto CloseRoot;
+            goto Done;
           }
 
           gBS->FreePool ((VOID *)FilePath.DevPath);
@@ -167,14 +172,14 @@ AppleBootPolicyGetBootFileImpl (
           gBS->FreePool ((VOID *)FilePath.DevPath);
 
           if (!EFI_ERROR (Status)) {
-            Size     = (EfiStrSize (Path) + EfiStrSize (mBootFilePaths[3]) - sizeof (*Path));
+            Size     = (EfiStrSize (Path) + EfiStrSize (APPLE_BOOTER_FILE_NAME) - sizeof (*Path));
             FullPath = (CHAR16 *)EfiLibAllocateZeroPool (Size);
 
             if (FullPath != NULL) {
               EfiStrCpy (FullPath, Path);
-              EfiStrCat (FullPath, mBootFilePaths[3]);
+              EfiStrCat (FullPath, APPLE_BOOTER_FILE_NAME);
 
-              if (AppleBootPolicyFileExists (Root, FullPath)) {
+              if (BootPolicyFileExists (Root, FullPath)) {
                 *BootFilePath  = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (Device, FullPath);
 
                 gBS->FreePool ((VOID *)FullPath);
@@ -198,7 +203,7 @@ AppleBootPolicyGetBootFileImpl (
       for (Index = 0; Index < ARRAY_LENGTH (mBootFilePaths); ++Index) {
         Path = mBootFilePaths[Index];
 
-        if (AppleBootPolicyFileExists (Root, Path)) {
+        if (BootPolicyFileExists (Root, Path)) {
           *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (Device, Path);
           Status        = EFI_SUCCESS;
 
@@ -208,7 +213,7 @@ AppleBootPolicyGetBootFileImpl (
     }
   }
 
-CloseRoot:
+Done:
   if (Root != NULL) {
     Root->Close (Root);
   }

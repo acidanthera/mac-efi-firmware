@@ -102,7 +102,7 @@ EFI_GUID gEfiLdrMemoryDescriptorGuid = EFI_LDR_MEMORY_DESCRIPTOR_GUID;
 
 #pragma pack(1)
 
-typedef struct {
+typedef PACKED struct {
   EFI_HOB_GUID_TYPE             Hob;
   UINTN                         MemDescCount;
   EFI_MEMORY_DESCRIPTOR         *MemDesc;

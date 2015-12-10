@@ -1,3 +1,26 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
+///
+/// @file      Include/Protocol/ApplePlatformInfoDatabaseImpl.h
+///
+///            
+///
+/// @author    Download-Fritz
+/// @date      11/10/2015: Initial version
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+///
+
 #ifndef __APPLE_PLATFORM_INFO_DATABASE_IMPL_H__
 #define __APPLE_PLATFORM_INFO_DATABASE_IMPL_H__
 
@@ -11,7 +34,8 @@
 #define APPLE_PLATFORM_INFO_DATABASE_SIGNATURE  EFI_SIGNATURE_32 ('P', 'I', 'D', 'B')
 
 // PLATFORM_INFO_PROTOCOL_FROM_DATABASE
-#define PLATFORM_INFO_PROTOCOL_FROM_DATABASE(Database) CR (Database, APPLE_PLATFORM_INFO_DATABASE, Protocol, APPLE_PLATFORM_INFO_DATABASE_SIGNATURE)
+#define PLATFORM_INFO_PROTOCOL_FROM_DATABASE(Database) \
+  CR (Database, APPLE_PLATFORM_INFO_DATABASE, Protocol, APPLE_PLATFORM_INFO_DATABASE_SIGNATURE)
 
 // OWN HEADER?
 
@@ -48,44 +72,68 @@ typedef struct _EFI_APPLE_SECTION {
 } EFI_APPLE_SECTION;
 
 // mD20Data
-EFI_APPLE_SECTION mD20Data;
+extern EFI_APPLE_SECTION mD20Data;
 
 // mD30Data
-EFI_APPLE_SECTION mD30Data;
+extern EFI_APPLE_SECTION mD30Data;
 
-// ApplePlatformInfoDbGetFirstPlatformInfoDataSizeImpl
+// ApplePlatformInfoDbGetFirstDataSizeImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetFirstPlatformInfoDataSizeImpl (
+ApplePlatformInfoDbGetFirstDataSizeImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN OUT UINTN                                  *Size
   );
 
-// ApplePlatformInfoDbGetPlatformInfoDataSizeImpl
+// ApplePlatformInfoDbGetDataSizeImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetPlatformInfoDataSizeImpl (
+ApplePlatformInfoDbGetDataSizeImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN     UINTN                                  Index,
   IN OUT UINTN                                  *Size
   );
 
-// ApplePlatformInfoDbGetFirstPlatformInfoDataImpl
+// ApplePlatformInfoDbGetFirstDataImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetFirstPlatformInfoDataImpl (
+ApplePlatformInfoDbGetFirstDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN OUT VOID                                   *Data,
   IN OUT UINTN                                  *Size
   );
 
-// ApplePlatformInfoDbGetPlatformInfoDataImpl
+// ApplePlatformInfoDbGetDataImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetPlatformInfoDataImpl (
+ApplePlatformInfoDbGetDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN     UINTN                                  Index,

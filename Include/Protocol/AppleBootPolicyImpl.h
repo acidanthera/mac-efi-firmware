@@ -1,3 +1,16 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
 ///
 /// @file      Include/Protocol/AppleBootPolicyImpl.h
 ///
@@ -7,25 +20,18 @@
 /// @date      19/12/2014: Initial version
 /// @date      23/02/2015: Minor tweaks
 /// @date      15/03/2015: Updated documentation and restructuring
-/// @copyright The decompilation is of an educational purpose to better understand the behavior of the
-///            Apple EFI implementation and making use of it. In no way is the content's usage licensed
-///            or allowed. All rights remain at Apple Inc. To be used under the terms of 'Fair use'.
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
-
-//
-// CREDITS:
-//   Reversed from AppleBootPolicy.efi, which is Apple Inc. property
-//   Relies on HFSPlus.efi which is Apple Inc. property as well
-//   Decompiled by Download-Fritz
-//
 
 #ifndef __APPLE_BOOT_POLICY_IMPL_H__
 #define __APPLE_BOOT_POLICY_IMPL_H__
 
+#include <Protocol/AppleBootPolicy.h>
+
 // APPLE_BOOT_POLICY_PROTOCOL_REVISION
 #define APPLE_BOOT_POLICY_PROTOCOL_REVISION  0x01
 
-// AppleBootPolicyGetBootFileImpl
+// BootPolicyGetBootFileImpl
 /// Locates the bootable file of the given volume. Prefered are the values blessed,
 /// though if unavailable, hard-coded names are being verified and used if existing.
 ///
@@ -42,7 +48,7 @@
 /// @retval other                The status of an operation used to complete this operation is returned.
 EFI_STATUS
 EFIAPI
-AppleBootPolicyGetBootFileImpl (
+BootPolicyGetBootFileImpl (
 	IN  EFI_HANDLE            Device,
 	OUT FILEPATH_DEVICE_PATH  **BootFilePath
 	);

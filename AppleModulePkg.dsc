@@ -1,11 +1,24 @@
-## @file
+## @file AppleModulePkg.dsc
 #
+# 
 #
+# Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+#
+# This program and the accompanying materials have not been licensed.
+# Neither is its usage, its redistribution, in source or binary form,
+# licensed, nor implicitely or explicitely permitted, except when
+# required by applicable law.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND, either express or implied.
+#
+#  
 ##
 
 [Defines]
   PLATFORM_NAME             = AppleModule
-  PLATFORM_GUID             = 0adcc78e-2fdc-4491-998d-8684a7b602e9
+  PLATFORM_GUID             = 0ADCC78E-2FDC-4491-998D-8684A7B602E9
   PLATFORM_VERSION          = 2015-001
   DSC_SPECIFICATION         = 0x00010018
   OUTPUT_DIRECTORY          = Build/$(PLATFORM_NAME)
@@ -23,7 +36,7 @@
   EfiDriverLib|EdkCompatibilityPkg/Foundation/Library/Dxe/EfiDriverLib/EfiDriverLib_Edk2.inf
   EdkProtocolLib|EdkCompatibilityPkg/Foundation/Protocol/EdkProtocolLib.inf
   EdkFrameworkGuidLib|EdkCompatibilityPkg/Foundation/Framework/Guid/EdkFrameworkGuidLib.inf
-  EfiCommonLib|EdkCompatibilityPkg/Foundation/Library/EfiCommonLib/EfiCommonLib_Edk2.inf
+  EfiCommonLib|EdkBridgePkg/Library/EfiCommonLib/EfiCommonLib_Edk2.inf
   EfiProtocolLib|EdkCompatibilityPkg/Foundation/Efi/Protocol/EfiProtocolLib.inf
   EdkGuidLib|EdkCompatibilityPkg/Foundation/Guid/EdkGuidLib.inf
   EdkFrameworkProtocolLib|EdkCompatibilityPkg/Foundation/Framework/Protocol/EdkFrameworkProtocolLib.inf
@@ -35,6 +48,8 @@
   AppleKeyMapAggregatorLib|ApplePkg/Library/AppleKeyMapAggregatorLib/AppleKeyMapAggregatorLib.inf
   AppleKeyMapLib|ApplePkg/Library/AppleKeyMapLib/AppleKeyMapLib.inf
   AppleMathLib|ApplePkg/Library/AppleMathLib/AppleMathLib.inf
+  AppleSmcMmioLib|ApplePkg/Library/AppleSmcMmioLib/AppleSmcMmioLib.inf
+  MmioLib|ApplePkg/Library/BaseMmioLib/BaseMmioLib.inf
   UsbDxeLib|ApplePkg/Library/UsbDxeLib/UsbDxeLib.inf
 
   #
@@ -44,8 +59,12 @@
   AppleBootPolicyImpl|AppleModulePkg/Protocol/AppleBootPolicyImpl/AppleBootPolicyImpl.inf
   AppleKeyMapImpl|AppleModulePkg/Protocol/AppleKeyMapImpl/AppleKeyMapImpl.inf
   ApplePlatformInfoDatabaseImpl|AppleModulePkg/Protocol/ApplePlatformInfoDatabaseImpl/ApplePlatformInfoDatabaseImpl.inf
+  AppleSmcIoImpl|AppleModulePkg/Protocol/AppleSmcIoImpl/AppleSmcIoImpl.inf
   EfiDevicePathPropertyDatabaseImpl|AppleModulePkg/Protocol/DevicePathPropertyDatabaseImpl/DevicePathPropertyDatabaseImpl.inf
   EfiOsIdentificationImpl|AppleModulePkg/Protocol/OsIdentificationImpl/OsIdentificationImpl.inf
+
+[LibraryClasses.IA32, LibraryClasses.X64]
+  NULL|EdkCompatibilityPkg/Foundation/Library/CompilerStub/CompilerStubLib_Edk2.inf
 
 [LibraryClasses.ARM, LibraryClasses.AARCH64]
   #
@@ -68,20 +87,20 @@
   AppleModulePkg/Driver/AppleKeyMapAggregator/AppleKeyMapAggregator.inf
   AppleModulePkg/Driver/AppleOsIdentification/AppleOsIdentification.inf
   AppleModulePkg/Driver/ApplePlatformInfoDB/ApplePlatformInfoDB.inf
+  AppleModulePkg/Driver/AppleSmcIo/AppleSmcIo.inf
   AppleModulePkg/Driver/EfiDevicePathPropertyDatabase/EfiDevicePathPropertyDatabase.inf
   AppleModulePkg/Driver/UsbKb/UsbKb.inf
-
 
 [BuildOptions]
 DEFINE MSFT_MACRO  = /D EFI_SPECIFICATION_VERSION=$(EFI_SPECIFICATION_VERSION) /D PI_SPECIFICATION_VERSION=$(PI_SPECIFICATION_VERSION) /D TIANO_RELEASE_VERSION=$(TIANO_RELEASE_VERSION)
 DEFINE INTEL_MACRO = /D EFI_SPECIFICATION_VERSION=$(EFI_SPECIFICATION_VERSION) /D PI_SPECIFICATION_VERSION=$(PI_SPECIFICATION_VERSION) /D TIANO_RELEASE_VERSION=$(TIANO_RELEASE_VERSION)
-DEFINE GCC_MACRO   = -DEFI_SPECIFICATION_VERSION=$(EFI_SPECIFICATION_VERSION) -DPI_SPECIFICATION_VERSION=$(PI_SPECIFICATION_VERSION) -DTIANO_RELEASE_VERSION=$(TIANO_RELEASE_VERSION) -DNO_BUILTIN_VA_FUNCS -Wno-unused-but-set-variable -fno-stack-protector
+DEFINE GCC_MACRO   = -DEFI_SPECIFICATION_VERSION=$(EFI_SPECIFICATION_VERSION) -DPI_SPECIFICATION_VERSION=$(PI_SPECIFICATION_VERSION) -DTIANO_RELEASE_VERSION=$(TIANO_RELEASE_VERSION) -DNO_BUILTIN_VA_FUNCS -fno-stack-protector
 DEFINE XCODE_MACRO = -DEFI_SPECIFICATION_VERSION=$(EFI_SPECIFICATION_VERSION) -DPI_SPECIFICATION_VERSION=$(PI_SPECIFICATION_VERSION) -DTIANO_RELEASE_VERSION=$(TIANO_RELEASE_VERSION)
 
   INTEL:DEBUG_*_*_CC_FLAGS   = $(INTEL_MACRO) /D EFI_DEBUG
   INTEL:RELEASE_*_*_CC_FLAGS = $(INTEL_MACRO) /D EFI_NDEBUG /D MDEPKG_NDEBUG
-  GCC:DEBUG_*_*_CC_FLAGS     = $(GCC_MACRO) -DEFI_DEBUG -DNO_BUILTIN_VA_FUNCS
-  GCC:RELEASE_*_*_CC_FLAGS   = $(GCC_MACRO) -DEFI_NDEBUG -DMDEPKG_NDEBUG
+  GCC:DEBUG_*_*_CC_FLAGS     = $(GCC_MACRO) -DEFI_DEBUG -Wno-unused-but-set-variable
+  GCC:RELEASE_*_*_CC_FLAGS   = $(GCC_MACRO) -DEFI_NDEBUG -DMDEPKG_NDEBUG -Wno-unused-but-set-variable
   MSFT:DEBUG_*_*_CC_FLAGS    = $(MSFT_MACRO) /D EFI_DEBUG
   MSFT:RELEASE_*_*_CC_FLAGS  = $(MSFT_MACRO) /D EFI_NDEBUG /D MDEPKG_NDEBUG
   XCODE:DEBUG_*_*_CC_FLAGS   = $(XCODE_MACRO) -DEFI_DEBUG

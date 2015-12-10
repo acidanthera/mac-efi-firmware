@@ -1,4 +1,28 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
+///
+/// @file      Protocol/AppleEventImpl/AppleEventImpl.c
+///
+///            
+///
+/// @author    Download-Fritz
+/// @date      31/02/2015: Initial version
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+///
+
 #include <AppleEfi.h>
+
 #include <EfiDriverLib.h>
 
 #include <Guid/AppleNvram.h>
@@ -9,12 +33,10 @@
 #include EFI_PROTOCOL_CONSUMER (GraphicsOutput)
 #include EFI_PROTOCOL_CONSUMER (SimplePointer)
 #include <Protocol/AppleKeyMapAggregator.h>
-#include <Protocol/AppleEvent.h>
+#include <Protocol/AppleEventImpl.h>
 
 #include <Library/AppleEventLib.h>
 #include <Library/AppleKeyMapLib.h>
-
-#include <Protocol/AppleEventImpl.h>
 
 // mEventHandleList
 EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mEventHandleList);
@@ -22,10 +44,16 @@ EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mEventHandleLis
 // mNoEventHandles
 static UINTN mNoEventHandles = 0;
 
-// AppleEventRegisterHandlerImpl
+// EventRegisterHandlerImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventRegisterHandlerImpl (
+EventRegisterHandlerImpl (
   IN  APPLE_EVENT_TYPE             EventType,
   IN  APPLE_EVENT_NOTIFY_FUNCTION  NotifyFunction,
   OUT APPLE_EVENT_HANDLE           **EventHandle,
@@ -41,12 +69,12 @@ AppleEventRegisterHandlerImpl (
   if ((EventHandle != NULL) && (NotifyFunction != NULL) && (EventType != APPLE_EVENT_TYPE_NONE)) {
     *EventHandle = NULL;
 
-    AppleEventRemoveUnregisteredEvents ();
+    EventRemoveUnregisteredEvents ();
 
     Status = EFI_SUCCESS;
 
     if (mNoEventHandles == 0) {
-      Status = AppleEventCreatePollEvents ();
+      Status = EventCreatePollEvents ();
       
       if (EFI_ERROR (Status)) {
         goto Return;
@@ -77,10 +105,16 @@ Return:
   return Status;
 }
 
-// AppleEventUnregisterHandlerImpl
+// EventUnregisterHandlerImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventUnregisterHandlerImpl (
+EventUnregisterHandlerImpl (
   IN APPLE_EVENT_HANDLE  *EventHandle
   ) // sub_7DE
 {
@@ -106,26 +140,38 @@ AppleEventUnregisterHandlerImpl (
   } while (!IsNull (&mEventHandleList, &Event->This));
 
   if (mNoEventHandles == 0) {
-    AppleEventCancelPollEvents ();
+    EventCancelPollEvents ();
   }
 
   return Status;
 }
 
-// AppleEventSetCursorPositionImpl
+// EventSetCursorPositionImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventSetCursorPositionImpl (
+EventSetCursorPositionImpl (
   IN DIMENSION  *Position
   ) // sub_84D
 {
-  return InternalSetCursorPosition (Position);
+  return EventInternalSetCursorPosition (Position);
 }
 
-// AppleEventSetEventNameImpl
+// EventSetEventNameImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventSetEventNameImpl (
+EventSetEventNameImpl (
   IN OUT APPLE_EVENT_HANDLE  *EventHandle,
   IN     CHAR8               *EventName
   ) // sub_1483
@@ -154,10 +200,16 @@ AppleEventSetEventNameImpl (
   return Status;
 }
 
-// AppleEventIsCapsLockActiveImpl
+// EventIsCapsLockActiveImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventIsCapsLockActiveImpl (
+EventIsCapsLockActiveImpl (
   IN OUT BOOLEAN  *CapsLockActive
   ) // sub_3582
 {
@@ -166,7 +218,7 @@ AppleEventIsCapsLockActiveImpl (
   Status = EFI_INVALID_PARAMETER;
 
   if (CapsLockActive != NULL) {
-    *CapsLockActive = mCLockActive;
+    *CapsLockActive = mCLockOn;
     Status          = EFI_SUCCESS;
   }
 

@@ -1,28 +1,57 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
+///
+/// @file      Driver/AppleEvent/AppleEvent.c
+///
+///            
+///
+/// @author    Download-Fritz
+/// @date      31/02/2015: Initial version
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+///
+
 #include <AppleEfi.h>
+
 #include <EfiDriverLib.h>
 
 #include <IndustryStandard/AppleHid.h>
 
+#include EFI_PROTOCOL_CONSUMER (LoadedImage)
+#include <Protocol/AppleEventImpl.h>
+
 #include <Library/AppleKeyMapLib.h>
 #include <Library/AppleEventLib.h>
-
-#include EFI_PROTOCOL_CONSUMER (LoadedImage)
-#include <Protocol/AppleEvent.h>
-#include <Protocol/AppleEventImpl.h>
 
 #include <Driver/AppleEvent.h>
 
 // mAppleEventProtocol
 APPLE_EVENT_PROTOCOL mAppleEventProtocol = {
   APPLE_EVENT_PROTOCOL_REVISION,
-  AppleEventRegisterHandlerImpl,
-  AppleEventUnregisterHandlerImpl,
-  AppleEventSetCursorPositionImpl,
-  AppleEventSetEventNameImpl,
-  AppleEventIsCapsLockActiveImpl
+  EventRegisterHandlerImpl,
+  EventUnregisterHandlerImpl,
+  EventSetCursorPositionImpl,
+  EventSetEventNameImpl,
+  EventIsCapsLockActiveImpl
 };
 
 // UnloadAppleEventDummy
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
 UnloadAppleEventDummy (
@@ -51,8 +80,12 @@ AppleEventMain (
 
   EFI_LOADED_IMAGE_PROTOCOL *Interface;
 
-  Status            = SystemTable->BootServices->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, (VOID **)&Interface);
+  Status            = SystemTable->BootServices->HandleProtocol (
+                                                   ImageHandle,
+                                                   &gEfiLoadedImageProtocolGuid,
+                                                   (VOID **)&Interface
+                                                   );
   Interface->Unload = UnloadAppleEventDummy;
 
-  return AppleEventInitialize (ImageHandle, SystemTable);
+  return EventInitialize (ImageHandle, SystemTable);
 }

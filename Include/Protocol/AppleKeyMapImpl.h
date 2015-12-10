@@ -1,32 +1,46 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
 ///
-/// @file      AppleKeyMapImpl.h
+/// @file      Include/Protocol/AppleKeyMapImpl.h
 ///
 ///            Private data of the Apple protocols.
 ///
 /// @author    Download-Fritz
 /// @date      15/03/2015: Initial version
-/// @copyright The decompilation is of an educational purpose to better understand the behavior of the
-///            Apple EFI implementation and making use of it. In no way is the content's usage licensed
-///            or allowed. All rights remain at Apple Inc. To be used under the terms of 'Fair use'.
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
-
-//
-// CREDITS:
-//   Reversed from AppleKeyMapAggregator.efi and AppleEvent.efi, which are Apple Inc. property
-//	 Key modifier and identifier list by tiamo (macosxbootloader, AppleKeyState.h)
-//   Decompiled by Download-Fritz
-//
 
 #ifndef __APPLE_KEY_MAP_IMPL_H__
 #define __APPLE_KEY_MAP_IMPL_H__
 
+#include <Protocol/AppleKeyMapAggregator.h>
+#include <Protocol/AppleKeyMapDatabase.h>
+
+/// 
+/// @{
 #define APPLE_KEY_MAP_PROTOCOLS_REVISION            0x010000
 #define APPLE_KEY_MAP_DATABASE_PROTOCOL_REVISION    APPLE_KEY_MAP_PROTOCOLS_REVISION
 #define APPLE_KEY_MAP_AGGREGATOR_PROTOCOL_REVISION  APPLE_KEY_MAP_PROTOCOLS_REVISION
+/// @}
 
-#define APPLE_KEY_MAP_AGGREGATOR_SIGNATURE        EFI_SIGNATURE_32 ('K', 'e', 'y', 'A')
-#define AGGREGATOR_FROM_AGGREGATOR_PROTOCOL(This) CR ((This), APPLE_KEY_MAP_AGGREGATOR, AggregatorProtocol, APPLE_KEY_MAP_AGGREGATOR_SIGNATURE)
-#define AGGREGATOR_FROM_DATABASE_PROTOCOL(This)   CR ((This), APPLE_KEY_MAP_AGGREGATOR, DatabaseProtocol, APPLE_KEY_MAP_AGGREGATOR_SIGNATURE)
+#define APPLE_KEY_MAP_AGGREGATOR_SIGNATURE  EFI_SIGNATURE_32 ('K', 'e', 'y', 'A')
+
+#define AGGREGATOR_FROM_AGGREGATOR_PROTOCOL(This) \
+  CR ((This), APPLE_KEY_MAP_AGGREGATOR, AggregatorProtocol, APPLE_KEY_MAP_AGGREGATOR_SIGNATURE)
+
+#define AGGREGATOR_FROM_DATABASE_PROTOCOL(This) \
+  CR ((This), APPLE_KEY_MAP_AGGREGATOR, DatabaseProtocol, APPLE_KEY_MAP_AGGREGATOR_SIGNATURE)
 
 // _APPLE_KEY_MAP_AGGREGATOR
 typedef struct _APPLE_KEY_MAP_AGGREGATOR {
@@ -51,8 +65,8 @@ typedef struct _APPLE_KEY_STROKES_INFO {
     UINTN              KeyBufferSize;  ///< 
     UINTN              NoKeys;         ///< 
     APPLE_MODIFIER_MAP Modifiers;      ///< 
-  }         Hdr;                       ///< 
-  APPLE_KEY Keys;                      ///< 
+  }         Hdr;   ///< 
+  APPLE_KEY Keys;  ///< 
 } APPLE_KEY_STROKES_INFO;
 
 // AppleKeyMapCreateKeyStrokesBufferImpl
@@ -127,7 +141,8 @@ AppleKeyMapSetKeyStrokeBufferKeysImpl (
 /// @return
 /// @retval EFI_SUCCESS          The pressed keys have been returned into Keys.
 /// @retval EFI_BUFFER_TOO_SMALL The memory required to return the value exceeds the size of the allocated buffer.
-///                              The required number of keys to allocate to complete the operation has been returned into NoKeys.
+///                              The required number of keys to allocate to complete the operation has been returned
+///                              into NoKeys.
 /// @retval other                An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
@@ -147,7 +162,8 @@ AppleKeyMapGetKeyStrokesImpl (
 /// @param[in, out] Keys       The list of keys to check for. The children may be sorted in the process.
 /// @param[in]      ExactMatch Specifies whether Modifiers and Keys should be exact matches or just contained.
 ///
-/// @return               Returns whether or not a list of keys and their modifiers are part of the database of pressed keys.
+/// @return               Returns whether or not a list of keys and their modifiers are part of the database of pressed
+///                       keys.
 /// @retval EFI_SUCCESS   The queried keys are part of the database.
 /// @retval EFI_NOT_FOUND The queried keys could not be found.
 EFI_STATUS

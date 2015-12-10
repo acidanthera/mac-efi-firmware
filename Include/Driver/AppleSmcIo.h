@@ -12,15 +12,30 @@
 //
 
 ///
-/// @file      Protocol/AppleDiskIoImpl/AppleDiskIoImpl.c
+/// @file      Include/Driver/AppleSmcIo.h
 ///
 ///            
 ///
 /// @author    Download-Fritz
-/// @date      
+/// @date      10/12/2015: Initial version
 /// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
 
-#include <AppleEfi.h>
+#ifndef __APPLE_SMC_IO_DRV_H__
+#define __APPLE_SMC_IO_DRV_H__
 
-#include <Protocol/AppleDiskIo.h>
+// AppleSmcIoMain
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
+EFI_STATUS
+EFIAPI
+AppleSmcIoMain (
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
+  );
+
+#endif // ifndef __APPLE_SMC_IO_DRV_H__

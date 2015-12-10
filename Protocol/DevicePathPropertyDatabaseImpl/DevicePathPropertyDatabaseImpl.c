@@ -1,26 +1,32 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
 ///
-/// @file      ProtocolImpl/DevicePathPropertyDatabase/DevicePathPropertyDatabase.c
+/// @file      Protocol/DevicePathPropertyDatabaseImpl/DevicePathPropertyDatabaseImpl.c
 ///
 ///            Apple protocol to manage Device Properties from firmware.
 ///
 /// @author    Download-Fritz
 /// @date      23/02/2015: Initial version
 /// @date      15/03/2015: Updated documentation
-/// @copyright The decompilation is of an educational purpose to better understand the behavior of the
-///            Apple EFI implementation and making use of it. In no way is the content's usage licensed
-///            or allowed. All rights remain at Apple Inc. To be used under the terms of 'Fair use'.
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
 
-//
-// CREDITS:
-//   Reversed from EfiDevicePathPropertyDatabase.efi, which is Apple Inc. property
-//   Decompiled by Download-Fritz
-//
-
 #include <AppleEfi.h>
-#include <EfiDriverLib.h>
-#include <LinkedList.h>
 #include <EfiDebug.h>
+#include <LinkedList.h>
+
+#include <EfiDriverLib.h>
 
 #include <Guid/AppleNvram.h>
 
@@ -28,7 +34,10 @@
 #include <Protocol/DevicePathPropertyDatabaseImpl.h>
 
 //
-static EFI_GUID mUnknownProtocolGuid = { 0xC649D4F3, 0xD502, 0x4DAA, { 0xA1, 0x39, 0x39, 0x4A, 0xCC, 0xF2, 0xA6, 0x3B } };
+#define UNKNOWN_PROTOCOL_GUID \
+  { 0xC649D4F3, 0xD502, 0x4DAA, { 0xA1, 0x39, 0x39, 0x4A, 0xCC, 0xF2, 0xA6, 0x3B } }
+
+EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
 //
 
 // GetPropertyNode
@@ -468,7 +477,11 @@ DevicePathPropertyDbGetPropertyBuffer (
 
           while (!Result) {
             gBS->CopyMem (BufferPtr, (VOID *)Property->Name, (UINTN)Property->Name->Hdr.Size);
-            gBS->CopyMem ((VOID *)((UINTN)BufferPtr + (UINTN)Property->Name->Hdr.Size), Property->Value, (UINTN)Property->Value->Hdr.Size);
+            gBS->CopyMem (
+                   (VOID *)((UINTN)BufferPtr + (UINTN)Property->Name->Hdr.Size),
+                    Property->Value,
+                    (UINTN)Property->Value->Hdr.Size
+                    );
 
             BufferPtr   = (VOID *)((UINTN)BufferPtr + (Property->Name->Hdr.Size + Property->Value->Hdr.Size));
             BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);

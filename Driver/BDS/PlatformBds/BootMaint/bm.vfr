@@ -34,7 +34,7 @@
 // so dynamically changing the question's value will be
 // possible through this mechanism
 //
-typedef struct {
+typedef PACKED struct {
 
 //
 // Three questions displayed at the main page

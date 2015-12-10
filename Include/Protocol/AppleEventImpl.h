@@ -1,5 +1,30 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
+///
+/// @file      Include/Protocol/AppleEventImpl.h
+///
+///            
+///
+/// @author    Download-Fritz
+/// @date      31/02/2015: Initial version
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+///
+
 #ifndef __APPLE_EVENT_IMPL_H__
 #define __APPLE_EVENT_IMPL_H__
+
+#include <Protocol/AppleEvent.h>
 
 // APPLE_EVENT_PROTOCOL_REVISION
 #define APPLE_EVENT_PROTOCOL_REVISION  0x07
@@ -17,13 +42,14 @@
 #define APPLE_EVENT_QUERY_SIGNATURE  EFI_SIGNATURE_32 ('A', 'E', 'v', 'Q')
 
 // APPLE_EVENT_QUERY_FROM_LIST_ENTRY
-#define APPLE_EVENT_QUERY_FROM_LIST_ENTRY(ListEntry) CR (ListEntry, APPLE_EVENT_QUERY, This, APPLE_EVENT_QUERY_SIGNATURE)
+#define APPLE_EVENT_QUERY_FROM_LIST_ENTRY(ListEntry) \
+  CR (ListEntry, APPLE_EVENT_QUERY, This, APPLE_EVENT_QUERY_SIGNATURE)
 
 // _APPLE_EVENT_QUERY
 typedef struct _APPLE_EVENT_QUERY {
-  UINT32                        Signature;
-  EFI_LIST_ENTRY                This;
-  APPLE_EVENT_QUERY_INFORMATION *Information;
+  UINT32                        Signature;     ///< 
+  EFI_LIST_ENTRY                This;          ///< 
+  APPLE_EVENT_QUERY_INFORMATION *Information;  ///< 
 } APPLE_EVENT_QUERY;
 
 // _PROTOCOL_INSTANCE
@@ -45,167 +71,293 @@ extern EFI_PROTOCOL_INSTANCE *mSimplePointerInstances;
 // mEventHandleList
 extern EFI_LIST mEventHandleList;
 
-// mCapsLockActive
-extern BOOLEAN mCLockActive;
+// mCLockOn
+extern BOOLEAN mCLockOn;
 
 // _KEY_STROKE_INFORMATION
 typedef struct _KEY_STROKE_INFORMATION {
-  APPLE_KEY AppleKey;
-  UINTN     NoStrokes;
-  BOOLEAN   CurrentStroke;
+  APPLE_KEY AppleKey;       ///< 
+  UINTN     NoStrokes;      ///< 
+  BOOLEAN   CurrentStroke;  ///< 
 } KEY_STROKE_INFORMATION;
 
 // _POINTER_BUTTON_INFORMATION
 typedef struct _POINTER_BUTTON_INFORMATION {
-  UINTN     Button;
-  UINTN     NoButtonPressed;
-  UINTN     Polls;
-  UINTN     PreviousEventType;
-  BOOLEAN   PreviousButton;
-  BOOLEAN   CurrentButton;
-  DIMENSION PreviousPosition;
-  DIMENSION CurrentPosition;
+  UINTN     Button;             ///< 
+  UINTN     NoButtonPressed;    ///< 
+  UINTN     Polls;              ///< 
+  UINTN     PreviousEventType;  ///< 
+  BOOLEAN   PreviousButton;     ///< 
+  BOOLEAN   CurrentButton;      ///< 
+  DIMENSION PreviousPosition;   ///< 
+  DIMENSION CurrentPosition;    ///< 
 } POINTER_BUTTON_INFORMATION;
 
-// AppleEventInitialize
+// EventInitialize
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventInitialize (
+EventInitialize (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   );
 
-// AppleEventRegisterHandlerImpl
+// EventRegisterHandlerImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventRegisterHandlerImpl (
-  IN     UINT32                       EventType,
-  IN     APPLE_EVENT_NOTIFY_FUNCTION  NotifyFunction,
-     OUT APPLE_EVENT_HANDLE           **EventHandle,
-  IN     VOID                         *NotifyContext
+EventRegisterHandlerImpl (
+  IN  UINT32                       EventType,
+  IN  APPLE_EVENT_NOTIFY_FUNCTION  NotifyFunction,
+  OUT APPLE_EVENT_HANDLE           **EventHandle,
+  IN  VOID                         *NotifyContext
   );
 
-// AppleEventUnregisterHandlerImpl
+// EventUnregisterHandlerImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventUnregisterHandlerImpl (
+EventUnregisterHandlerImpl (
   IN APPLE_EVENT_HANDLE  *EventHandle
   );
 
-// AppleEventSetCursorPositionImpl
+// EventSetCursorPositionImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventSetCursorPositionImpl (
+EventSetCursorPositionImpl (
   IN DIMENSION  *Position
   );
 
-// AppleEventSetEventNameImpl
+// EventSetEventNameImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventSetEventNameImpl (
+EventSetEventNameImpl (
   IN OUT APPLE_EVENT_HANDLE  *EventHandle,
   IN     CHAR8               *EventName
   );
 
-// AppleEventIsCapsLockActiveImpl
+// EventIsCapsLockActiveImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventIsCapsLockActiveImpl (
-  IN OUT BOOLEAN  *CapsLockAcvtive
+EventIsCapsLockActiveImpl (
+  IN OUT BOOLEAN  *CapsLockOn
   );
 
-// AppleEventUnregisterHandlers
+// EventUnregisterHandlers
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventUnregisterHandlers (
+EventUnregisterHandlers (
   VOID
   );
 
-// AppleEventSignalAndCloseQueryEvent
+// EventSignalAndCloseQueryEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventSignalAndCloseQueryEvent (
+EventSignalAndCloseQueryEvent (
   VOID
   );
 
-// AppleEventCancelPollEvents
+// EventCancelPollEvents
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventCancelPollEvents (
+EventCancelPollEvents (
   VOID
   );
 
-// AppleEventCreateQueryEvent
+// EventCreateQueryEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventCreateQueryEvent (
+EventCreateQueryEvent (
   VOID
   );
 
-// AppleEventCreateSimplePointerInstallNotifyEvent
+// EventCreateSimplePointerInstallNotifyEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-AppleEventCreateSimplePointerInstallNotifyEvent (
+EventCreateSimplePointerInstallNotifyEvent (
   VOID
   );
 
-// AppleEventCancelKeyStrokePollEvent
+// EventCancelKeyStrokePollEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventCancelKeyStrokePollEvent (
+EventCancelKeyStrokePollEvent (
   VOID
   );
 
-// AppleEventCancelSimplePointerPollEvent
+// EventCancelSimplePointerPollEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventCancelSimplePointerPollEvent (
+EventCancelSimplePointerPollEvent (
   VOID
   );
 
-// AppleEventCreateSimplePointerPollEvent
+// EventCreateSimplePointerPollEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-AppleEventCreateSimplePointerPollEvent (
+EventCreateSimplePointerPollEvent (
   VOID
   );
 
-// AppleEventCreateKeyStrokePollEvent
+// EventCreateKeyStrokePollEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-AppleEventCreateKeyStrokePollEvent (
+EventCreateKeyStrokePollEvent (
   VOID
   );
 
-// AppleEventCreateAppleEventQueryInformation
+// EventCreateAppleEventQueryInfo
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 APPLE_EVENT_QUERY_INFORMATION *
-AppleEventCreateAppleEventQueryInformation (
+EventCreateAppleEventQueryInfo (
   IN APPLE_EVENT_DATA    EventData,
   IN APPLE_EVENT_TYPE    EventType,
   IN DIMENSION           *PointerPosition,
   IN APPLE_MODIFIER_MAP  Modifiers
   );
 
-// AppleEventAddEventQuery
+// EventAddEventQuery
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventAddEventQuery (
+EventAddEventQuery (
   IN APPLE_EVENT_QUERY_INFORMATION  *Information
   );
 
-// AppleEventCreateEventQuery
+// EventCreateEventQuery
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-AppleEventCreateEventQuery (
+EventCreateEventQuery (
   IN APPLE_EVENT_DATA    EventData,
   IN APPLE_EVENT_TYPE    EventType,
   IN APPLE_MODIFIER_MAP  Modifiers
   );
 
-// InternalSetCursorPosition
+// EventInternalSetCursorPosition
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-InternalSetCursorPosition (
+EventInternalSetCursorPosition (
   IN DIMENSION  *Position
   );
 
-// AppleEventRemoveUnregisteredEvents
+// EventRemoveUnregisteredEvents
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventRemoveUnregisteredEvents (
+EventRemoveUnregisteredEvents (
   VOID
   );
 
-// AppleEventCreatePollEvents
+// EventCreatePollEvents
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-AppleEventCreatePollEvents (
+EventCreatePollEvents (
   VOID
   );
 

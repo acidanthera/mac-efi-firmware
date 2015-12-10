@@ -1,6 +1,30 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
+///
+/// @file      Protocol/AppleEventImpl/AppleEventImplLib.c
+///
+///            
+///
+/// @author    Download-Fritz
+/// @date      31/02/2015: Initial version
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+///
+
 #include <AppleEfi.h>
-#include <EfiDriverLib.h>
 #include <EfiDebug.h>
+
+#include <EfiDriverLib.h>
 
 #include <Guid/AppleNvram.h>
 
@@ -11,18 +35,16 @@
 #include EFI_PROTOCOL_CONSUMER (LoadedImage)
 #include EFI_PROTOCOL_CONSUMER (SimplePointer)
 #include <Protocol/AppleKeyMapAggregator.h>
-#include <Protocol/AppleEvent.h>
+#include <Protocol/AppleEventImpl.h>
 
 #include <Library/AppleKeyMapLib.h>
 #include <Library/AppleEventLib.h>
-
-#include <Protocol/AppleEventImpl.h>
 
 // KEY_STROKE_DELAY
 #define KEY_STROKE_DELAY  5
 
 // mAppleEventHandleList
-EFI_LIST mEventHandleList;
+extern EFI_LIST mEventHandleList;
 
 // mEfiLock
 static EFI_LOCK mEfiLock;
@@ -37,6 +59,12 @@ static BOOLEAN mQueryEventCreated;
 static EFI_LIST mEventQueryList;
 
 // CreateTimerEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_EVENT
 CreateTimerEvent (
   IN EFI_EVENT_NOTIFY  NotifyFunction,
@@ -76,6 +104,12 @@ CreateTimerEvent (
 }
 
 // CreateNotifyEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_EVENT
 CreateNotifyEvent (
   IN EFI_EVENT_NOTIFY  NotifyFunction,
@@ -88,6 +122,12 @@ CreateNotifyEvent (
 }
 
 // CancelEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
 CancelEvent (
   IN EFI_EVENT  Event
@@ -105,6 +145,12 @@ CancelEvent (
 }
 
 // UnloadAppleEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
 UnloadAppleEvent (
@@ -115,17 +161,23 @@ UnloadAppleEvent (
     gBS->CloseEvent (mSimplePointerInstallNotifyEvent);
   }
 
-  AppleEventSignalAndCloseQueryEvent ();
-  AppleEventUnregisterHandlers ();
-  AppleEventCancelPollEvents ();
+  EventSignalAndCloseQueryEvent ();
+  EventUnregisterHandlers ();
+  EventCancelPollEvents ();
 
   return gBS->UninstallProtocolInterface (ImageHandle, &gAppleEventProtocolGuid, (VOID *)&mAppleEventProtocol);
 }
 
-// AppleEventInitialize
+// EventInitialize
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-AppleEventInitialize (
+EventInitialize (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   )
@@ -138,7 +190,12 @@ AppleEventInitialize (
   DxeInitializeDriverLib (ImageHandle, SystemTable);
 
   Interface = NULL;
-  Status    = gBS->InstallProtocolInterface (&ImageHandle, &gAppleEventProtocolGuid, EFI_NATIVE_INTERFACE, (VOID *)&mAppleEventProtocol);
+  Status    = gBS->InstallProtocolInterface (
+                     &ImageHandle,
+                     &gAppleEventProtocolGuid,
+                     EFI_NATIVE_INTERFACE,
+                     (VOID *)&mAppleEventProtocol
+                     );
 
   if (!EFI_ERROR (Status)) {
     Status = gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, (VOID **)&Interface);
@@ -146,9 +203,9 @@ AppleEventInitialize (
     if (!EFI_ERROR (Status)) {
       Interface->Unload = UnloadAppleEvent;
 
-      AppleEventCreateQueryEvent ();
+      EventCreateQueryEvent ();
 
-      Status = AppleEventCreateSimplePointerInstallNotifyEvent ();
+      Status = EventCreateSimplePointerInstallNotifyEvent ();
 
       if (!EFI_ERROR (Status)) {
         goto returnStatus;
@@ -162,9 +219,15 @@ returnStatus:
   return Status;
 }
 
-// AppleEventRemoveUnregisteredEvents
+// EventRemoveUnregisteredEvents
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventRemoveUnregisteredEvents (
+EventRemoveUnregisteredEvents (
   VOID
   ) // sub_B34
 {
@@ -191,9 +254,15 @@ AppleEventRemoveUnregisteredEvents (
   }
 }
 
-// AppleEventUnregisterHandlers
+// EventUnregisterHandlers
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventUnregisterHandlers (
+EventUnregisterHandlers (
   VOID
   ) // sub_A31
 {
@@ -201,47 +270,65 @@ AppleEventUnregisterHandlers (
     gBS->FreePool (mSimplePointerInstances);
   }
 
-  AppleEventRemoveUnregisteredEvents ();
+  EventRemoveUnregisteredEvents ();
 
   if (!IsListEmpty (&mEventHandleList)) {
-    AppleEventUnregisterHandlerImpl ((APPLE_EVENT_HANDLE *)EFI_MAX_ADDRESS);
+    EventUnregisterHandlerImpl ((APPLE_EVENT_HANDLE *)EFI_MAX_ADDRESS);
   }
 }
 
-// AppleEventCreatePollEvents
+// EventCreatePollEvents
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-AppleEventCreatePollEvents (
+EventCreatePollEvents (
   VOID
   ) // sub_F1B
 {
   EFI_STATUS Status;
 
-  Status = AppleEventCreateSimplePointerPollEvent ();
+  Status = EventCreateSimplePointerPollEvent ();
 
   if (!EFI_ERROR (Status)) {
-    Status = AppleEventCreateKeyStrokePollEvent ();
+    Status = EventCreateKeyStrokePollEvent ();
 
     if (EFI_ERROR (Status)) {
-      AppleEventCancelSimplePointerPollEvent ();
+      EventCancelSimplePointerPollEvent ();
     }
   }
 
   return Status;
 }
 
-// AppleEventCancelPollEvents
+// EventCancelPollEvents
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventCancelPollEvents (
+EventCancelPollEvents (
   VOID
   ) // sub_F4D
 {
-  AppleEventCancelSimplePointerPollEvent ();
-  AppleEventCancelKeyStrokePollEvent ();
+  EventCancelSimplePointerPollEvent ();
+  EventCancelKeyStrokePollEvent ();
 }
 
-// AppleEventCreateAppleEventQueryInformation
+// EventCreateAppleEventQueryInfo
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 APPLE_EVENT_QUERY_INFORMATION *
-AppleEventCreateAppleEventQueryInformation (
+EventCreateAppleEventQueryInfo (
   IN APPLE_EVENT_DATA    EventData,
   IN APPLE_EVENT_TYPE    EventType,
   IN DIMENSION           *PointerPosition,
@@ -277,6 +364,12 @@ AppleEventCreateAppleEventQueryInformation (
 }
 
 // FlagAllEventsReady
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
 FlagAllEventsReady (
   VOID
@@ -298,6 +391,12 @@ FlagAllEventsReady (
 }
 
 // QueryEventNotifyFunction
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
 EFIAPI
 QueryEventNotifyFunction (
@@ -326,7 +425,10 @@ QueryEventNotifyFunction (
           !IsNull (&mEventHandleList, &EventHandle->This);
           EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandle->This.ForwardLink)
           ) {
-          if ((EventHandle->Registered) && (EventHandle->Ready) && ((EventQuery->Information->EventType & EventHandle->EventType) != 0) && (EventHandle->NotifyFunction != NULL)) {
+          if ((EventHandle->Registered)
+           && (EventHandle->Ready)
+           && ((EventQuery->Information->EventType & EventHandle->EventType) != 0)
+           && (EventHandle->NotifyFunction != NULL)) {
             EventHandle->NotifyFunction (EventQuery->Information, EventHandle->NotifyContext);
           }
         }
@@ -342,14 +444,20 @@ QueryEventNotifyFunction (
       } while (!IsNull (&mEventQueryList, &EventQuery->This));
     }
 
-    AppleEventRemoveUnregisteredEvents ();
+    EventRemoveUnregisteredEvents ();
     EfiReleaseLock (&mEfiLock);
   }
 }
 
-// AppleEventCreateQueryEvent
+// EventCreateQueryEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventCreateQueryEvent (
+EventCreateQueryEvent (
   VOID
   ) // sub_D01
 {
@@ -364,9 +472,15 @@ AppleEventCreateQueryEvent (
   }
 }
 
-// AppleEventSignalAndCloseQueryEvent
+// EventSignalAndCloseQueryEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventSignalAndCloseQueryEvent (
+EventSignalAndCloseQueryEvent (
   VOID
   ) // sub_E54
 {
@@ -377,9 +491,15 @@ AppleEventSignalAndCloseQueryEvent (
   }
 }
 
-// AppleEventAddEventQuery
+// EventAddEventQuery
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventAddEventQuery (
+EventAddEventQuery (
   IN APPLE_EVENT_QUERY_INFORMATION  *Information
   ) // sub_E98
 {
@@ -406,9 +526,15 @@ AppleEventAddEventQuery (
   }
 }
 
-// AppleEventCreateEventQuery
+// EventCreateEventQuery
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-AppleEventCreateEventQuery (
+EventCreateEventQuery (
   IN APPLE_EVENT_DATA    EventData,
   IN APPLE_EVENT_TYPE    EventType,
   IN APPLE_MODIFIER_MAP  Modifiers
@@ -421,11 +547,11 @@ AppleEventCreateEventQuery (
   Status = EFI_INVALID_PARAMETER;
 
   if (EventData.Raw != 0) {
-    Information = AppleEventCreateAppleEventQueryInformation (EventData, EventType, NULL, Modifiers);
+    Information = EventCreateAppleEventQueryInfo (EventData, EventType, NULL, Modifiers);
     Status      = EFI_OUT_OF_RESOURCES;
 
     if (Information != NULL) {
-      AppleEventAddEventQuery (Information);
+      EventAddEventQuery (Information);
 
       Status = EFI_SUCCESS;
     }

@@ -1,33 +1,36 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
 ///
-/// @file      ProtocolImpl/AppleKeyMapDatabase/AppleKeyMapDatabase.c
+/// @file      Protocol/AppleKeyMapDatabaseImpl/AppleKeyMapDatabaseImpl.c
 ///
 ///
 ///
 /// @author    Download-Fritz
 /// @date      15/03/2015: Initial version
-/// @copyright The decompilation is of an educational purpose to better understand the behavior of the
-///            Apple EFI implementation and making use of it. In no way is the content's usage licensed
-///            or allowed. All rights remain at Apple Inc. To be used under the terms of 'Fair use'.
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
 
-//
-// CREDITS:
-//   Reversed from AppleKeyMapAggregator.efi and AppleEvent.efi, which are Apple Inc. property
-//   Decompiled by Download-Fritz
-//
-
 #include <AppleEfi.h>
-#include <EfiDriverLib.h>
 #include <LinkedList.h>
+
+#include <EfiDriverLib.h>
 
 #include <IndustryStandard/AppleHid.h>
 
-#include <Protocol/AppleKeyMapDatabase.h>
-#include <Protocol/AppleKeyMapAggregator.h>
+#include <Protocol/AppleKeyMapImpl.h>
 
 #include <Library/AppleKeyMapLib.h>
-
-#include <Protocol/AppleKeyMapImpl.h>
 
 // AppleKeyMapGetKeyStrokesImpl
 /// 
@@ -100,7 +103,9 @@ AppleKeyMapCreateKeyStrokesBufferImpl (
   Status                     = EFI_OUT_OF_RESOURCES;
 
   if (Memory != NULL) {
-    KeyStrokesInfo = (APPLE_KEY_STROKES_INFO *)EfiLibAllocateZeroPool ((sizeof (*KeyStrokesInfo) + (KeyBufferSize * sizeof (APPLE_KEY))));
+    KeyStrokesInfo = (APPLE_KEY_STROKES_INFO *)EfiLibAllocateZeroPool (
+                                                 (sizeof (*KeyStrokesInfo) + (KeyBufferSize * sizeof (APPLE_KEY)))
+                                                 );
     Status         = EFI_OUT_OF_RESOURCES;
 
     if (KeyStrokesInfo != NULL) {

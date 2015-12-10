@@ -1,53 +1,105 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
+///
+/// @file      Protocol/ApplePlatformInfoDatabaseImpl/ApplePlatformInfoDatabaseImpl.c
+///
+///            
+///
+/// @author    Download-Fritz
+/// @date      11/10/2015: Initial version
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+///
+
 #include <AppleEfi.h>
-#include <EfiDriverLib.h>
 #include <EfiImageFormat.h>
 
-#include EFI_PROTOCOL_CONSUMER (FirmwareVolume)
-#include <Protocol/ApplePlatformInfoDatabase.h>
+#include <EfiDriverLib.h>
+
 #include <Protocol/ApplePlatformInfoDatabaseImpl.h>
 
-// ApplePlatformInfoDbGetFirstPlatformInfoDataSizeImpl
+// mD20Data
+EFI_APPLE_SECTION mD20Data;
+
+// mD30Data
+EFI_APPLE_SECTION mD30Data;
+
+// ApplePlatformInfoDbGetFirstDataSizeImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetFirstPlatformInfoDataSizeImpl (
+ApplePlatformInfoDbGetFirstDataSizeImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN OUT UINTN                                  *Size
   ) // sub_7E6U2F
 {
-  return ApplePlatformInfoDbGetPlatformInfoDataImpl (This, NameGuid, 0, NULL, Size);
+  return ApplePlatformInfoDbGetDataImpl (This, NameGuid, 0, NULL, Size);
 }
 
-// ApplePlatformInfoDbGetPlatformInfoDataSizeImpl
+// ApplePlatformInfoDbGetDataSizeImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetPlatformInfoDataSizeImpl (
+ApplePlatformInfoDbGetDataSizeImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN     UINTN                                  XorValue,
   IN OUT UINTN                                  *Size
   ) // sub_804
 {
-  return ApplePlatformInfoDbGetPlatformInfoDataImpl (This, NameGuid, XorValue, NULL, Size);
+  return ApplePlatformInfoDbGetDataImpl (This, NameGuid, XorValue, NULL, Size);
 }
 
-// ApplePlatformInfoDbGetFirstPlatformInfoDataImpl
+// ApplePlatformInfoDbGetFirstDataImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetFirstPlatformInfoDataImpl (
+ApplePlatformInfoDbGetFirstDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN OUT VOID                                   *Data,
   IN OUT UINTN                                  *Size
   ) // sub_81F
 {
-  return ApplePlatformInfoDbGetPlatformInfoDataImpl (This, NameGuid, 0, Data, Size);
+  return ApplePlatformInfoDbGetDataImpl (This, NameGuid, 0, Data, Size);
 }
 
-// ApplePlatformInfoDbGetPlatformInfoDataImpl
+// ApplePlatformInfoDbGetDataImpl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetPlatformInfoDataImpl (
+ApplePlatformInfoDbGetDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN     UINTN                                  Index,

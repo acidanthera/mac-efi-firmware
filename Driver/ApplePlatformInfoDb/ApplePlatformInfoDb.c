@@ -1,11 +1,33 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
+///
+/// @file      Driver/ApplePlatformInfoDb/ApplePlatformInfoDb.c
+///
+///            
+///
+/// @author    Download-Fritz
+/// @date      11/10/2015: Initial version
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+///
+
 #include <AppleEfi.h>
+
 #include <EfiDriverLib.h>
 #include <EfiHobLib.h>
 
 #include EFI_GUID_DEFINITION (Hob)
 
-#include EFI_PROTOCOL_CONSUMER (FirmwareVolume)
-#include <Protocol/ApplePlatformInfoDatabase.h>
 #include <Protocol/ApplePlatformInfoDatabaseImpl.h>
 
 #include <Driver/ApplePlatformInfoDB.h>
@@ -21,10 +43,10 @@ EFI_GUID gAppleHob3Guid = APPLE_HOB_3_GUID;
 // mApplePlatformInfoDBProtocol
 static APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDBProtocol = {
   APPLE_PLATFORM_INFO_DATABASE_PROTOCOL_REVISION,
-  ApplePlatformInfoDBGetFirstPlatformInfoDataImpl,
-  ApplePlatformInfoDBGetFirstPlatformInfoDataSizeImpl,
-  ApplePlatformInfoDBGetPlatformInfoDataImpl,
-  ApplePlatformInfoDBGetPlatformInfoDataSizeImpl
+  ApplePlatformInfoDbGetFirstDataImpl,
+  ApplePlatformInfoDbGetFirstDataSizeImpl,
+  ApplePlatformInfoDbGetDataImpl,
+  ApplePlatformInfoDbGetDataSizeImpl
 };
 
 // ApplePlatformInfoDBMain
@@ -95,8 +117,14 @@ ApplePlatformInfoDBMain (
 
         if (!EFI_ERROR (Status)) {
           while (!IsDevicePathEnd (DevicePath)) {
-            if ((DevicePathType (DevicePath) == HARDWARE_DEVICE_PATH) && (DevicePathSubType (DevicePath) == HW_MEMMAP_DP) && (((MEMMAP_DEVICE_PATH *)DevicePath)->StartingAddress == (EFI_PHYSICAL_ADDRESS)(UINTN)Buffer)) {
-              Status = gBS->HandleProtocol (HandleBuffer[Index], &gEfiFirmwareVolumeProtocolGuid, (VOID **)&FirmwareVolumeProtocol);
+            if ((DevicePathType (DevicePath) == HARDWARE_DEVICE_PATH)
+             && (DevicePathSubType (DevicePath) == HW_MEMMAP_DP)
+             && (((MEMMAP_DEVICE_PATH *)DevicePath)->StartingAddress == (EFI_PHYSICAL_ADDRESS)(UINTN)Buffer)) {
+              Status = gBS->HandleProtocol (
+                              HandleBuffer[Index],
+                              &gEfiFirmwareVolumeProtocolGuid,
+                              (VOID **)&FirmwareVolumeProtocol
+                              );
 
               if (EFI_ERROR (Status)) {
                 goto BreakBoth;
@@ -113,10 +141,22 @@ ApplePlatformInfoDBMain (
 
   BreakBoth:
     for (Index = 0; Index < NumberHandles; ++Index) {
-      Status = gBS->HandleProtocol (HandleBuffer[Index], &gEfiFirmwareVolumeProtocolGuid, (VOID **)&FirmwareVolumeProtocol);
+      Status = gBS->HandleProtocol (
+                      HandleBuffer[Index],
+                      &gEfiFirmwareVolumeProtocolGuid,
+                      (VOID **)&FirmwareVolumeProtocol
+                      );
 
       if (!EFI_ERROR (Status)) {
-        Status = FirmwareVolumeProtocol->ReadFile (FirmwareVolumeProtocol, &gAppleFile1Guid, NULL, &FileBufferSize, &FoundType, &FileAttributes, &AuthenticationStatus);
+        Status = FirmwareVolumeProtocol->ReadFile (
+                                           FirmwareVolumeProtocol,
+                                           &gAppleFile1Guid,
+                                           NULL,
+                                           &FileBufferSize,
+                                           &FoundType,
+                                           &FileAttributes,
+                                           &AuthenticationStatus
+                                           );
 
         if (!EFI_ERROR (Status)) {
           break;
@@ -153,9 +193,18 @@ ApplePlatformInfoDBMain (
     PlatformInfoDatabase->FirmwareVolumeHandle   = NULL; ////
     PlatformInfoDatabase->FirmwareVolumeProtocol = FirmwareVolumeProtocol;
 
-    EfiCopyMem ((VOID *)&PlatformInfoDatabase->Protocol, (VOID *)&mApplePlatformInfoDBProtocol, sizeof (mApplePlatformInfoDBProtocol));
+    EfiCopyMem (
+      (VOID *)&PlatformInfoDatabase->Protocol,
+      (VOID *)&mApplePlatformInfoDBProtocol,
+      sizeof (mApplePlatformInfoDBProtocol)
+      );
     
-    Status = gBS->InstallProtocolInterface (PlatformInfoDatabase->FirmwareVolumeHandle, &gApplePlatformInfoDatabaseProtocolGuid, EFI_NATIVE_INTERFACE, (VOID *)&PlatformInfoDatabase->Protocol);
+    Status = gBS->InstallProtocolInterface (
+                    PlatformInfoDatabase->FirmwareVolumeHandle,
+                    &gApplePlatformInfoDatabaseProtocolGuid,
+                    EFI_NATIVE_INTERFACE,
+                    (VOID *)&PlatformInfoDatabase->Protocol
+                    );
   }
 
   return Status;

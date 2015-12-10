@@ -1,24 +1,29 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
 ///
-/// @file      DevicePathPropertyDatabaseImpl.h
+/// @file      Include/Protocol/DevicePathPropertyDatabaseImpl.h
 ///
 ///            Private data of the Apple protocol to manage Device Properties from firmware.
 ///
 /// @author    Download-Fritz
 /// @date      23/02/2015: Initial version
 /// @date      15/03/2015: Updated documentation
-/// @copyright The decompilation is of an educational purpose to better understand the behavior of the
-///            Apple EFI implementation and making use of it. In no way is the content's usage licensed
-///            or allowed. All rights remain at Apple Inc. To be used under the terms of 'Fair use'.
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
 
-//
-// CREDITS:
-//   Reversed from EfiDevicePathPropertyDatabase.efi, which is Apple Inc. property
-//   Decompiled by Download-Fritz
-//
-
-#ifndef _DEVICE_PATH_PROPERTY_DATABASE_IMPL_H_
-#define _DEVICE_PATH_PROPERTY_DATABASE_IMPL_H_
+#ifndef __DEVICE_PATH_PROPERTY_DATABASE_IMPL_H__
+#define __DEVICE_PATH_PROPERTY_DATABASE_IMPL_H__
 
 // EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION
 #define EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION  0x010000
@@ -27,7 +32,9 @@
 #define APPLE_PATH_PROPERTY_VARIABLE_MAX_SIZE  768
 
 #define EFI_DEVICE_PATH_PROPERTY_DATABASE_SIGNATURE  EFI_SIGNATURE_32 ('D', 'p', 'p', 'P')
-#define PROPERTY_DATABASE_FROM_PROTOCOL(This)        CR (This, EFI_DEVICE_PATH_PROPERTY_DATABASE, Protocol, EFI_DEVICE_PATH_PROPERTY_DATABASE_SIGNATURE)
+
+#define PROPERTY_DATABASE_FROM_PROTOCOL(This) \
+  CR (This, EFI_DEVICE_PATH_PROPERTY_DATABASE, Protocol, EFI_DEVICE_PATH_PROPERTY_DATABASE_SIGNATURE)
 
 // _DEVICE_PATH_PROPERTY_DATABASE
 typedef struct _DEVICE_PATH_PROPERTY_DATABASE {
@@ -54,8 +61,13 @@ typedef struct _DEVICE_PATH_PROPERTY_NODE {
 } EFI_DEVICE_PATH_PROPERTY_NODE;
 
 #define EFI_DEVICE_PATH_PROPERTY_SIGNATURE            EFI_SIGNATURE_32 ('D', 'p', 'p', 0x00)
-#define PROPERTY_FROM_LIST_ENTRY(Entry)               CR (Entry, EFI_DEVICE_PATH_PROPERTY, This, EFI_DEVICE_PATH_PROPERTY_SIGNATURE)
-#define NEXT_EFI_DEVICE_PATH_PROPERTY(Property)       (EFI_DEVICE_PATH_PROPERTY *)((UINTN)(Property) + EFI_DEVICE_PATH_PROPERTY_SIZE (Property))
+
+#define PROPERTY_FROM_LIST_ENTRY(Entry) \
+  CR (Entry, EFI_DEVICE_PATH_PROPERTY, This, EFI_DEVICE_PATH_PROPERTY_SIGNATURE)
+
+#define NEXT_EFI_DEVICE_PATH_PROPERTY(Property) \
+  (EFI_DEVICE_PATH_PROPERTY *)((UINTN)(Property) + EFI_DEVICE_PATH_PROPERTY_SIZE (Property))
+
 #define EFI_DEVICE_PATH_PROPERTY_SIZE(Property)       ((Property)->Name->Hdr.Size + (Property)->Value->Hdr.Size)
 #define EFI_DEVICE_PATH_PROPERTY_VALUE_SIZE(Property) ((Property)->Value->Hdr.Size - sizeof ((Property)->Value->Hdr))
 
@@ -152,4 +164,4 @@ DevicePathPropertyDbGetPropertyBuffer (
   IN OUT UINTN                                       *Size
   );
 
-#endif // ifndef _DEVICE_PATH_PROPERTY_DATABASE_IMPL_H_
+#endif // ifndef __DEVICE_PATH_PROPERTY_DATABASE_IMPL_H__

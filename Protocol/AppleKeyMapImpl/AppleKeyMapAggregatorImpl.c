@@ -1,34 +1,35 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
 ///
-/// @file      ProtocolImpl/AppleKeyMapAggregator/AppleKeyMapAggregator.c
+/// @file      Protocol/AppleKeyMapAggregatorImpl/AppleKeyMapAggregatorImpl.c
 ///
 ///
 ///
 /// @author    Download-Fritz
 /// @date      15/03/2015: Initial version
-/// @copyright The decompilation is of an educational purpose to better understand the behavior of the
-///            Apple EFI implementation and making use of it. In no way is the content's usage licensed
-///            or allowed. All rights remain at Apple Inc. To be used under the terms of 'Fair use'.
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
 
-//
-// CREDITS:
-//   Reversed from AppleKeyMapAggregator.efi and AppleEvent.efi, which are Apple Inc. property
-//   Decompiled by Download-Fritz
-//
-
 #include <AppleEfi.h>
-#include <EfiDriverLib.h>
 #include <EfiDebug.h>
+
+#include <EfiDriverLib.h>
 
 #include <IndustryStandard/AppleHid.h>
 
 #include EFI_PROTOCOL_DEFINITION (SimpleTextIn)
 #include EFI_PROTOCOL_CONSUMER (SimpleTextInputEx)
-#include <Protocol/AppleKeyMapDatabase.h>
-#include <Protocol/AppleKeyMapAggregator.h>
-
-#include <Library/EfiSortLib.h>
-
 #include <Protocol/AppleKeyMapImpl.h>
 
 // AppleKeyMapGetKeyStrokesImpl
@@ -43,7 +44,8 @@
 /// @return
 /// @retval EFI_SUCCESS          The pressed keys have been returned into Keys.
 /// @retval EFI_BUFFER_TOO_SMALL The memory required to return the value exceeds the size of the allocated buffer.
-///                              The required number of keys to allocate to complete the operation has been returned into NoKeys.
+///                              The required number of keys to allocate to complete the operation has been returned
+///                              into NoKeys.
 /// @retval other                An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
@@ -100,7 +102,9 @@ AppleKeyMapGetKeyStrokesImpl (
         } while (Index < KeyStrokesInfo->Hdr.NoKeys);
       }
 
-      KeyStrokesInfo = KEY_STROKES_INFO_FROM_LIST_ENTRY (GetNextNode (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This));
+      KeyStrokesInfo = KEY_STROKES_INFO_FROM_LIST_ENTRY (
+                         GetNextNode (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This)
+                         );
       Result         = IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This);
     } while (!Result);
 
@@ -144,9 +148,9 @@ BubbleSort (
   UINT16 FirstChild;
 
   ASSERT (Operand != NULL);
-  ASSERT (NoChilds != 0);
+  ASSERT (NoChilds > 0);
 
-  if (Operand > 0) {
+  if (Operand != NULL) {
     ++Operand;
     NoRemainingChilds = (NoChilds - 1);
     Index             = 1;
@@ -184,7 +188,8 @@ BubbleSort (
 /// @param[in, out] Keys       The list of keys to check for. The children may be sorted in the process.
 /// @param[in]      ExactMatch Specifies whether Modifiers and Keys should be exact matches or just contained.
 ///
-/// @return               Returns whether or not a list of keys and their modifiers are part of the database of pressed keys.
+/// @return               Returns whether or not a list of keys and their modifiers are part of the database of pressed
+///                       keys.
 /// @retval EFI_SUCCESS   The queried keys are part of the database.
 /// @retval EFI_NOT_FOUND The queried keys could not be found.
 EFI_STATUS

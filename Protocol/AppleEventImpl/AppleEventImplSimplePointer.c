@@ -1,4 +1,28 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
+///
+/// @file      Protocol/AppleEventImpl/AppleEventImplSimplePointer.c
+///
+///            
+///
+/// @author    Download-Fritz
+/// @date      31/02/2015: Initial version
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+///
+
 #include <AppleEfi.h>
+
 #include <EfiDriverLib.h>
 #include <EfiCommonLib.h>
 
@@ -9,7 +33,7 @@
 #include EFI_PROTOCOL_CONSUMER (GraphicsOutput)
 #include EFI_PROTOCOL_CONSUMER (SimplePointer)
 #include <Protocol/AppleKeyMapAggregator.h>
-#include <Protocol/AppleEvent.h>
+#include <Protocol/AppleEventImpl.h>
 
 #include <Library/EfiEventLib.h>
 #include <Library/AppleKeyMapLib.h>
@@ -18,8 +42,6 @@
 #ifdef CPU_IA32
 #include <Library/AppleMathLib.h>
 #endif // ifdef CPU_IA32
-
-#include <Protocol/AppleEventImpl.h>
 
 // UI_SCALE_VARIABLE_NAME
 #define UI_SCALE_VARIABLE_NAME  L"UiScale"
@@ -46,10 +68,28 @@ static EFI_EVENT mSimplePointerPollEvent;
 static UINT8 mUiScale = 1;
 
 // mLeftButtonInformation
-static POINTER_BUTTON_INFORMATION mLeftButtonInformation = { APPLE_EVENT_TYPE_LEFT_BUTTON, 0, 0, 0, FALSE, FALSE, { 0, 0 }, { 0, 0 } };
+static POINTER_BUTTON_INFORMATION mLeftButtonInformation = {
+  APPLE_EVENT_TYPE_LEFT_BUTTON,
+  0,
+  0,
+  0,
+  FALSE,
+  FALSE,
+  { 0, 0 },
+  { 0, 0 }
+};
 
 // mRightButtonInformation
-static POINTER_BUTTON_INFORMATION mRightButtonInformation = { APPLE_EVENT_TYPE_RIGHT_BUTTON, 0, 0, 0, FALSE, FALSE, { 0, 0 }, { 0, 0 } };
+static POINTER_BUTTON_INFORMATION mRightButtonInformation = {
+  APPLE_EVENT_TYPE_RIGHT_BUTTON,
+  0,
+  0,
+  0,
+  FALSE,
+  FALSE,
+  { 0, 0 },
+  { 0, 0 }
+};
 
 // mMousePosition
 static DIMENSION mMousePosition;
@@ -64,6 +104,12 @@ static BOOLEAN mScreenResolutionSet;
 static DIMENSION mScreenResolution;
 
 // AddProtocolInstance
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 static
 VOID
 AddProtocolInstance (
@@ -74,10 +120,16 @@ AddProtocolInstance (
   EFI_PROTOCOL_INSTANCE *Buffer;
   UINTN                 Index;
 
-  Buffer = (EFI_PROTOCOL_INSTANCE *)EfiLibAllocateZeroPool (((mNoSimplePointerInstances + 1) * sizeof (*mSimplePointerInstances)));
+  Buffer = (EFI_PROTOCOL_INSTANCE *)EfiLibAllocateZeroPool (
+                                      ((mNoSimplePointerInstances + 1) * sizeof (*mSimplePointerInstances))
+                                      );
 
   if (Buffer != NULL) {
-    EfiCommonLibCopyMem ((VOID *)Buffer, (VOID *)mSimplePointerInstances, (mNoSimplePointerInstances * sizeof (*mSimplePointerInstances)));
+    EfiCommonLibCopyMem (
+      (VOID *)Buffer,
+      (VOID *)mSimplePointerInstances,
+      (mNoSimplePointerInstances * sizeof (*mSimplePointerInstances))
+      );
 
     Index = mNoSimplePointerInstances;
     ++mNoSimplePointerInstances;
@@ -93,6 +145,12 @@ AddProtocolInstance (
 }
 
 // RemoveUninstalledInstances
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 static
 VOID
 RemoveUninstalledInstances (
@@ -114,7 +172,7 @@ RemoveUninstalledInstances (
   Status = gBS->LocateHandleBuffer (ByProtocol, Protocol, NULL, &NumberHandles, &Buffer);
 
   if (!EFI_ERROR (Status)) {
-    if (*NoInstances != 0) {
+    if (*NoInstances > 0) {
       Instance  = *Instances;
       Index     = 0;
       NoMatches = 0;
@@ -141,7 +199,7 @@ RemoveUninstalledInstances (
         InstanceBuffer = (EFI_PROTOCOL_INSTANCE *)EfiLibAllocateZeroPool (NoMatches * sizeof (*InstanceBuffer));
 
         if (InstanceBuffer != NULL) {
-          if (*NoInstances != 0) {
+          if (*NoInstances > 0) {
             Instance = *Instances;
             Index2   = 0;
             Index    = 0;
@@ -176,6 +234,12 @@ RemoveUninstalledInstances (
 }
 
 // SimplePointerInstallNotifyFunction
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
 EFIAPI
 SimplePointerInstallNotifyFunction (
@@ -189,12 +253,26 @@ SimplePointerInstallNotifyFunction (
   UINTN                       Index;
   EFI_SIMPLE_POINTER_PROTOCOL *Interface;
 
-  Status = (Event != NULL)
-    ? gBS->LocateHandleBuffer (ByRegisterNotify, NULL, mSimplePointerInstallNotifyRegistration, &NumberHandles, &Buffer)
-    : gBS->LocateHandleBuffer (ByProtocol, &gEfiSimplePointerProtocolGuid, NULL, &NumberHandles, &Buffer);
+  if (Event != NULL) {
+    Status = gBS->LocateHandleBuffer (
+                    ByRegisterNotify,
+                    NULL,
+                    mSimplePointerInstallNotifyRegistration,
+                    &NumberHandles,
+                    &Buffer
+                    );
+  } else {
+    Status = gBS->LocateHandleBuffer (
+                    ByProtocol,
+                    &gEfiSimplePointerProtocolGuid,
+                    NULL,
+                    &NumberHandles,
+                    &Buffer
+                    );
+  }
 
   if (!EFI_ERROR (Status)) {
-    if (NumberHandles != 0) {
+    if (NumberHandles > 0) {
       Index = 0;
 
       do {
@@ -212,18 +290,34 @@ SimplePointerInstallNotifyFunction (
   }
 }
 
-// AppleEventCreateSimplePointerInstallNotifyEvent
+// EventCreateSimplePointerInstallNotifyEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-AppleEventCreateSimplePointerInstallNotifyEvent (
+EventCreateSimplePointerInstallNotifyEvent (
   VOID
   )
 {
   EFI_STATUS Status;
 
-  Status = gBS->CreateEvent (EFI_EVENT_NOTIFY_SIGNAL, EFI_TPL_NOTIFY, SimplePointerInstallNotifyFunction, NULL, &mSimplePointerInstallNotifyEvent);
+  Status = gBS->CreateEvent (
+                  EFI_EVENT_NOTIFY_SIGNAL,
+                  EFI_TPL_NOTIFY,
+                  SimplePointerInstallNotifyFunction,
+                  NULL,
+                  &mSimplePointerInstallNotifyEvent
+                  );
 
   if (!EFI_ERROR (Status)) {
-    Status = gBS->RegisterProtocolNotify (&gEfiSimplePointerProtocolGuid, mSimplePointerInstallNotifyEvent, &mSimplePointerInstallNotifyRegistration);
+    Status = gBS->RegisterProtocolNotify (
+                    &gEfiSimplePointerProtocolGuid,
+                    mSimplePointerInstallNotifyEvent,
+                    &mSimplePointerInstallNotifyRegistration
+                    );
 
     if (EFI_ERROR (Status)) {
       gBS->CloseEvent (mSimplePointerInstallNotifyEvent);
@@ -238,6 +332,12 @@ AppleEventCreateSimplePointerInstallNotifyEvent (
 }
 
 // GetScreenResolution
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
 GetScreenResolution (
   VOID
@@ -268,6 +368,12 @@ GetScreenResolution (
 }
 
 // GetUiScaleData
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 INT64
 GetUiScaleData (
   IN INTN  Movement
@@ -296,6 +402,12 @@ GetUiScaleData (
 }
 
 // CreatePointerEventQueryInformation
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 APPLE_EVENT_QUERY_INFORMATION *
 CreatePointerEventQueryInformation (
   IN APPLE_EVENT_TYPE    EventType,
@@ -317,10 +429,16 @@ CreatePointerEventQueryInformation (
 
   EventData.PointerEventType = EventType;
 
-  return AppleEventCreateAppleEventQueryInformation (EventData, FinalEventType, &mMousePosition, Modifiers);
+  return EventCreateAppleEventQueryInfo (EventData, FinalEventType, &mMousePosition, Modifiers);
 }
 
 // HandleButtonInteraction
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
 HandleButtonInteraction (
   IN     EFI_STATUS                  PointerStatus,
@@ -339,17 +457,23 @@ HandleButtonInteraction (
       if (PointerInfo->CurrentButton) {
         PointerInfo->NoButtonPressed  = 0;
         PointerInfo->PreviousPosition = mMousePosition;
-        Information                   = CreatePointerEventQueryInformation (((UINT32)PointerInfo->Button | APPLE_EVENT_TYPE_MOUSE_DOWN), Modifiers);
+        Information                   = CreatePointerEventQueryInformation (
+                                          ((UINT32)PointerInfo->Button | APPLE_EVENT_TYPE_MOUSE_DOWN),
+                                          Modifiers
+                                          );
 
         if (Information != NULL) {
-          AppleEventAddEventQuery (Information);
+          EventAddEventQuery (Information);
         }
       }
     } else if (!PointerInfo->CurrentButton) {
-      Information = CreatePointerEventQueryInformation ((APPLE_EVENT_TYPE)(PointerInfo->Button | APPLE_EVENT_TYPE_MOUSE_UP), Modifiers);
+      Information = CreatePointerEventQueryInformation (
+                      (APPLE_EVENT_TYPE)(PointerInfo->Button | APPLE_EVENT_TYPE_MOUSE_UP),
+                      Modifiers
+                      );
 
       if (Information != NULL) {
-        AppleEventAddEventQuery (Information);
+        EventAddEventQuery (Information);
       }
 
       if (PointerInfo->NoButtonPressed <= 74) {
@@ -370,7 +494,8 @@ HandleButtonInteraction (
         if ((HorizontalMovement < 5) && (VerticalMovement < 5)) {
           EventType = APPLE_EVENT_TYPE_MOUSE_CLICK;
 
-          if ((PointerInfo->PreviousEventType == APPLE_EVENT_TYPE_MOUSE_CLICK) && (PointerInfo->Polls <= DOUBLE_CLICK_SPEED)) {
+          if ((PointerInfo->PreviousEventType == APPLE_EVENT_TYPE_MOUSE_CLICK)
+           && (PointerInfo->Polls <= DOUBLE_CLICK_SPEED)) {
             ValueMovement      = (PointerInfo->CurrentPosition.Horizontal - mMousePosition.Horizontal);
             HorizontalMovement = -ValueMovement;
 
@@ -393,11 +518,15 @@ HandleButtonInteraction (
           Information = CreatePointerEventQueryInformation (((UINT32)PointerInfo->Button | EventType), Modifiers);
 
           if (Information != NULL) {
-            AppleEventAddEventQuery (Information);
+            EventAddEventQuery (Information);
           }
 
           if (PointerInfo->PreviousEventType == APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK) {
-            EventType = ((PointerInfo->Polls <= DOUBLE_CLICK_SPEED) ? APPLE_EVENT_TYPE_MOUSE_CLICK : APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK);
+            EventType = (
+              (PointerInfo->Polls <= DOUBLE_CLICK_SPEED)
+              ? APPLE_EVENT_TYPE_MOUSE_CLICK
+              : APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK
+              );
           }
 
           PointerInfo->PreviousEventType = (UINTN)EventType;
@@ -418,6 +547,12 @@ HandleButtonInteraction (
 }
 
 // SimplePointerPollNotifyFunction
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
 EFIAPI
 SimplePointerPollNotifyFunction (
@@ -444,7 +579,7 @@ SimplePointerPollNotifyFunction (
 
   RemoveUninstalledInstances (&mSimplePointerInstances, &mNoSimplePointerInstances, &gEfiSimplePointerProtocolGuid);
 
-  if (mNoSimplePointerInstances != 0) {
+  if (mNoSimplePointerInstances > 0) {
     Index    = 0;
     Instance = mSimplePointerInstances;
 
@@ -525,18 +660,29 @@ SimplePointerPollNotifyFunction (
     } else if (mMouseMoved == TRUE) {
       mMouseMoved                = FALSE;
       EventData.PointerEventType = APPLE_EVENT_TYPE_MOUSE_MOVED;
-      Information                = AppleEventCreateAppleEventQueryInformation (EventData, APPLE_EVENT_TYPE_MOUSE_MOVED, &mMousePosition, Modifiers);
+      Information                = EventCreateAppleEventQueryInfo (
+                                     EventData,
+                                     APPLE_EVENT_TYPE_MOUSE_MOVED,
+                                     &mMousePosition,
+                                     Modifiers
+                                     );
 
       if (Information != NULL) {
-        AppleEventAddEventQuery (Information);
+        EventAddEventQuery (Information);
       }
     }
   }
 }
 
-// AppleEventCreateSimplePointerPollEvent
+// EventCreateSimplePointerPollEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-AppleEventCreateSimplePointerPollEvent (
+EventCreateSimplePointerPollEvent (
   VOID
   ) // sub_19A2
 {
@@ -552,7 +698,7 @@ AppleEventCreateSimplePointerPollEvent (
   gRT->GetVariable (UI_SCALE_VARIABLE_NAME, &gAppleVendorNvramGuid, NULL, &DataSize, (VOID *)&mUiScale);
   RemoveUninstalledInstances (&mSimplePointerInstances, &mNoSimplePointerInstances, &gEfiSimplePointerProtocolGuid);
 
-  if (mNoSimplePointerInstances != 0) {
+  if (mNoSimplePointerInstances > 0) {
     Index    = 0;
     Instance = mSimplePointerInstances;
 
@@ -569,7 +715,12 @@ AppleEventCreateSimplePointerPollEvent (
   GetScreenResolution ();
   EfiCommonLibZeroMem (&mMousePosition, sizeof (mMousePosition));
 
-  mSimplePointerPollEvent = CreateNotifyEvent (SimplePointerPollNotifyFunction, NULL, EFI_TIMER_PERIOD_MILLISECONDS (2), TRUE);
+  mSimplePointerPollEvent = CreateNotifyEvent (
+                              SimplePointerPollNotifyFunction,
+                              NULL,
+                              EFI_TIMER_PERIOD_MILLISECONDS (2),
+                              TRUE
+                              );
   Status                  = EFI_OUT_OF_RESOURCES;
 
 
@@ -584,18 +735,30 @@ AppleEventCreateSimplePointerPollEvent (
   return Status;
 }
 
-// AppleEventCancelSimplePointerPollEvent
+// EventCancelSimplePointerPollEvent
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 VOID
-AppleEventCancelSimplePointerPollEvent (
+EventCancelSimplePointerPollEvent (
   VOID
   ) // sub_1CE4
 {
   CancelEvent (mSimplePointerPollEvent);
 }
 
-// InternalSetCursorPosition
+// EventInternalSetCursorPosition
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-InternalSetCursorPosition (
+EventInternalSetCursorPosition (
   IN DIMENSION *Position
   ) // sub_1D09
 {

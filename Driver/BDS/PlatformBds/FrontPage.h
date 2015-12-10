@@ -53,7 +53,7 @@ Revision History
 #define SET_VIDEO_BIOS_TYPE_QUESTION_ID 0x00
 
 #pragma pack(1)
-typedef struct {
+typedef PACKED struct {
   UINT8 VideoBIOS;
 } MyDevMgrIfrNVData;
 #pragma pack()

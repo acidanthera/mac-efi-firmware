@@ -1,29 +1,33 @@
+//
+// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
+//
+// This program and the accompanying materials have not been licensed.
+// Neither is its usage, its redistribution, in source or binary form,
+// licensed, nor implicitely or explicitely permitted, except when
+// required by applicable law.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, either express or implied.
+//
+
 ///
-/// @file      Driver/AppleKeyMapAggregator.c
+/// @file      Driver/AppleKeyMapAggregator/AppleKeyMapAggregator.c
 ///
 ///
 ///
 /// @author    Download-Fritz
 /// @date      15/03/2015: Initial version
-/// @copyright The decompilation is of an educational purpose to better understand the behavior of the
-///            Apple EFI implementation and making use of it. In no way is the content's usage licensed
-///            or allowed. All rights remain at Apple Inc. To be used under the terms of 'Fair use'.
+/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
 
-//
-// CREDITS:
-//   Reversed from AppleKeyMapAggregator.efi and AppleEvent.efi, which are Apple Inc. property
-//   Decompiled by Download-Fritz
-//
-
 #include <AppleEfi.h>
-#include <EfiDriverLib.h>
 #include <LinkedList.h>
+
+#include <EfiDriverLib.h>
 
 #include <IndustryStandard/AppleHid.h>
 
-#include <Protocol/AppleKeyMapAggregator.h>
-#include <Protocol/AppleKeyMapDatabase.h>
 #include <Protocol/AppleKeyMapImpl.h>
 
 #include <Library/AppleKeyMapLib.h>
@@ -68,7 +72,9 @@ AppleKeyMapAggregatorMain (
       gBS->FreePool ((VOID *)Buffer);
     }
   } else {
-    Aggregator                                          = (APPLE_KEY_MAP_AGGREGATOR *)EfiLibAllocateZeroPool (sizeof (*Aggregator));
+    Aggregator                                          = (APPLE_KEY_MAP_AGGREGATOR *)EfiLibAllocateZeroPool (
+                                                                                        sizeof (*Aggregator)
+                                                                                        );
     Aggregator->Signature                               = APPLE_KEY_MAP_AGGREGATOR_SIGNATURE;
     Aggregator->NextKeyStrokeIndex                      = 3000;
     Aggregator->DatabaseProtocol.Revision               = APPLE_KEY_MAP_DATABASE_PROTOCOL_REVISION;

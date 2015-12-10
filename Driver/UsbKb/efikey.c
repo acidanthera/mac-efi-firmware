@@ -1,32 +1,31 @@
-/*++
+//
+// Copyright (c) 2004 - 2007, Intel Corporation
+// Portions Copyright (C) 2005 - 2015, Apple Inc
+// All rights reserved. This program and the accompanying materials
+// are licensed and made available under the terms and conditions of the BSD License
+// which accompanies this distribution.  The full text of the license may be found at
+// http://opensource.org/licenses/bsd-license.php//
+// THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+// WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
 
-Copyright (c) 2004 - 2009, Intel Corporation                                                         
-All rights reserved. This program and the accompanying materials                          
-are licensed and made available under the terms and conditions of the BSD License         
-which accompanies this distribution.  The full text of the license may be found at        
-http://opensource.org/licenses/bsd-license.php                                            
-                                                                                          
-THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
-WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
+///
+/// @file      Driver/UsbKb/EfiKey.c
+///
+/// @brief     USB Keyboard Driver
+///
+/// @author    TianoCore
+/// @copyright Copyright (c) 2004 - 2007, Intel Corporation
+/// @copyright Portions Copyright (C) 2005 - 2015, Apple Inc
+///
 
-Module Name:
-
-  EfiKey.c
-    
-Abstract:
-
-  USB Keyboard Driver
-
-Revision History
-
---*/
 #include <AppleEfi.h>
 
 #include <IndustryStandard/AppleHid.h>
 
 #include <Protocol/AppleKeyMapDatabase.h>
 #include <Protocol/ApplePlatformInfoDatabase.h>
-#include <Protocol/KeyboardInfo.h>
+#include <Protocol/KeyboardInformation.h>
 
 #include <Library/UsbDxeLib/hid.h>
 #include <Library/UsbDxeLib/UsbDxeLib.h>
@@ -64,8 +63,8 @@ UsbKbGetKeyboardDeviceInfo (
   return EFI_SUCCESS;
 }
 
-// mKeyboardInfo
-EFI_KEYBOARD_INFO_PROTOCOL mKeyboardInfo = {
+// mKeyboardInformation
+EFI_KEYBOARD_INFORMATION_PROTOCOL mKeyboardInformation = {
   UsbKbGetKeyboardDeviceInfo
 };
 
@@ -512,10 +511,10 @@ USBKeyboardDriverBindingStart (
     }
   }
 
-  Status = mPlatformInfo->GetFirstPlatformInfoDataSize (mPlatformInfo, &NameGuid, &Length);
+  Status = mPlatformInfo->GetFirstDataSize (mPlatformInfo, &NameGuid, &Length);
 
   if (!EFI_ERROR (Status) && (Length == sizeof (Data))) {
-    Status = mPlatformInfo->GetFirstPlatformInfoData (mPlatformInfo, &NameGuid, &Data, &Length);
+    Status = mPlatformInfo->GetFirstData (mPlatformInfo, &NameGuid, &Data, &Length);
 
     if ((Status == EFI_SUCCESS) && (Value == Data) && !mIdsInitialized) {
       Status = UsbGetHidDescriptor (UsbIo, InterfaceNum, &HidDescriptor);
@@ -528,7 +527,7 @@ USBKeyboardDriverBindingStart (
       mIdProduct      = UsbKeyboardDevice->DeviceDescriptor.IdProduct;
       mIdsInitialized = TRUE;
 
-      gBS->InstallProtocolInterface (NULL, &gEfiKeyboardInfoProtocolGuid, EFI_NATIVE_INTERFACE, (VOID *)&mKeyboardInfo);
+      gBS->InstallProtocolInterface (NULL, &gEfiKeyboardInformationProtocolGuid, EFI_NATIVE_INTERFACE, (VOID *)&mKeyboardInformation);
     }
   }
 
