@@ -45,18 +45,18 @@ typedef struct _DEVICE_PATH_PROPERTY_DATABASE {
 // DevicePathPropertyDbGetPropertyValueImpl
 /// Locates a device property in the database and returns its value into Value.
 ///
-/// @param[in]      This       A pointer to the protocol instance.
-/// @param[in]      DevicePath The device path of the device to get the property of.
-/// @param[in]      Name       The Name of the requested property.
-/// @param[out]     Value      The buffer allocated by the caller to return the value of the property into.
-/// @param[in, out] Size       On input the size of the allocated Value buffer.
-///                            On output the size required to fill the buffer.
+/// @param[in]      This        A pointer to the protocol instance.
+/// @param[in]      DevicePath  The device path of the device to get the property of.
+/// @param[in]      Name        The Name of the requested property.
+/// @param[out]     Value       The buffer allocated by the caller to return the value of the property into.
+/// @param[in, out] Size        On input the size of the allocated Value buffer.
+///                             On output the size required to fill the buffer.
 ///
-/// @return                      The status of the operation is returned.
-/// @retval EFI_BUFFER_TOO_SMALL The memory required to return the value exceeds the size of the allocated buffer.
-///                              The required size to complete the operation has been returned into Size.
-/// @retval EFI_NOT_FOUND        The given device path does not have a property with the specified Name.
-/// @retval EFI_SUCCESS          The operation completed successfully and the Value buffer has been filled.
+/// @return                       The status of the operation is returned.
+/// @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds the size of the allocated buffer.
+///                               The required size to complete the operation has been returned into Size.
+/// @retval EFI_NOT_FOUND         The given device path does not have a property with the specified Name.
+/// @retval EFI_SUCCESS           The operation completed successfully and the Value buffer has been filled.
 EFI_STATUS
 EFIAPI
 DevicePathPropertyDbGetPropertyValueImpl (

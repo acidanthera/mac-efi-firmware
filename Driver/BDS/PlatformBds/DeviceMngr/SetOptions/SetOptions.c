@@ -68,7 +68,7 @@ SetOptionsInit (
   //
   // Initialize the library and our protocol.
   //
-  EfiInitializeDriverLib (ImageHandle, SystemTable);
+  AppleInitializeDriverLib (ImageHandle, SystemTable);
 
   //
   // There should only be one HII protocol

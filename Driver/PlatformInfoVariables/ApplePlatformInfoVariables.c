@@ -23,7 +23,7 @@
 
 #include <AppleEfi.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include EFI_ARCH_PROTOCOL_DEFINITION (VariableWrite)
 

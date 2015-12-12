@@ -15,18 +15,11 @@
 ##
 
 [Defines]
-  INF_VERSION = 0x00010005
   BASE_NAME   = UsbKb
   FILE_GUID   = 2D2E62CF-9ECF-43B7-8219-94E7FC713DFE
   MODULE_TYPE = UEFI_DRIVER
   ENTRY_POINT = USBKeyboardDriverBindingEntryPoint
-
-[Sources]
-  efikey.h
-  keyboard.h
-  efikey.c
-  keyboard.c
-  ComponentName.c
+  INF_VERSION = 0x00010005
 
 [Packages]
   EdkBridgePkg/EdkBridgePkg.dec
@@ -39,11 +32,13 @@
   gEfiKeyboardInformationProtocolGuid     ## SOMETIMES_PRODUCES
 
 [LibraryClasses]
-  EdkGuidLib
-  EfiProtocolLib
-  EdkProtocolLib
-  EfiCommonLib
-  EdkFrameworkGuidLib
-  EfiDriverLib
+  AppleDriverLib
   UefiEfiIfrSupportLib
   UsbDxeLib
+
+[Sources]
+  efikey.h
+  keyboard.h
+  efikey.c
+  keyboard.c
+  ComponentName.c

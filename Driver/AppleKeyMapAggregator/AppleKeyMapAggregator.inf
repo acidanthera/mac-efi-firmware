@@ -17,11 +17,11 @@
 ##
 
 [Defines]
-  BASE_NAME      = AppleKeyMapAggregator
-  FILE_GUID      = AC4CE557-F5CD-439E-963C-40F09683DAC5
-  INF_VERSION    = 0x00010005
-  MODULE_TYPE    = UEFI_DRIVER
-  ENTRY_POINT    = AppleKeyMapAggregatorMain
+  BASE_NAME   = AppleKeyMapAggregator
+  FILE_GUID   = AC4CE557-F5CD-439E-963C-40F09683DAC5
+  MODULE_TYPE = UEFI_DRIVER
+  ENTRY_POINT = AppleKeyMapAggregatorMain
+  INF_VERSION = 0x00010005
 
 [Packages]
   ApplePkg/ApplePkg.dec
@@ -34,11 +34,7 @@
   gAppleKeyMapDatabaseProtocolGuid    ## PRODUCES
 
 [LibraryClasses]
-  EfiDriverLib
-  EfiCommonLib
-  EdkFrameworkGuidLib
-  EfiProtocolLib
-  EdkProtocolLib
+  AppleDriverLib
   AppleKeyMapImpl
 
 [Sources]

@@ -17,11 +17,11 @@
 ##
 
 [Defines]
-  BASE_NAME      = AppleSmcIo
-  FILE_GUID      = BA246BC7-7E2F-4AE4-817A-FFDE572E39DE
-  INF_VERSION    = 0x00010005
-  MODULE_TYPE    = UEFI_DRIVER
-  ENTRY_POINT    = AppleSmcIoMain
+  BASE_NAME   = AppleSmcIo
+  FILE_GUID   = BA246BC7-7E2F-4AE4-817A-FFDE572E39DE
+  MODULE_TYPE = UEFI_DRIVER
+  ENTRY_POINT = AppleSmcIoMain
+  INF_VERSION = 0x00010005
 
 [Packages]
   ApplePkg/ApplePkg.dec
@@ -32,11 +32,7 @@
   gAppleSmcIoProtocolGuid  ## PRODUCES
 
 [LibraryClasses]
-  EfiDriverLib
-  EfiCommonLib
-  EdkFrameworkGuidLib
-  EfiProtocolLib
-  EdkProtocolLib
+  AppleDriverLib
   EdkFrameworkProtocolLib
   AppleSmcIoImpl
 

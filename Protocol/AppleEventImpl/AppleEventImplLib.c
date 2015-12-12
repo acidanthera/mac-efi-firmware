@@ -24,7 +24,7 @@
 #include <AppleEfi.h>
 #include <EfiDebug.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include <IndustryStandard/AppleHid.h>
 
@@ -181,7 +181,7 @@ EventImplInitialize (
 
   EFI_LOADED_IMAGE_PROTOCOL *Interface;
 
-  EfiInitializeDriverLib (ImageHandle, SystemTable);
+  AppleInitializeDriverLib (ImageHandle, SystemTable);
   DxeInitializeDriverLib (ImageHandle, SystemTable);
 
   Interface = NULL;

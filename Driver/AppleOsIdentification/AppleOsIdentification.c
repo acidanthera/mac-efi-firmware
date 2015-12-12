@@ -23,7 +23,7 @@
 
 #include <AppleEfi.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include <Protocol/OsIdentification.h>
 #include <Protocol/OsIdentificationImpl.h>
@@ -42,11 +42,11 @@ EFI_DRIVER_ENTRY_POINT (AppleOsIdentificationMain);
 // AppleOsIdentificationMain
 /// 
 ///
-/// @param[in] ImageHandle The firmware allocated handle for the EFI image.  
-/// @param[in] SystemTable A pointer to the EFI System Table.
+/// @param[in] ImageHandle  The firmware allocated handle for the EFI image.
+/// @param[in] SystemTable  A pointer to the EFI System Table.
 ///
-/// @retval EFI_SUCCESS         The entry point is executed successfully.
-/// @retval EFI_ALREADY_STARTED The protocol has already been installed.
+/// @retval EFI_SUCCESS          The entry point is executed successfully.
+/// @retval EFI_ALREADY_STARTED  The protocol has already been installed.
 EFI_STATUS
 EFIAPI
 AppleOsIdentificationMain (
@@ -54,7 +54,7 @@ AppleOsIdentificationMain (
   IN EFI_SYSTEM_TABLE  *SystemTable
   ) // start
 {
-  EfiInitializeDriverLib (ImageHandle, SystemTable);
+  AppleInitializeDriverLib (ImageHandle, SystemTable);
 
   return gBS->InstallProtocolInterface (
                 ImageHandle,

@@ -17,11 +17,11 @@
 ##
 
 [Defines]
-  BASE_NAME      = AppleEvent
-  FILE_GUID      = E364A338-2842-4F57-A7C7-CDC8CFDF6CD7
-  INF_VERSION    = 0x00010005
-  MODULE_TYPE    = UEFI_DRIVER
-  ENTRY_POINT    = AppleEventMain
+  BASE_NAME   = AppleEvent
+  FILE_GUID   = E364A338-2842-4F57-A7C7-CDC8CFDF6CD7
+  MODULE_TYPE = UEFI_DRIVER
+  ENTRY_POINT = AppleEventMain
+  INF_VERSION = 0x00010005
 
 [Packages]
   ApplePkg/ApplePkg.dec
@@ -33,11 +33,7 @@
   gAppleEventProtocolGuid  ## PRODUCES
 
 [LibraryClasses]
-  EfiDriverLib
-  EfiCommonLib
-  EdkFrameworkGuidLib
-  EfiProtocolLib
-  EdkProtocolLib
+  AppleDriverLib
   AppleEventImpl
 
 [Sources]

@@ -86,7 +86,7 @@ PLATFORM_BDS_FILE_PATH  = ..\..\..\..\Platform\Generic\Dxe\$(UEFI_PREFIX)Platfor
   EfiGuidLib
   EdkProtocolLib
   EfiProtocolLib
-  EfiDriverLib
+  AppleDriverLib
   ArchProtocolLib
   GraphicsLite
   HobLib

@@ -28,11 +28,11 @@
 // EfiDevicePathPropertyDatabaseMain
 ///
 ///
-/// @param[in] ImageHandle The firmware allocated handle for the EFI image.  
-/// @param[in] SystemTable A pointer to the EFI System Table.
+/// @param[in] ImageHandle  The firmware allocated handle for the EFI image.
+/// @param[in] SystemTable  A pointer to the EFI System Table.
 ///
-/// @retval EFI_SUCCESS         The entry point is executed successfully.
-/// @retval EFI_ALREADY_STARTED The protocol has already been installed.
+/// @retval EFI_SUCCESS          The entry point is executed successfully.
+/// @retval EFI_ALREADY_STARTED  The protocol has already been installed.
 EFI_STATUS
 EFIAPI
 EfiDevicePathPropertyDatabaseMain (

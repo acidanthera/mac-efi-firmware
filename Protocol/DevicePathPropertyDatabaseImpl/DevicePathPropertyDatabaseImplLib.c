@@ -25,7 +25,7 @@
 #include <EfiDebug.h>
 #include <LinkedList.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include <Guid/AppleNvram.h>
 

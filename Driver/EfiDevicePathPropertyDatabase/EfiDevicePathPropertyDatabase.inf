@@ -17,11 +17,11 @@
 ##
 
 [Defines]
-  BASE_NAME      = EfiDevicePathPropertyDatabase
-  FILE_GUID      = BDFDE060-7E41-4EAE-AD9B-E5BBA7A48A3A
-  INF_VERSION    = 0x00010005
-  MODULE_TYPE    = UEFI_DRIVER
-  ENTRY_POINT    = EfiDevicePathPropertyDatabaseMain
+  BASE_NAME   = EfiDevicePathPropertyDatabase
+  FILE_GUID   = BDFDE060-7E41-4EAE-AD9B-E5BBA7A48A3A
+  INF_VERSION = 0x00010005
+  MODULE_TYPE = UEFI_DRIVER
+  ENTRY_POINT = EfiDevicePathPropertyDatabaseMain
 
 [Packages]
   ApplePkg/ApplePkg.dec
@@ -36,10 +36,7 @@
   gEfiDevicePathPropertyDatabaseProtocolGuid  ## PRODUCES
 
 [LibraryClasses]
-  EfiDriverLib
-  EfiProtocolLib
-  EdkProtocolLib
-  EdkFrameworkGuidLib
+  AppleDriverLib
   EfiDevicePathPropertyDatabaseImpl
 
 [Sources]

@@ -49,7 +49,7 @@ COMPONENT_TYPE       = BS_DRIVER
 
 [libraries.common]
   EdkFrameworkProtocolLib
-  EfiDriverLib
+  AppleDriverLib
   EfiIfrSupportLib
   PrintLibLite
   EfiProtocolLib

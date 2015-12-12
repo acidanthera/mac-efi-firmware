@@ -17,11 +17,11 @@
 ##
 
 [Defines]
-  BASE_NAME      = ApplePlatformInfoDB
-  FILE_GUID      = 8B24E4D4-C84C-4FFC-81E5-D3EACC3F08D
-  INF_VERSION    = 0x00010005
-  MODULE_TYPE    = DXE_DRIVER
-  ENTRY_POINT    = ApplePlatformInfoDBMain
+  BASE_NAME   = ApplePlatformInfoDB
+  FILE_GUID   = 8B24E4D4-C84C-4FFC-81E5-D3EACC3F08D
+  MODULE_TYPE = DXE_DRIVER
+  ENTRY_POINT = ApplePlatformInfoDBMain
+  INF_VERSION = 0x00010005
 
 [Packages]
   ApplePkg/ApplePkg.dec
@@ -36,12 +36,7 @@
   gApplePlatformInfoDatabaseProtocolGuid  ## PRODUCES
 
 [LibraryClasses]
-  EfiDriverLib
-  EfiCommonLib
-  EdkGuidLib
-  EdkFrameworkGuidLib
-  EfiProtocolLib
-  EdkProtocolLib
+  AppleDriverLib
   EdkFrameworkProtocolLib
   ApplePlatformInfoDatabaseImpl
 

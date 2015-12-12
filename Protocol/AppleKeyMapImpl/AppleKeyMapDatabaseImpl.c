@@ -24,7 +24,7 @@
 #include <AppleEfi.h>
 #include <LinkedList.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include <Library/AppleKeyMapLib.h>
 
@@ -33,14 +33,14 @@
 // KeyMapCreateKeyStrokesBufferImpl
 /// Creates a new key set with a given number of keys allocated. The index within the database is returned.
 ///
-/// @param[in]  This            A pointer to the protocol instance.
-/// @param[in]  KeyBufferSize The amount of keys to allocate for the key set.
-/// @param[out] Index           The assigned index of the created key set.
+/// @param[in]  This           A pointer to the protocol instance.
+/// @param[in]  KeyBufferSize  The amount of keys to allocate for the key set.
+/// @param[out] Index          The assigned index of the created key set.
 ///
-/// @return                      Returned is the status of the operation.
-/// @retval EFI_SUCCESS          A key set with the given number of keys allocated has been created.
-/// @retval EFI_OUT_OF_RESOURCES The memory necessary to complete the operation could not be allocated.
-/// @retval other                An error returned by a sub-operation.
+/// @return                       Returned is the status of the operation.
+/// @retval EFI_SUCCESS           A key set with the given number of keys allocated has been created.
+/// @retval EFI_OUT_OF_RESOURCES  The memory necessary to complete the operation could not be allocated.
+/// @retval other                 An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
 KeyMapCreateKeyStrokesBufferImpl (
@@ -93,13 +93,13 @@ KeyMapCreateKeyStrokesBufferImpl (
 // KeyMapRemoveKeyStrokesBufferImpl
 /// Removes a key set specified by its index from the database.
 ///
-/// @param[in]  This  A pointer to the protocol instance.
-/// @param[in]  Index The index of the key set to remove.
+/// @param[in] This   A pointer to the protocol instance.
+/// @param[in] Index  The index of the key set to remove.
 ///
-/// @return               Returned is the status of the operation.
-/// @retval EFI_SUCCESS   The specified key set has been removed.
-/// @retval EFI_NOT_FOUND No key set could be found for the given index.
-/// @retval other         An error returned by a sub-operation.
+/// @return                Returned is the status of the operation.
+/// @retval EFI_SUCCESS    The specified key set has been removed.
+/// @retval EFI_NOT_FOUND  No key set could be found for the given index.
+/// @retval other          An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
 KeyMapRemoveKeyStrokesBufferImpl (
@@ -131,17 +131,17 @@ KeyMapRemoveKeyStrokesBufferImpl (
 // KeyMapSetKeyStrokeBufferKeysImpl
 /// Sets the keys of a key set specified by its index to the given Keys buffer.
 ///
-/// @param[in] This      A pointer to the protocol instance.
-/// @param[in] Index     The index of the key set to edit.
-/// @param[in] Modifiers The key modifiers manipulating the given keys.
-/// @param[in] NoKeys    The number of keys contained in Keys.
-/// @param[in] Keys      An array of keys to add to the specified key set.
+/// @param[in] This       A pointer to the protocol instance.
+/// @param[in] Index      The index of the key set to edit.
+/// @param[in] Modifiers  The key modifiers manipulating the given keys.
+/// @param[in] NoKeys     The number of keys contained in Keys.
+/// @param[in] Keys       An array of keys to add to the specified key set.
 ///
-/// @return                      Returned is the status of the operation.
-/// @retval EFI_SUCCESS          The given keys were set for the specified key set.
-/// @retval EFI_OUT_OF_RESOURCES The memory necessary to complete the operation could not be allocated.
-/// @retval EFI_NOT_FOUND        No key set could be found for the given index.
-/// @retval other                An error returned by a sub-operation.
+/// @return                       Returned is the status of the operation.
+/// @retval EFI_SUCCESS           The given keys were set for the specified key set.
+/// @retval EFI_OUT_OF_RESOURCES  The memory necessary to complete the operation could not be allocated.
+/// @retval EFI_NOT_FOUND         No key set could be found for the given index.
+/// @retval other                 An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
 KeyMapSetKeyStrokeBufferKeysImpl (

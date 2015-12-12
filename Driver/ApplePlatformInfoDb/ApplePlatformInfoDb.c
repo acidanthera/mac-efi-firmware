@@ -12,7 +12,7 @@
 //
 
 ///
-/// @file      Driver/ApplePlatformInfoDb/ApplePlatformInfoDb.c
+/// @file      Driver/ApplePlatformInfoDb/ApplePlatformInfoDB.c
 ///
 ///            
 ///
@@ -23,7 +23,7 @@
 
 #include <AppleEfi.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 #include <EfiHobLib.h>
 
 #include EFI_GUID_DEFINITION (Hob)
@@ -48,11 +48,11 @@ EFI_DRIVER_ENTRY_POINT (ApplePlatformInfoDBMain);
 // ApplePlatformInfoDBMain
 ///
 ///
-/// @param[in] ImageHandle The firmware allocated handle for the EFI image.  
-/// @param[in] SystemTable A pointer to the EFI System Table.
+/// @param[in] ImageHandle  The firmware allocated handle for the EFI image.
+/// @param[in] SystemTable  A pointer to the EFI System Table.
 ///
-/// @retval EFI_SUCCESS         The entry point is executed successfully.
-/// @retval EFI_ALREADY_STARTED The protocol has already been installed.
+/// @retval EFI_SUCCESS          The entry point is executed successfully.
+/// @retval EFI_ALREADY_STARTED  The protocol has already been installed.
 EFI_STATUS
 EFIAPI
 ApplePlatformInfoDBMain (
@@ -78,7 +78,7 @@ ApplePlatformInfoDBMain (
   UINT32                       AuthenticationStatus;
   APPLE_PLATFORM_INFO_DATABASE *PlatformInfoDatabase;
 
-  EfiInitializeDriverLib (ImageHandle, SystemTable);
+  AppleInitializeDriverLib (ImageHandle, SystemTable);
 
   FirmwareVolumeProtocol = NULL; /////
   HobListTable2          = NULL; /////////

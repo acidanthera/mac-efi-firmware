@@ -23,7 +23,7 @@
 
 #include <AppleEfi.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include EFI_PROTOCOL_CONSUMER (LoadedImage)
 #include <Protocol/AppleEventImpl.h>
@@ -64,11 +64,11 @@ EFI_DRIVER_ENTRY_POINT (AppleEventMain);
 // AppleEventMain
 /// 
 ///
-/// @param[in] ImageHandle The firmware allocated handle for the EFI image.  
-/// @param[in] SystemTable A pointer to the EFI System Table.
+/// @param[in] ImageHandle  The firmware allocated handle for the EFI image.
+/// @param[in] SystemTable  A pointer to the EFI System Table.
 ///
-/// @retval EFI_SUCCESS         The entry point is executed successfully.
-/// @retval EFI_ALREADY_STARTED The protocol has already been installed.
+/// @retval EFI_SUCCESS          The entry point is executed successfully.
+/// @retval EFI_ALREADY_STARTED  The protocol has already been installed.
 EFI_STATUS
 EFIAPI
 AppleEventMain (

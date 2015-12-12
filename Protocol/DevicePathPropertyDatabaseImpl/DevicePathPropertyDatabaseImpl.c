@@ -26,7 +26,7 @@
 #include <EfiDebug.h>
 #include <LinkedList.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include <Guid/AppleNvram.h>
 
@@ -35,18 +35,18 @@
 // DevicePathPropertyDbGetPropertyValueImpl
 /// Locates a device property in the database and returns its value into Value.
 ///
-/// @param[in]      This       A pointer to the protocol instance.
-/// @param[in]      DevicePath The device path of the device to get the property of.
-/// @param[in]      Name       The Name of the requested property.
-/// @param[out]     Value      The buffer allocated by the caller to return the value of the property into.
-/// @param[in, out] Size     On input the size of the allocated Value buffer.
-///                            On output the size required to fill the buffer.
+/// @param[in]      This        A pointer to the protocol instance.
+/// @param[in]      DevicePath  The device path of the device to get the property of.
+/// @param[in]      Name        The Name of the requested property.
+/// @param[out]     Value       The buffer allocated by the caller to return the value of the property into.
+/// @param[in, out] Size        On input the size of the allocated Value buffer.
+///                             On output the size required to fill the buffer.
 ///
-/// @return                      The status of the operation is returned.
-/// @retval EFI_BUFFER_TOO_SMALL The memory required to return the value exceeds the size of the allocated buffer.
-///                              The required size to complete the operation has been returned into Size.
-/// @retval EFI_NOT_FOUND        The given device path does not have a property with the specified Name.
-/// @retval EFI_SUCCESS          The operation completed successfully and the Value buffer has been filled.
+/// @return                       The status of the operation is returned.
+/// @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds the size of the allocated buffer.
+///                               The required size to complete the operation has been returned into Size.
+/// @retval EFI_NOT_FOUND         The given device path does not have a property with the specified Name.
+/// @retval EFI_SUCCESS           The operation completed successfully and the Value buffer has been filled.
 EFI_STATUS
 EFIAPI
 DevicePathPropertyDbGetPropertyValueImpl (
@@ -93,15 +93,15 @@ DevicePathPropertyDbGetPropertyValueImpl (
 // DevicePathPropertyDbSetPropertyImpl
 /// Sets the sepcified property of the given device path to the provided Value.
 ///
-/// @param[in]  This       A pointer to the protocol instance.
-/// @param[in]  DevicePath The device path of the device to set the property of.
-/// @param[in]  Name       The Name of the desired property.
-/// @param[in]  Value      The buffer holding the value to set the property to.
-/// @param[out] Size       The size of the Value buffer.
+/// @param[in]  This        A pointer to the protocol instance.
+/// @param[in]  DevicePath  The device path of the device to set the property of.
+/// @param[in]  Name        The Name of the desired property.
+/// @param[in]  Value       The buffer holding the value to set the property to.
+/// @param[out] Size        The size of the Value buffer.
 ///
-/// @return                      The status of the operation is returned.
-/// @retval EFI_OUT_OF_RESOURCES The memory necessary to complete the operation could not be allocated.
-/// @retval EFI_SUCCESS          The operation completed successfully and the Value buffer has been filled.
+/// @return                       The status of the operation is returned.
+/// @retval EFI_OUT_OF_RESOURCES  The memory necessary to complete the operation could not be allocated.
+/// @retval EFI_SUCCESS           The operation completed successfully and the Value buffer has been filled.
 EFI_STATUS
 EFIAPI
 DevicePathPropertyDbSetPropertyImpl (
@@ -206,13 +206,13 @@ Return:
 // DevicePathPropertyDbRemovePropertyImpl
 /// Removes the sepcified property from the given device path.
 ///
-/// @param[in] This       A pointer to the protocol instance.
-/// @param[in] DevicePath The device path of the device to set the property of.
-/// @param[in] Name       The Name of the desired property.
+/// @param[in] This        A pointer to the protocol instance.
+/// @param[in] DevicePath  The device path of the device to set the property of.
+/// @param[in] Name        The Name of the desired property.
 ///
-/// @return               The status of the operation is returned.
-/// @retval EFI_NOT_FOUND The given device path does not have a property with the specified Name.
-/// @retval EFI_SUCCESS   The operation completed successfully.
+/// @return                The status of the operation is returned.
+/// @retval EFI_NOT_FOUND  The given device path does not have a property with the specified Name.
+/// @retval EFI_SUCCESS    The operation completed successfully.
 EFI_STATUS
 EFIAPI
 DevicePathPropertyDbRemovePropertyImpl (
@@ -260,15 +260,15 @@ DevicePathPropertyDbRemovePropertyImpl (
 // DevicePathPropertyDbGetPropertyBufferImpl
 /// Returns a buffer of all device properties into Buffer.
 ///
-/// @param[in]      This   A pointer to the protocol instance.
-/// @param[out]     Buffer The buffer allocated by the caller to return the property buffer into.
-/// @param[in, out] Size On input the size of the allocated Buffer.
-///                                                   On output the size required to fill the buffer.
+/// @param[in]      This    A pointer to the protocol instance.
+/// @param[out]     Buffer  The buffer allocated by the caller to return the property buffer into.
+/// @param[in, out] Size    On input the size of the allocated Buffer.
+///                         On output the size required to fill the buffer.
 ///
-/// @return                      The status of the operation is returned.
-/// @retval EFI_BUFFER_TOO_SMALL The memory required to return the value exceeds the size of the allocated buffer.
-///                              The required size to complete the operation has been returned into Size.
-/// @retval EFI_SUCCESS          The operation completed successfully.
+/// @return                       The status of the operation is returned.
+/// @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds the size of the allocated buffer.
+///                               The required size to complete the operation has been returned into Size.
+/// @retval EFI_SUCCESS           The operation completed successfully.
 EFI_STATUS
 EFIAPI
 DevicePathPropertyDbGetPropertyBufferImpl (

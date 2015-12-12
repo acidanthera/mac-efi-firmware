@@ -24,7 +24,7 @@
 #include <AppleEfi.h>
 #include <EfiImageFormat.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include "ApplePlatformInfoDatabaseImplInternal.h"
 

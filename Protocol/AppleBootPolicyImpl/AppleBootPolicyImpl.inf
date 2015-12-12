@@ -18,9 +18,9 @@
 
 [Defines]
   BASE_NAME     = AppleBootPolicyImpl
-  INF_VERSION   = 0x00010005
   MODULE_TYPE   = UEFI_DRIVER
   LIBRARY_CLASS = AppleBootPolicyImpl
+  INF_VERSION   = 0x00010005
 
 [Packages]
   ApplePkg/ApplePkg.dec
@@ -32,15 +32,10 @@
   gAppleBlessedFolderInfoId  ## CONSUMES
 
 [LibraryClasses]
-  EfiDriverLib
-  EfiCommonLib
-  EdkFrameworkGuidLib
-  EfiProtocolLib
-  EdkProtocolLib
+  AppleDriverLib
 
 [Sources]
   ../../Include/Protocol/AppleBootPolicyImpl.h
   AppleBootPolicyImplInternal.h
   AppleBootPolicyImplLib.c
   AppleBootPolicyImpl.c
-

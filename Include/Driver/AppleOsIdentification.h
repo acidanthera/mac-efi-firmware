@@ -27,7 +27,7 @@
 // AppleOsIdentificationMain
 /// 
 ///
-/// @param[in] ImageHandle The firmware allocated handle for the EFI image.  
+/// @param[in] ImageHandle The firmware allocated handle for the EFI image.
 /// @param[in] SystemTable A pointer to the EFI System Table.
 ///
 /// @retval EFI_SUCCESS         The entry point is executed successfully.

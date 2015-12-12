@@ -23,7 +23,7 @@
 
 #include <AppleEfi.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include EFI_PROTOCOL_CONSUMER (CpuIo)
 #include <Protocol/AppleSmcIoImpl.h>
@@ -78,7 +78,7 @@ AppleSmcIoMain (
   SMC_ADDRESS         SmcAddress;
   SMC_DEV             *SmcDevChild;
 
-  EfiInitializeDriverLib (ImageHandle, SystemTable);
+  AppleInitializeDriverLib (ImageHandle, SystemTable);
 
   Status = gBS->LocateProtocol (&gEfiCpuIoProtocolGuid, NULL, (VOID **)&CpuIo);
 

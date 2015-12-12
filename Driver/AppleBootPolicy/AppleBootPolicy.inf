@@ -17,11 +17,11 @@
 ##
 
 [Defines]
-  BASE_NAME      = AppleBootPolicy
-  FILE_GUID      = 4391AA92-6644-4D8A-9A84-DDD405C312F3
-  INF_VERSION    = 0x00010005
-  MODULE_TYPE    = UEFI_DRIVER
-  ENTRY_POINT    = AppleBootPolicyMain
+  BASE_NAME   = AppleBootPolicy
+  FILE_GUID   = 4391AA92-6644-4D8A-9A84-DDD405C312F3
+  MODULE_TYPE = UEFI_DRIVER
+  ENTRY_POINT = AppleBootPolicyMain
+  INF_VERSION = 0x00010005
 
 [Packages]
   ApplePkg/ApplePkg.dec
@@ -32,11 +32,7 @@
   gAppleBootPolicyProtocolGuid  ## PRODUCES
 
 [LibraryClasses]
-  EfiDriverLib
-  EfiCommonLib
-  EdkFrameworkGuidLib
-  EfiProtocolLib
-  EdkProtocolLib
+  AppleDriverLib
   AppleBootPolicyImpl
 
 [Sources]

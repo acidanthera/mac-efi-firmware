@@ -24,7 +24,7 @@
 #include <AppleEfi.h>
 #include <EfiDebug.h>
 
-#include <EfiDriverLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include EFI_PROTOCOL_DEFINITION (SimpleTextIn)
 #include EFI_PROTOCOL_CONSUMER (SimpleTextInputEx)
@@ -34,18 +34,18 @@
 // KeyMapGetKeyStrokesImpl
 /// Returns all pressed keys and key modifiers into the appropiate buffers.
 ///
-/// @param[in]  This      A pointer to the protocol instance.
-/// @param[out] Modifiers The modifiers manipulating the given keys.
-/// @param[out] NoKeys    On input the number of keys allocated.
-///                       On output the number of keys returned into Keys.
-/// @param[out] Keys      A Pointer to a caller-allocated the pressed keys get returned in.
+/// @param[in]  This       A pointer to the protocol instance.
+/// @param[out] Modifiers  The modifiers manipulating the given keys.
+/// @param[out] NoKeys     On input the number of keys allocated.
+///                        On output the number of keys returned into Keys.
+/// @param[out] Keys       A Pointer to a caller-allocated the pressed keys get returned in.
 ///
 /// @return
-/// @retval EFI_SUCCESS          The pressed keys have been returned into Keys.
-/// @retval EFI_BUFFER_TOO_SMALL The memory required to return the value exceeds the size of the allocated buffer.
-///                              The required number of keys to allocate to complete the operation has been returned
-///                              into NoKeys.
-/// @retval other                An error returned by a sub-operation.
+/// @retval EFI_SUCCESS           The pressed keys have been returned into Keys.
+/// @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds the size of the allocated buffer.
+///                               The required number of keys to allocate to complete the operation has been returned
+///                               into NoKeys.
+/// @retval other                 An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
 KeyMapGetKeyStrokesImpl (
@@ -131,16 +131,16 @@ Return:
 // KeyMapContainsKeyStrokesImpl
 /// Returns whether or not a list of keys and their modifiers are part of the database of pressed keys.
 ///
-/// @param[in]      This       A pointer to the protocol instance.
-/// @param[in]      Modifiers  The modifiers manipulating the given keys.
-/// @param[in]      NoKeys     The number of keys present in Keys.
-/// @param[in, out] Keys       The list of keys to check for. The children may be sorted in the process.
-/// @param[in]      ExactMatch Specifies whether Modifiers and Keys should be exact matches or just contained.
+/// @param[in]      This        A pointer to the protocol instance.
+/// @param[in]      Modifiers   The modifiers manipulating the given keys.
+/// @param[in]      NoKeys      The number of keys present in Keys.
+/// @param[in, out] Keys        The list of keys to check for. The children may be sorted in the process.
+/// @param[in]      ExactMatch  Specifies whether Modifiers and Keys should be exact matches or just contained.
 ///
-/// @return               Returns whether or not a list of keys and their modifiers are part of the database of pressed
-///                       keys.
-/// @retval EFI_SUCCESS   The queried keys are part of the database.
-/// @retval EFI_NOT_FOUND The queried keys could not be found.
+/// @return                Returns whether or not a list of keys and their modifiers are part of the database of pressed
+///                        keys.
+/// @retval EFI_SUCCESS    The queried keys are part of the database.
+/// @retval EFI_NOT_FOUND  The queried keys could not be found.
 EFI_STATUS
 EFIAPI
 KeyMapContainsKeyStrokesImpl (
