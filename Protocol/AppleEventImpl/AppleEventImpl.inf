@@ -46,6 +46,7 @@
 
 [Sources]
   ../../Include/Protocol/AppleEventImpl.h
+  AppleEventImplInternal.h
   AppleEventImplLib.c
   AppleEventImplSimplePointer.c
   AppleEventImplKeyHandler.c

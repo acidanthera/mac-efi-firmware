@@ -26,37 +26,32 @@
 
 #include <EfiDriverLib.h>
 
-#include <Guid/AppleNvram.h>
-
 #include <IndustryStandard/AppleHid.h>
+
+#include <Guid/AppleNvram.h>
 
 #include EFI_PROTOCOL_CONSUMER (ConsoleControl)
 #include EFI_PROTOCOL_CONSUMER (GraphicsOutput)
 #include EFI_PROTOCOL_CONSUMER (LoadedImage)
 #include EFI_PROTOCOL_CONSUMER (SimplePointer)
 #include <Protocol/AppleKeyMapAggregator.h>
-#include <Protocol/AppleEventImpl.h>
 
 #include <Library/AppleKeyMapLib.h>
 #include <Library/AppleEventLib.h>
 
-// KEY_STROKE_DELAY
-#define KEY_STROKE_DELAY  5
-
-// mAppleEventHandleList
-extern EFI_LIST mEventHandleList;
+#include "AppleEventImplInternal.h"
 
 // mEfiLock
 static EFI_LOCK mEfiLock;
 
 // mQueryEvent
-static EFI_EVENT mQueryEvent;
+static EFI_EVENT mQueryEvent = NULL;
 
 // mQueryEventCreated
-static BOOLEAN mQueryEventCreated;
+static BOOLEAN mQueryEventCreated = FALSE;
 
 // mEventQueryList
-static EFI_LIST mEventQueryList;
+static EFI_LIST mEventQueryList = INITIALIZE_LIST_HEAD_VARIABLE (mEventQueryList);
 
 // CreateTimerEvent
 /// 
@@ -168,7 +163,7 @@ UnloadAppleEvent (
   return gBS->UninstallProtocolInterface (ImageHandle, &gAppleEventProtocolGuid, (VOID *)&mAppleEventProtocol);
 }
 
-// EventInitialize
+// EventImplInitialize
 /// 
 ///
 /// @param 
@@ -177,7 +172,7 @@ UnloadAppleEvent (
 /// @retval 
 EFI_STATUS
 EFIAPI
-EventInitialize (
+EventImplInitialize (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   )

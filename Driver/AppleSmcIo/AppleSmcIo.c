@@ -31,22 +31,28 @@
 // gAppleSmcIoProtocolTemplate
 static APPLE_SMC_IO_PROTOCOL gAppleSmcIoProtocolTemplate = {
   APPLE_SMC_IO_PROTOCOL_REVISION,
-  SmcReadValue,
-  SmcWriteValue,
-  SmcGetKeyCount,
-  SmcMakeKey,
-  SmcGetKeyFromIndex,
-  SmcGetKeyInfo,
-  SmcReset,
-  SmcFlashType,
-  SmcUnsupported,
-  SmcFlashWrite,
-  SmcFlashAuth,
+  SmcIoSmcReadValueImpl,
+  SmcIoSmcWriteValueImpl,
+  SmcIoSmcGetKeyCountImpl,
+  SmcIoSmcMakeKeyImpl,
+  SmcIoSmcGetKeyFromIndexImpl,
+  SmcIoSmcGetKeyInfoImpl,
+  SmcIoSmcResetImpl,
+  SmcIoSmcFlashTypeImpl,
+  SmcIoSmcUnsupportedImpl,
+  SmcIoSmcFlashWriteImpl,
+  SmcIoSmcFlashAuthImpl,
   0,
   SMC_PORT_BASE,
   FALSE,
-  { 0, 0, 0, 0, 0 } // TODO: Add missing protocol functions
+  SmcIoSmcUnknown1Impl,
+  SmcIoSmcUnknown2Impl,
+  SmcIoSmcUnknown3Impl,
+  SmcIoSmcUnknown4Impl,
+  SmcIoSmcUnknown5Impl
 };
+
+EFI_DRIVER_ENTRY_POINT (AppleSmcIoMain);
 
 // AppleSmcIoMain
 /// 
@@ -105,7 +111,7 @@ AppleSmcIoMain (
       } else {
         NoSmc = 1;
 
-        SmcReadValue (&SmcDev->SmcIo, SMC_KEY_NUM, sizeof (NoSmc), (VOID *)&NoSmc);
+        SmcIoSmcReadValueImpl (&SmcDev->SmcIo, SMC_KEY_NUM, sizeof (NoSmc), (VOID *)&NoSmc);
 
         Index    = 1;
         SmcIndex = Index;
@@ -114,10 +120,10 @@ AppleSmcIoMain (
           Status = EFI_SUCCESS;
         } else {
           do {
-            Status = SmcWriteValue (&SmcDev->SmcIo, SMC_KEY_NUM, sizeof (SmcIndex), (VOID *)&SmcIndex);
+            Status = SmcIoSmcWriteValueImpl (&SmcDev->SmcIo, SMC_KEY_NUM, sizeof (SmcIndex), (VOID *)&SmcIndex);
 
             if (!EFI_ERROR (Status)) {
-              Status = SmcReadValue (&SmcDev->SmcIo, SMC_KEY_ADR, sizeof (SmcAddress), (VOID *)&SmcAddress);
+              Status = SmcIoSmcReadValueImpl (&SmcDev->SmcIo, SMC_KEY_ADR, sizeof (SmcAddress), (VOID *)&SmcAddress);
 
               if (!EFI_ERROR (Status)) {
                 SmcDevChild = (SMC_DEV *)EfiLibAllocateZeroPool (sizeof (*SmcDevChild));

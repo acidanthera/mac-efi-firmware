@@ -18,7 +18,6 @@
 ///
 /// @author    Download-Fritz
 /// @date      19/12/2014: Initial version
-/// @date      23/02/2015: Minor tweaks
 /// @date      15/03/2015: Updated documentation and restructuring
 /// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
@@ -49,8 +48,8 @@
 EFI_STATUS
 EFIAPI
 BootPolicyGetBootFileImpl (
-	IN  EFI_HANDLE            Device,
-	OUT FILEPATH_DEVICE_PATH  **BootFilePath
-	);
+  IN  EFI_HANDLE            Device,
+  OUT FILEPATH_DEVICE_PATH  **BootFilePath
+  );
 
 #endif // ifndef __APPLE_BOOT_POLICY_IMPL_H__

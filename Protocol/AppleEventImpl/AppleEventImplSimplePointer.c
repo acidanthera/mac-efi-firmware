@@ -26,14 +26,13 @@
 #include <EfiDriverLib.h>
 #include <EfiCommonLib.h>
 
-#include <Guid/AppleNvram.h>
-
 #include <IndustryStandard/AppleHid.h>
+
+#include <Guid/AppleNvram.h>
 
 #include EFI_PROTOCOL_CONSUMER (GraphicsOutput)
 #include EFI_PROTOCOL_CONSUMER (SimplePointer)
 #include <Protocol/AppleKeyMapAggregator.h>
-#include <Protocol/AppleEventImpl.h>
 
 #include <Library/EfiEventLib.h>
 #include <Library/AppleKeyMapLib.h>
@@ -43,26 +42,31 @@
 #include <Library/AppleMathLib.h>
 #endif // ifdef CPU_IA32
 
-// UI_SCALE_VARIABLE_NAME
-#define UI_SCALE_VARIABLE_NAME  L"UiScale"
+#include "AppleEventImplInternal.h"
 
-// DOUBLE_CLICK_SPEED
-#define DOUBLE_CLICK_SPEED  374
+// UI_SCALE_VARIABLE_NAME
+#define UI_SCALE_VARIABLE_NAME  L"UIScale"
+
+/// @{
+#define MINIMAL_DOUBLE_CLICK_SPEED  374
+#define MAXIMAL_CLICK_DURATION      74
+#define MINIMAL_MOVEMENT            5
+/// @}
 
 // mSimplePointerInstallNotifyEvent
-EFI_EVENT mSimplePointerInstallNotifyEvent;
+EFI_EVENT mSimplePointerInstallNotifyEvent = NULL;
 
 // mSimplePointerInstallNotifyRegistration
-static VOID *mSimplePointerInstallNotifyRegistration;
+static VOID *mSimplePointerInstallNotifyRegistration = NULL;
 
 // mSimplePointerInstances
 EFI_PROTOCOL_INSTANCE *mSimplePointerInstances = NULL;
 
 // mNoSimplePointerInstances
-static UINTN mNoSimplePointerInstances;
+static UINTN mNoSimplePointerInstances = 0;
 
 // mSimplePointerPollEvent
-static EFI_EVENT mSimplePointerPollEvent;
+static EFI_EVENT mSimplePointerPollEvent = NULL;
 
 // mUiScale
 static UINT8 mUiScale = 1;
@@ -91,8 +95,8 @@ static POINTER_BUTTON_INFORMATION mRightButtonInformation = {
   { 0, 0 }
 };
 
-// mMousePosition
-static DIMENSION mMousePosition;
+// mCursorPosition
+static DIMENSION mCursorPosition;
 
 // mMouseMoved
 static BOOLEAN mMouseMoved;
@@ -131,9 +135,8 @@ AddProtocolInstance (
       (mNoSimplePointerInstances * sizeof (*mSimplePointerInstances))
       );
 
-    Index = mNoSimplePointerInstances;
+    Index                   = mNoSimplePointerInstances;
     ++mNoSimplePointerInstances;
-
     Buffer[Index].Handle    = Handle;
     Buffer[Index].Interface = Interface;
     Buffer[Index].Installed = TRUE;
@@ -157,7 +160,7 @@ RemoveUninstalledInstances (
   IN OUT EFI_PROTOCOL_INSTANCE  **Instances,
   IN     UINTN                  *NoInstances,
   IN     EFI_GUID               *Protocol
-  )
+  ) // sub_BC6
 {
   EFI_STATUS            Status;
 
@@ -245,7 +248,7 @@ EFIAPI
 SimplePointerInstallNotifyFunction (
   IN EFI_EVENT  Event,
   IN VOID       *Context
-  )
+  ) // sub_A76
 {
   EFI_STATUS                  Status;
   UINTN                       NumberHandles;
@@ -377,24 +380,24 @@ GetScreenResolution (
 INT64
 GetUiScaleData (
   IN INTN  Movement
-  )
+  ) // sub_1FC0
 {
   INTN  AbsoluteValue;
-  UINT8 Log2Value;
+  UINT8 Value;
   INTN  Factor;
 
-  /*
-  INTN  Mask;
-
-  Mask          = (Movement >> ((sizeof (Movement) * 8) - 1));
-  AbsoluteValue = ((Movement + Mask) ^ Mask);
-  */
+  //
+  // INTN  Mask;
+  //
+  // Mask          = (Movement >> ((sizeof (Movement) * 8) - 1));
+  // AbsoluteValue = ((Movement + Mask) ^ Mask);
+  //
 
   AbsoluteValue = ((Movement < 0) ? -Movement : Movement);
-  Log2Value     = Log2 (AbsoluteValue);
+  Value         = Log2 (AbsoluteValue);
   Factor        = 5;
 
-  if (Log2Value <= 3) {
+  if (Value <= 3) {
     Factor = (Log2 (AbsoluteValue) + 1);
   }
 
@@ -429,7 +432,7 @@ CreatePointerEventQueryInformation (
 
   EventData.PointerEventType = EventType;
 
-  return EventCreateAppleEventQueryInfo (EventData, FinalEventType, &mMousePosition, Modifiers);
+  return EventCreateAppleEventQueryInfo (EventData, FinalEventType, &mCursorPosition, Modifiers);
 }
 
 // HandleButtonInteraction
@@ -444,7 +447,7 @@ HandleButtonInteraction (
   IN     EFI_STATUS                  PointerStatus,
   IN OUT POINTER_BUTTON_INFORMATION  *PointerInfo,
   IN     APPLE_MODIFIER_MAP          Modifiers
-  )
+  ) // sub_1DE6
 {
   APPLE_EVENT_QUERY_INFORMATION *Information;
   INT32                         ValueMovement;
@@ -456,7 +459,7 @@ HandleButtonInteraction (
     if (!PointerInfo->PreviousButton) {
       if (PointerInfo->CurrentButton) {
         PointerInfo->NoButtonPressed  = 0;
-        PointerInfo->PreviousPosition = mMousePosition;
+        PointerInfo->PreviousPosition = mCursorPosition;
         Information                   = CreatePointerEventQueryInformation (
                                           ((UINT32)PointerInfo->Button | APPLE_EVENT_TYPE_MOUSE_DOWN),
                                           Modifiers
@@ -476,41 +479,41 @@ HandleButtonInteraction (
         EventAddEventQuery (Information);
       }
 
-      if (PointerInfo->NoButtonPressed <= 74) {
-        ValueMovement      = (PointerInfo->PreviousPosition.Horizontal - mMousePosition.Horizontal);
+      if (PointerInfo->NoButtonPressed <= MAXIMAL_CLICK_DURATION) {
+        ValueMovement      = (PointerInfo->PreviousPosition.Horizontal - mCursorPosition.Horizontal);
         HorizontalMovement = -ValueMovement;
 
-        if ((PointerInfo->PreviousPosition.Horizontal - mMousePosition.Horizontal) >= 0) {
+        if ((PointerInfo->PreviousPosition.Horizontal - mCursorPosition.Horizontal) >= 0) {
           HorizontalMovement = ValueMovement;
         }
 
-        ValueMovement    = (PointerInfo->PreviousPosition.Horizontal - mMousePosition.Horizontal);
+        ValueMovement    = (PointerInfo->PreviousPosition.Horizontal - mCursorPosition.Horizontal);
         VerticalMovement = -ValueMovement;
 
-        if ((PointerInfo->PreviousPosition.Horizontal - mMousePosition.Horizontal) >= 0) {
+        if ((PointerInfo->PreviousPosition.Horizontal - mCursorPosition.Horizontal) >= 0) {
           VerticalMovement = ValueMovement;
         }
 
-        if ((HorizontalMovement < 5) && (VerticalMovement < 5)) {
+        if ((HorizontalMovement < MINIMAL_MOVEMENT) && (VerticalMovement < MINIMAL_MOVEMENT)) {
           EventType = APPLE_EVENT_TYPE_MOUSE_CLICK;
 
           if ((PointerInfo->PreviousEventType == APPLE_EVENT_TYPE_MOUSE_CLICK)
-           && (PointerInfo->Polls <= DOUBLE_CLICK_SPEED)) {
-            ValueMovement      = (PointerInfo->CurrentPosition.Horizontal - mMousePosition.Horizontal);
+           && (PointerInfo->Polls <= MINIMAL_DOUBLE_CLICK_SPEED)) {
+            ValueMovement      = (PointerInfo->CurrentPosition.Horizontal - mCursorPosition.Horizontal);
             HorizontalMovement = -ValueMovement;
 
-            if ((PointerInfo->CurrentPosition.Horizontal - mMousePosition.Horizontal) >= 0) {
+            if ((PointerInfo->CurrentPosition.Horizontal - mCursorPosition.Horizontal) >= 0) {
               HorizontalMovement = ValueMovement;
             }
 
-            ValueMovement    = (PointerInfo->CurrentPosition.Horizontal - mMousePosition.Horizontal);
+            ValueMovement    = (PointerInfo->CurrentPosition.Horizontal - mCursorPosition.Horizontal);
             VerticalMovement = -ValueMovement;
 
-            if ((PointerInfo->CurrentPosition.Horizontal - mMousePosition.Horizontal) >= 0) {
+            if ((PointerInfo->CurrentPosition.Horizontal - mCursorPosition.Horizontal) >= 0) {
               VerticalMovement = ValueMovement;
             }
 
-            if ((HorizontalMovement < 5) && (VerticalMovement < 5)) {
+            if ((HorizontalMovement < MINIMAL_MOVEMENT) && (VerticalMovement < MINIMAL_MOVEMENT)) {
               EventType = APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK;
             }
           }
@@ -523,14 +526,14 @@ HandleButtonInteraction (
 
           if (PointerInfo->PreviousEventType == APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK) {
             EventType = (
-              (PointerInfo->Polls <= DOUBLE_CLICK_SPEED)
+              (PointerInfo->Polls <= MINIMAL_DOUBLE_CLICK_SPEED)
               ? APPLE_EVENT_TYPE_MOUSE_CLICK
               : APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK
               );
           }
 
           PointerInfo->PreviousEventType = (UINTN)EventType;
-          PointerInfo->CurrentPosition   = mMousePosition;
+          PointerInfo->CurrentPosition   = mCursorPosition;
           PointerInfo->Polls             = 0;
         }
       }
@@ -558,13 +561,13 @@ EFIAPI
 SimplePointerPollNotifyFunction (
   IN EFI_EVENT  Event,
   IN VOID       *Context
-  )
+  ) // sub_1A9B
 {
-  EFI_STATUS                    Status;
   APPLE_MODIFIER_MAP            Modifiers;
   UINTN                         Index;
   EFI_PROTOCOL_INSTANCE         *Instance;
   EFI_SIMPLE_POINTER_PROTOCOL   *Interface;
+  EFI_STATUS                    Status;
   EFI_SIMPLE_POINTER_STATE      State;
   INT64                         UiScaleX;
   INT64                         UiScaleY;
@@ -590,14 +593,8 @@ SimplePointerPollNotifyFunction (
       if (!EFI_ERROR (Status)) {
         UiScaleX  = GetUiScaleData ((INTN)State.RelativeMovementX);
         UiScaleY  = GetUiScaleData ((INTN)State.RelativeMovementY);
-
-#ifndef CPU_IA32
-        MovementY = (UiScaleY / (INT64)Interface->Mode->ResolutionY);
-        MovementX = (UiScaleX / (INT64)Interface->Mode->ResolutionX);
-#else
-        MovementY = DivS64x64 (UiScaleY, (INT64)Interface->Mode->ResolutionY);
-        MovementX = DivS64x64 (UiScaleX, (INT64)Interface->Mode->ResolutionX);
-#endif // ifndef CPU_IA32
+        MovementY = DIV_S64_X64 (UiScaleY, (INT64)Interface->Mode->ResolutionY);
+        MovementX = DIV_S64_X64 (UiScaleX, (INT64)Interface->Mode->ResolutionX);
 
         if ((State.RelativeMovementX != 0) && (MovementX == 0)) {
           MovementX = -1;
@@ -615,8 +612,8 @@ SimplePointerPollNotifyFunction (
           }
         }
 
-        Resolution.Horizontal = ((INT32)(mMousePosition.Horizontal + MovementX));
-        Resolution.Vertical   = ((INT32)(mMousePosition.Vertical + MovementY));
+        Resolution.Horizontal = ((INT32)(mCursorPosition.Horizontal + MovementX));
+        Resolution.Vertical   = ((INT32)(mCursorPosition.Vertical + MovementY));
 
         if (Resolution.Horizontal > mScreenResolution.Horizontal) {
           Resolution.Horizontal = mScreenResolution.Horizontal;
@@ -630,10 +627,10 @@ SimplePointerPollNotifyFunction (
           Resolution.Vertical = 0;
         }
 
-        Result = EfiCompareMem ((VOID *)&mMousePosition, (VOID *)&Resolution, sizeof (Resolution));
+        Result = EfiCompareMem ((VOID *)&mCursorPosition, (VOID *)&Resolution, sizeof (Resolution));
 
         if (Result != 0) {
-          EfiCommonLibCopyMem ((VOID *)&Resolution, (VOID *)&mMousePosition, sizeof (Resolution));
+          EfiCommonLibCopyMem ((VOID *)&Resolution, (VOID *)&mCursorPosition, sizeof (mCursorPosition));
 
           mMouseMoved = TRUE;
         }
@@ -663,7 +660,7 @@ SimplePointerPollNotifyFunction (
       Information                = EventCreateAppleEventQueryInfo (
                                      EventData,
                                      APPLE_EVENT_TYPE_MOUSE_MOVED,
-                                     &mMousePosition,
+                                     &mCursorPosition,
                                      Modifiers
                                      );
 
@@ -713,7 +710,7 @@ EventCreateSimplePointerPollEvent (
   }
 
   GetScreenResolution ();
-  EfiCommonLibZeroMem (&mMousePosition, sizeof (mMousePosition));
+  EfiCommonLibZeroMem (&mCursorPosition, sizeof (mCursorPosition));
 
   mSimplePointerPollEvent = CreateNotifyEvent (
                               SimplePointerPollNotifyFunction,
@@ -777,8 +774,8 @@ EventInternalSetCursorPosition (
   Status = EFI_INVALID_PARAMETER;
 
   if ((Position->Horizontal < mScreenResolution.Horizontal) && (Position->Vertical < mScreenResolution.Vertical)) {
-    mMousePosition.Horizontal = Position->Horizontal;
-    mMousePosition.Vertical   = Position->Vertical;
+    mCursorPosition.Horizontal = Position->Horizontal;
+    mCursorPosition.Vertical   = Position->Vertical;
     Status                    = EFI_SUCCESS;
   }
 

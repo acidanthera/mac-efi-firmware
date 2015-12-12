@@ -14,7 +14,7 @@
 ///
 /// @file      Include/Protocol/DevicePathPropertyDatabaseImpl.h
 ///
-///            Private data of the Apple protocol to manage Device Properties from firmware.
+///            
 ///
 /// @author    Download-Fritz
 /// @date      23/02/2015: Initial version
@@ -25,14 +25,12 @@
 #ifndef __DEVICE_PATH_PROPERTY_DATABASE_IMPL_H__
 #define __DEVICE_PATH_PROPERTY_DATABASE_IMPL_H__
 
+#include <Protocol/DevicePathPropertyDatabase.h>
+
 // EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION
 #define EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION  0x010000
 
-#define APPLE_PATH_PROPERTIES_VARIABLE_NAME    L"AAPL,PathProperties"
-#define APPLE_PATH_PROPERTY_VARIABLE_MAX_SIZE  768
-
 #define EFI_DEVICE_PATH_PROPERTY_DATABASE_SIGNATURE  EFI_SIGNATURE_32 ('D', 'p', 'p', 'P')
-
 #define PROPERTY_DATABASE_FROM_PROTOCOL(This) \
   CR (This, EFI_DEVICE_PATH_PROPERTY_DATABASE, Protocol, EFI_DEVICE_PATH_PROPERTY_DATABASE_SIGNATURE)
 
@@ -44,42 +42,7 @@ typedef struct _DEVICE_PATH_PROPERTY_DATABASE {
   BOOLEAN                                    Modified;   ///< 
 } EFI_DEVICE_PATH_PROPERTY_DATABASE;
 
-// EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE
-#define EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  EFI_SIGNATURE_32 ('D', 'p', 'n', 0x00)
-#define PROPERTY_NODE_FROM_LIST_ENTRY(Entry)     _CR (Entry, EFI_DEVICE_PATH_PROPERTY_NODE, Hdr.This);
-#define EFI_DEVICE_PATH_PROPERTY_NODE_SIZE(Node) (sizeof ((Node)->Hdr) + EfiDevicePathSize (&(Node)->DevicePath))
-
-// _DEVICE_PATH_PROPERTY_NODE
-typedef struct _DEVICE_PATH_PROPERTY_NODE {
-  struct {
-    UINTN          Signature;           ///< 
-    EFI_LIST_ENTRY This;                ///< 
-    UINTN          NoProperties;        ///< 
-    EFI_LIST       Properties;          ///< 
-  }                        Hdr;         ///< 
-  EFI_DEVICE_PATH_PROTOCOL DevicePath;  ///< 
-} EFI_DEVICE_PATH_PROPERTY_NODE;
-
-#define EFI_DEVICE_PATH_PROPERTY_SIGNATURE            EFI_SIGNATURE_32 ('D', 'p', 'p', 0x00)
-
-#define PROPERTY_FROM_LIST_ENTRY(Entry) \
-  CR (Entry, EFI_DEVICE_PATH_PROPERTY, This, EFI_DEVICE_PATH_PROPERTY_SIGNATURE)
-
-#define NEXT_EFI_DEVICE_PATH_PROPERTY(Property) \
-  (EFI_DEVICE_PATH_PROPERTY *)((UINTN)(Property) + EFI_DEVICE_PATH_PROPERTY_SIZE (Property))
-
-#define EFI_DEVICE_PATH_PROPERTY_SIZE(Property)       ((Property)->Name->Hdr.Size + (Property)->Value->Hdr.Size)
-#define EFI_DEVICE_PATH_PROPERTY_VALUE_SIZE(Property) ((Property)->Value->Hdr.Size - sizeof ((Property)->Value->Hdr))
-
-// _DEVICE_PATH_PROPERTY
-typedef struct _DEVICE_PATH_PROPERTY {
-  UINTN                         Signature;  ///< 
-  EFI_LIST_ENTRY                This;       ///< 
-  EFI_DEVICE_PATH_PROPERTY_DATA *Name;      ///< 
-  EFI_DEVICE_PATH_PROPERTY_DATA *Value;     ///< 
-} EFI_DEVICE_PATH_PROPERTY;
-
-// DevicePathPropertyDbGetPropertyValue
+// DevicePathPropertyDbGetPropertyValueImpl
 /// Locates a device property in the database and returns its value into Value.
 ///
 /// @param[in]      This       A pointer to the protocol instance.
@@ -96,15 +59,15 @@ typedef struct _DEVICE_PATH_PROPERTY {
 /// @retval EFI_SUCCESS          The operation completed successfully and the Value buffer has been filled.
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbGetPropertyValue (
+DevicePathPropertyDbGetPropertyValueImpl (
   IN     EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN     EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN     CHAR16                                      *Name,
-     OUT VOID                                        *Value,
+  OUT    VOID                                        *Value,
   IN OUT UINTN                                       *Size
   );
 
-// DevicePathPropertyDbSetProperty
+// DevicePathPropertyDbSetPropertyImpl
 /// Sets the sepcified property of the given device path to the provided Value.
 ///
 /// @param[in] This       A pointer to the protocol instance.
@@ -118,7 +81,7 @@ DevicePathPropertyDbGetPropertyValue (
 /// @retval EFI_SUCCESS          The operation completed successfully and the Value buffer has been filled.
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbSetProperty (
+DevicePathPropertyDbSetPropertyImpl (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN CHAR16                                      *Name,
@@ -126,7 +89,7 @@ DevicePathPropertyDbSetProperty (
   IN UINTN                                       Size
   );
 
-// DevicePathPropertyDbRemoveProperty
+// DevicePathPropertyDbRemovePropertyImpl
 /// Removes the sepcified property from the given device path.
 ///
 /// @param[in] This       A pointer to the protocol instance.
@@ -138,13 +101,13 @@ DevicePathPropertyDbSetProperty (
 /// @retval EFI_SUCCESS   The operation completed successfully.
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbRemoveProperty (
+DevicePathPropertyDbRemovePropertyImpl (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN CHAR16                                      *Name
   );
 
-// DevicePathPropertyDbGetPropertyBuffer
+// DevicePathPropertyDbGetPropertyBufferImpl
 /// Returns a buffer of all device properties into Buffer.
 ///
 /// @param[in]      This   A pointer to the protocol instance.
@@ -158,7 +121,7 @@ DevicePathPropertyDbRemoveProperty (
 /// @retval EFI_SUCCESS          The operation completed successfully.
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbGetPropertyBuffer (
+DevicePathPropertyDbGetPropertyBufferImpl (
   IN     EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   OUT    EFI_DEVICE_PATH_PROPERTY_BUFFER             *Buffer,
   IN OUT UINTN                                       *Size

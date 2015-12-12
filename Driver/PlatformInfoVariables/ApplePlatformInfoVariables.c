@@ -79,6 +79,8 @@ VariableWriteNotifyFunction (
 
 }
 
+EFI_DRIVER_ENTRY_POINT (PlatformInfoVariableMain);
+
 // PlatformInfoVariableMain
 /// 
 ///

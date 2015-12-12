@@ -39,4 +39,5 @@
 
 [Sources]
   ../../Include/Protocol/OsIdentificationImpl.h
+  OsIdentificationImplInternal.h
   OsIdentificationImpl.c

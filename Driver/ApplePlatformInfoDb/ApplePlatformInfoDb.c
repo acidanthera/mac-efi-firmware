@@ -27,27 +27,23 @@
 #include <EfiHobLib.h>
 
 #include EFI_GUID_DEFINITION (Hob)
+#include <Guid/AppleFile.h>
+#include <Guid/AppleHob.h>
 
 #include <Protocol/ApplePlatformInfoDatabaseImpl.h>
 
 #include <Driver/ApplePlatformInfoDB.h>
 
-EFI_GUID gAppleFile1Guid = APPLE_FILE_1_GUID;
-
-EFI_GUID gAppleHob1Guid = APPLE_HOB_1_GUID;
-
-EFI_GUID gAppleHob2Guid = APPLE_HOB_2_GUID;
-
-EFI_GUID gAppleHob3Guid = APPLE_HOB_3_GUID;
-
 // mApplePlatformInfoDBProtocol
 static APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDBProtocol = {
   APPLE_PLATFORM_INFO_DATABASE_PROTOCOL_REVISION,
-  ApplePlatformInfoDbGetFirstDataImpl,
-  ApplePlatformInfoDbGetFirstDataSizeImpl,
-  ApplePlatformInfoDbGetDataImpl,
-  ApplePlatformInfoDbGetDataSizeImpl
+  PlatformInfoDbGetFirstDataImpl,
+  PlatformInfoDbGetFirstDataSizeImpl,
+  PlatformInfoDbGetDataImpl,
+  PlatformInfoDbGetDataSizeImpl
 };
+
+EFI_DRIVER_ENTRY_POINT (ApplePlatformInfoDBMain);
 
 // ApplePlatformInfoDBMain
 ///
@@ -80,7 +76,6 @@ ApplePlatformInfoDBMain (
   EFI_FV_FILETYPE              FoundType;
   EFI_FV_FILE_ATTRIBUTES       FileAttributes;
   UINT32                       AuthenticationStatus;
-
   APPLE_PLATFORM_INFO_DATABASE *PlatformInfoDatabase;
 
   EfiInitializeDriverLib (ImageHandle, SystemTable);

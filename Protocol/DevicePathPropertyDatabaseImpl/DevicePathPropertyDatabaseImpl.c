@@ -30,140 +30,9 @@
 
 #include <Guid/AppleNvram.h>
 
-#include <Protocol/DevicePathPropertyDatabase.h>
-#include <Protocol/DevicePathPropertyDatabaseImpl.h>
+#include "DevicePathPropertyDatabaseImplInternal.h"
 
-//
-#define UNKNOWN_PROTOCOL_GUID \
-  { 0xC649D4F3, 0xD502, 0x4DAA, { 0xA1, 0x39, 0x39, 0x4A, 0xCC, 0xF2, 0xA6, 0x3B } }
-
-EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
-//
-
-// GetPropertyNode
-/// 
-/// @param
-///
-/// @return
-/// @retval
-EFI_DEVICE_PATH_PROPERTY_NODE *
-GetPropertyNode (
-  IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Database,
-  IN EFI_DEVICE_PATH_PROTOCOL           *DevicePath
-  ) // sub_AC5
-{
-  EFI_DEVICE_PATH_PROPERTY_NODE *Node;
-  UINTN                         DevicePathSize;
-  BOOLEAN                       IsNodeNull;
-  UINTN                         DevicePathSize2;
-  INTN                          Result;
-
-  Node           = PROPERTY_NODE_FROM_LIST_ENTRY (GetFirstNode (&Database->Nodes));
-  DevicePathSize = EfiDevicePathSize (DevicePath);
-
-  do {
-    IsNodeNull = IsNull (&Database->Nodes, &Node->Hdr.This);
-
-    if (IsNodeNull) {
-      Node = NULL;
-
-      break;
-    }
-
-    DevicePathSize2 = EfiDevicePathSize (&Node->DevicePath);
-
-    if (DevicePathSize == DevicePathSize2) {
-      Result = EfiCompareMem (DevicePath, &Node->DevicePath, DevicePathSize);
-      
-      if (Result == 0) {
-        break;
-      }
-    }
-
-    Node = PROPERTY_NODE_FROM_LIST_ENTRY (GetNextNode (&Database->Nodes, &Node->Hdr.This));
-  } while (TRUE);
-
-  return Node;
-}
-
-// GetProperty
-/// 
-/// @param
-///
-/// @return
-/// @retval
-EFI_DEVICE_PATH_PROPERTY *
-GetProperty (
-  IN CHAR16                         *Name,
-  IN EFI_DEVICE_PATH_PROPERTY_NODE  *Node
-  )
-{
-  EFI_DEVICE_PATH_PROPERTY *Property;
-
-  BOOLEAN                  IsPropertyNull;
-  INTN                     Result;
-
-  Property = PROPERTY_FROM_LIST_ENTRY (GetFirstNode (&Node->Hdr.Properties));
-
-  do {
-    IsPropertyNull = IsNull (&Node->Hdr.Properties, &Property->This);
-
-    if (IsPropertyNull) {
-      Property = NULL;
-
-      break;
-    }
-
-    Result = EfiStrCmp (Name, (CHAR16 *)&Property->Value->Data);
-
-    if (Result == 0) {
-      break;
-    }
-
-    Property = PROPERTY_FROM_LIST_ENTRY (GetNextNode (&Node->Hdr.Properties, &Property->This));
-  } while (TRUE);
-
-  return Property;
-}
-
-// CallProtocol
-/// 
-/// @param
-///
-/// @return
-/// @retval
-VOID
-CallProtocol (
-  VOID
-  ) // sub_BB0
-{
-  EFI_STATUS Status;
-  UINTN      NoHandles;
-  EFI_HANDLE *Buffer;
-  UINTN      Index;
-  VOID       *Interface;
-
-  Buffer = NULL;
-  Status = gBS->LocateHandleBuffer (ByProtocol, &mUnknownProtocolGuid, NULL, &NoHandles, &Buffer);
-
-  if (Status == EFI_SUCCESS) {
-    for (Index = 0; Index < NoHandles; ++Index) {
-      Status = gBS->HandleProtocol (Buffer[Index], &mUnknownProtocolGuid, &Interface);
-
-      if (Status == EFI_SUCCESS) {
-        if (*((UINT32 *)((UINTN)Interface + sizeof (UINT32))) == 0) {
-          (*(VOID (EFIAPI **)(VOID *))((UINTN)Interface + 232)) (Interface);
-        }
-      }
-    }
-  }
-
-  if (Buffer != NULL) {
-    gBS->FreePool (Buffer);
-  }
-}
-
-// DevicePathPropertyDbGetPropertyValue
+// DevicePathPropertyDbGetPropertyValueImpl
 /// Locates a device property in the database and returns its value into Value.
 ///
 /// @param[in]      This       A pointer to the protocol instance.
@@ -180,7 +49,7 @@ CallProtocol (
 /// @retval EFI_SUCCESS          The operation completed successfully and the Value buffer has been filled.
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbGetPropertyValue (
+DevicePathPropertyDbGetPropertyValueImpl (
   IN     EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN     EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN     CHAR16                                      *Name,
@@ -197,11 +66,11 @@ DevicePathPropertyDbGetPropertyValue (
   BOOLEAN                           BufferTooSmall;
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
-  Node     = GetPropertyNode (Database, DevicePath);
+  Node     = DevicePathPropertyDbGetPropertyNode (Database, DevicePath);
   Status   = EFI_NOT_FOUND;
 
   if (Node != NULL) {
-    Property = GetProperty (Name, Node);
+    Property = DevicePathPropertyDbGetProperty (Name, Node);
     Status   = EFI_NOT_FOUND;
 
     if (Property != NULL) {
@@ -221,7 +90,7 @@ DevicePathPropertyDbGetPropertyValue (
   return Status;
 }
 
-// DevicePathPropertyDbSetProperty
+// DevicePathPropertyDbSetPropertyImpl
 /// Sets the sepcified property of the given device path to the provided Value.
 ///
 /// @param[in]  This       A pointer to the protocol instance.
@@ -235,7 +104,7 @@ DevicePathPropertyDbGetPropertyValue (
 /// @retval EFI_SUCCESS          The operation completed successfully and the Value buffer has been filled.
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbSetProperty (
+DevicePathPropertyDbSetPropertyImpl (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN CHAR16                                      *Name,
@@ -255,7 +124,7 @@ DevicePathPropertyDbSetProperty (
   EFI_DEVICE_PATH_PROPERTY_DATA     *PropertyData;
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
-  Node     = GetPropertyNode (Database, DevicePath);
+  Node     = DevicePathPropertyDbGetPropertyNode (Database, DevicePath);
 
   if (Node == NULL) {
     DevicePathSize = EfiDevicePathSize (DevicePath);
@@ -275,7 +144,7 @@ DevicePathPropertyDbSetProperty (
     }
   }
 
-  Property = GetProperty (Name, Node);
+  Property = DevicePathPropertyDbGetProperty (Name, Node);
 
   if (Property != NULL) {
     if (Property->Value->Hdr.Size == Size) {
@@ -334,7 +203,7 @@ Return:
   return Status;
 }
 
-// DevicePathPropertyDbRemoveProperty
+// DevicePathPropertyDbRemovePropertyImpl
 /// Removes the sepcified property from the given device path.
 ///
 /// @param[in] This       A pointer to the protocol instance.
@@ -346,7 +215,7 @@ Return:
 /// @retval EFI_SUCCESS   The operation completed successfully.
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbRemoveProperty (
+DevicePathPropertyDbRemovePropertyImpl (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN CHAR16                                      *Name
@@ -359,12 +228,12 @@ DevicePathPropertyDbRemoveProperty (
   EFI_DEVICE_PATH_PROPERTY          *Property;
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
-  Node     = GetPropertyNode (Database, DevicePath);
+  Node     = DevicePathPropertyDbGetPropertyNode (Database, DevicePath);
 
   if (Node == NULL) {
     Status = EFI_NOT_FOUND;
   } else {
-    Property = GetProperty (Name, Node);
+    Property = DevicePathPropertyDbGetProperty (Name, Node);
     Status   = EFI_NOT_FOUND;
     if (Property != NULL) {
       Database->Modified = TRUE;
@@ -388,7 +257,7 @@ DevicePathPropertyDbRemoveProperty (
   return Status;
 }
 
-// DevicePathPropertyDbGetPropertyBuffer
+// DevicePathPropertyDbGetPropertyBufferImpl
 /// Returns a buffer of all device properties into Buffer.
 ///
 /// @param[in]      This   A pointer to the protocol instance.
@@ -402,7 +271,7 @@ DevicePathPropertyDbRemoveProperty (
 /// @retval EFI_SUCCESS          The operation completed successfully.
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbGetPropertyBuffer (
+DevicePathPropertyDbGetPropertyBufferImpl (
   IN     EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   OUT    EFI_DEVICE_PATH_PROPERTY_BUFFER             *Buffer,
   IN OUT UINTN                                       *Size
@@ -426,7 +295,7 @@ DevicePathPropertyDbGetPropertyBuffer (
     *Size = 0;
     Status  = EFI_SUCCESS;
   } else {
-    CallProtocol ();
+    DevicePathPropertyDbCallProtocol ();
 
     Node       = PROPERTY_NODE_FROM_LIST_ENTRY (GetFirstNode (Nodes));
     Result     = IsNull (Nodes, &Node->Hdr.This);
@@ -434,12 +303,12 @@ DevicePathPropertyDbGetPropertyBuffer (
     NoNodes    = 0;
 
     while (!Result) {
-      Property = PROPERTY_FROM_LIST_ENTRY (GetFirstNode (&Node->Hdr.Properties));
+      Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetFirstNode (&Node->Hdr.Properties));
       Result   = IsNull (&Node->Hdr.Properties, &Property->This);
 
       while (!Result) {
         BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
-        Property    = PROPERTY_FROM_LIST_ENTRY (GetNextNode (&Node->Hdr.Properties, &Property->This));
+        Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetNextNode (&Node->Hdr.Properties, &Property->This));
         Result      = IsNull (&Node->Hdr.Properties, &Property->This);
       }
 
@@ -470,7 +339,7 @@ DevicePathPropertyDbGetPropertyBuffer (
           gBS->CopyMem ((VOID *)&BufferNode->DevicePath, (VOID *)&Node->DevicePath, BufferSize);
 
           BufferNode->Hdr.NoProperties = (UINT32)Node->Hdr.NoProperties;
-          Property                     = PROPERTY_FROM_LIST_ENTRY (GetFirstNode (&Node->Hdr.Properties));
+          Property                     = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetFirstNode (&Node->Hdr.Properties));
           Result                       = IsNull (&Node->Hdr.Properties, &Property->This);
           BufferSize                  += sizeof (BufferNode->Hdr);
           BufferPtr                    = (VOID *)((UINTN)Buffer + BufferSize);
@@ -485,7 +354,7 @@ DevicePathPropertyDbGetPropertyBuffer (
 
             BufferPtr   = (VOID *)((UINTN)BufferPtr + (Property->Name->Hdr.Size + Property->Value->Hdr.Size));
             BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
-            Property    = PROPERTY_FROM_LIST_ENTRY (GetNextNode (&Node->Hdr.Properties, &Property->This));
+            Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetNextNode (&Node->Hdr.Properties, &Property->This));
             Result      = IsNull (&Node->Hdr.Properties, &Property->This);
           }
 

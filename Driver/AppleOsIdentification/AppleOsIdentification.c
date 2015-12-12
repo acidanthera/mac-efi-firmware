@@ -33,9 +33,11 @@
 // mAppleOsIdentification
 static EFI_OS_IDENTIFICATION_PROTOCOL mAppleOsIdentification = {
   OS_IDENTIFICATION_PROTOCOL_REVISION,
-  AppleOsIdentificationOSName,
-  AppleOsIdentificationOSVendor
+  OsIdentificationOSNameImpl,
+  OsIdentificationOSVendorImpl
 };
+
+EFI_DRIVER_ENTRY_POINT (AppleOsIdentificationMain);
 
 // AppleOsIdentificationMain
 /// 

@@ -25,8 +25,6 @@
 
 #include <EfiDriverLib.h>
 
-#include <IndustryStandard/AppleHid.h>
-
 #include EFI_PROTOCOL_CONSUMER (LoadedImage)
 #include <Protocol/AppleEventImpl.h>
 
@@ -61,6 +59,8 @@ UnloadAppleEventDummy (
   return EFI_SUCCESS;
 }
 
+EFI_DRIVER_ENTRY_POINT (AppleEventMain);
+
 // AppleEventMain
 /// 
 ///
@@ -87,5 +87,5 @@ AppleEventMain (
                                                    );
   Interface->Unload = UnloadAppleEventDummy;
 
-  return EventInitialize (ImageHandle, SystemTable);
+  return EventImplInitialize (ImageHandle, SystemTable);
 }

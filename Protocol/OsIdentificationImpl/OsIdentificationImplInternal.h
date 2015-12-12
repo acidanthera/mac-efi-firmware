@@ -12,50 +12,21 @@
 //
 
 ///
-/// @file      Include/Protocol/OsIdentificationImpl.h
+/// @file      Protocol/OsIdentificationImpl/OsIdentificationImplInternal.h
 ///
 ///            
 ///
 /// @author    Download-Fritz
-/// @date      18/07/2015: Initial version
+/// @date      12/12/2015: Initial version
 /// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
 
 #ifndef __OS_IDENTIFICATION_IMPL_H__
 #define __OS_IDENTIFICATION_IMPL_H__
 
-#include <Protocol/OsIdentification.h>
-
-// OS_IDENTIFICATION_PROTOCOL_REVISION
-#define OS_IDENTIFICATION_PROTOCOL_REVISION  0x01
+#include <Protocol/OsIdentificationImpl.h>
 
 // OS_IDENTIFICATION_VENDOR_NAME
 #define OS_IDENTIFICATION_VENDOR_NAME  "Apple Inc."
-
-// OsIdentificationOSNameImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-VOID
-EFIAPI
-OsIdentificationOSNameImpl (
-	IN CHAR8 *OSName
-	);
-
-// OsIdentificationOSVendorImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-VOID
-EFIAPI
-OsIdentificationOSVendorImpl (
-	IN CHAR8 *OSVendor
-	);
 
 #endif // ifndef __OS_IDENTIFICATION_IMPL_H__

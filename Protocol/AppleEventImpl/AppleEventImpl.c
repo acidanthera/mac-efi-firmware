@@ -25,18 +25,19 @@
 
 #include <EfiDriverLib.h>
 
-#include <Guid/AppleNvram.h>
-
 #include <IndustryStandard/AppleHid.h>
+
+#include <Guid/AppleNvram.h>
 
 #include EFI_PROTOCOL_CONSUMER (ConsoleControl)
 #include EFI_PROTOCOL_CONSUMER (GraphicsOutput)
 #include EFI_PROTOCOL_CONSUMER (SimplePointer)
 #include <Protocol/AppleKeyMapAggregator.h>
-#include <Protocol/AppleEventImpl.h>
 
 #include <Library/AppleEventLib.h>
 #include <Library/AppleKeyMapLib.h>
+
+#include "AppleEventImplInternal.h"
 
 // mEventHandleList
 EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mEventHandleList);

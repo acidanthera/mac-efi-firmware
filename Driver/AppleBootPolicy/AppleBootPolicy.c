@@ -39,6 +39,8 @@ static APPLE_BOOT_POLICY_PROTOCOL mAppleBootPolicyProtocol = {
   BootPolicyGetBootFileImpl
 };
 
+EFI_DRIVER_ENTRY_POINT (AppleBootPolicyMain);
+
 // AppleBootPolicyMain
 /// The Entry Point installing the APPLE_BOOT_POLICY_PROTOCOL.
 ///

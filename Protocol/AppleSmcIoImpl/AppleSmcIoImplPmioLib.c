@@ -18,7 +18,7 @@
 ///
 /// @author    Download-Fritz
 /// @date      22/10/2015: Initial version
-/// @date      09/12/2015: Reorganize
+/// @date      09/12/2015: Reorganization
 /// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
 ///
 
@@ -27,9 +27,13 @@
 #include <EfiDriverLib.h>
 
 #include EFI_PROTOCOL_CONSUMER (CpuIo)
-#include <Protocol/AppleSmcIoImpl.h>
 
-// SmcReadStatus
+#include "AppleSmcIoImplInternal.h"
+
+// ITERATION_STALL
+#define ITERATION_STALL  50
+
+// SmcIoSmcReadStatus
 /// 
 ///
 /// @param 
@@ -37,7 +41,7 @@
 /// @return 
 /// @retval 
 SMC_STATUS
-SmcReadStatus (
+SmcIoSmcReadStatus (
   IN SMC_DEV  *SmcDev
   )
 {
@@ -54,7 +58,7 @@ SmcReadStatus (
   return Status;
 }
 
-// SmcReadResult
+// SmcIoSmcReadResult
 /// 
 ///
 /// @param 
@@ -62,7 +66,7 @@ SmcReadStatus (
 /// @return 
 /// @retval 
 SMC_RESULT
-SmcReadResult (
+SmcIoSmcReadResult (
   IN SMC_DEV  *SmcDev
   )
 {
@@ -79,7 +83,7 @@ SmcReadResult (
   return Result;
 }
 
-// SmcWriteCommand
+// SmcIoSmcWriteCommand
 /// 
 ///
 /// @param 
@@ -87,7 +91,7 @@ SmcReadResult (
 /// @return 
 /// @retval 
 EFI_STATUS
-SmcWriteCommand (
+SmcIoSmcWriteCommand (
   IN  SMC_DEV  *SmcDev,
   OUT UINT32   Command
   )
@@ -98,10 +102,10 @@ SmcWriteCommand (
   SMC_STATUS  SmcStatus;
 
   Index     = 60000;
-  SmcStatus = SmcReadStatus (SmcDev);
+  SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
   while ((SmcStatus & SMC_STATUS_IB_CLOSED) != 0) {
-    SmcStatus = SmcReadStatus (SmcDev);
+    SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
@@ -110,7 +114,7 @@ SmcWriteCommand (
 
     --Index;
 
-    gBS->Stall (50);
+    gBS->Stall (ITERATION_STALL);
   }
 
   SmcDev->CpuIo->Io.Write (
@@ -124,7 +128,7 @@ SmcWriteCommand (
   Index = 20000;
 
   while ((SmcStatus & SMC_STATUS_BUSY) == 0) {
-    SmcStatus = SmcReadStatus (SmcDev);
+    SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
@@ -133,7 +137,7 @@ SmcWriteCommand (
 
     --Index;
 
-    gBS->Stall (50);
+    gBS->Stall (ITERATION_STALL);
   }
 
   Status = EFI_SUCCESS;
@@ -142,7 +146,7 @@ Return:
   return Status;
 }
 
-// SmcReadData8
+// SmcIoSmcReadData8
 /// 
 ///
 /// @param 
@@ -150,7 +154,7 @@ Return:
 /// @return 
 /// @retval 
 EFI_STATUS
-SmcReadData8 (
+SmcIoSmcReadData8 (
   IN  SMC_DEV   *SmcDev,
   OUT SMC_DATA  *Data
   )
@@ -162,10 +166,10 @@ SmcReadData8 (
   SMC_DATA   Buffer;
 
   Index     = 60000;
-  SmcStatus = SmcReadStatus (SmcDev);
+  SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
   while ((SmcStatus & (SMC_STATUS_AWAITING_MORE_BYTES | SMC_STATUS_BUSY)) == SMC_STATUS_BUSY) {
-    SmcStatus = SmcReadStatus (SmcDev);
+    SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
@@ -174,7 +178,7 @@ SmcReadData8 (
 
     --Index;
 
-    gBS->Stall (50);
+    gBS->Stall (ITERATION_STALL);
   }
 
   if ((SmcStatus & SMC_STATUS_BUSY) != 0) {
@@ -196,7 +200,7 @@ Return:
   return Status;
 }
 
-// SmcReadData16
+// SmcIoSmcReadData16
 /// 
 ///
 /// @param 
@@ -204,7 +208,7 @@ Return:
 /// @return 
 /// @retval 
 EFI_STATUS
-SmcReadData16 (
+SmcIoSmcReadData16 (
   IN SMC_DEV  *SmcDev,
   IN UINT16   *Data
   )
@@ -213,10 +217,10 @@ SmcReadData16 (
 
   UINT16     Value;
 
-  Status = SmcReadData8 (SmcDev, OFFSET (Value, 1, UINT8));
+  Status = SmcIoSmcReadData8 (SmcDev, OFFSET (Value, 1, UINT8));
 
   if (!EFI_ERROR (Status)) {
-    Status = SmcReadData8 (SmcDev, OFFSET (Value, 0, UINT8));
+    Status = SmcIoSmcReadData8 (SmcDev, OFFSET (Value, 0, UINT8));
 
     if (!EFI_ERROR (Status)) {
       gBS->CopyMem ((VOID *)Data, (VOID *)&Value, sizeof (Value));
@@ -226,7 +230,7 @@ SmcReadData16 (
   return Status;
 }
 
-// SmcReadData32
+// SmcIoSmcReadData32
 /// 
 ///
 /// @param 
@@ -234,7 +238,7 @@ SmcReadData16 (
 /// @return 
 /// @retval 
 EFI_STATUS
-SmcReadData32 (
+SmcIoSmcReadData32 (
   IN SMC_DEV  *SmcDev,
   IN UINT32   *Data
   )
@@ -243,10 +247,10 @@ SmcReadData32 (
 
   UINT32     Value;
 
-  Status = SmcReadData16 (SmcDev, OFFSET (Value, 1, UINT16));
+  Status = SmcIoSmcReadData16 (SmcDev, OFFSET (Value, 1, UINT16));
 
   if (!EFI_ERROR (Status)) {
-    Status = SmcReadData16 (SmcDev, OFFSET (Value, 1, UINT16));
+    Status = SmcIoSmcReadData16 (SmcDev, OFFSET (Value, 1, UINT16));
 
     if (!EFI_ERROR (Status)) {
       gBS->CopyMem ((VOID *)Data, (VOID *)&Value, sizeof (Value));
@@ -256,9 +260,15 @@ SmcReadData32 (
   return Status;
 }
 
-// SmcWriteData8
+// SmcIoSmcWriteData8
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
 EFI_STATUS
-SmcWriteData8 (
+SmcIoSmcWriteData8 (
   IN SMC_DEV   *SmcDev,
   IN SMC_DATA  Data
   )
@@ -269,10 +279,10 @@ SmcWriteData8 (
   SMC_STATUS SmcStatus;
 
   RemainingIterations = 60000;
-  SmcStatus           = SmcReadStatus (SmcDev);
+  SmcStatus           = SmcIoSmcReadStatus (SmcDev);
 
   while ((SmcStatus & SMC_STATUS_IB_CLOSED) != 0) {
-    SmcStatus = SmcReadStatus (SmcDev);
+    SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
     if (RemainingIterations == 0) {
       Status = EFI_TIMEOUT;
@@ -281,7 +291,7 @@ SmcWriteData8 (
 
     --RemainingIterations;
 
-    gBS->Stall (50);
+    gBS->Stall (ITERATION_STALL);
   }
 
   if ((SmcStatus & SMC_STATUS_BUSY) != 0) {
@@ -302,7 +312,7 @@ Return:
   return Status;
 }
 
-// SmcWriteData16
+// SmcIoSmcWriteData16
 /// 
 ///
 /// @param 
@@ -310,23 +320,23 @@ Return:
 /// @return 
 /// @retval 
 EFI_STATUS
-SmcWriteData16 (
+SmcIoSmcWriteData16 (
   IN SMC_DEV  *SmcDev,
   IN UINT16   Data
   )
 {
   EFI_STATUS Status;
 
-  Status = SmcWriteData8 (SmcDev, (SMC_DATA)(Data >> 8));
+  Status = SmcIoSmcWriteData8 (SmcDev, (SMC_DATA)(Data >> 8));
 
   if (!EFI_ERROR (Status)) {
-    Status = SmcWriteData8 (SmcDev, (SMC_DATA)Data);
+    Status = SmcIoSmcWriteData8 (SmcDev, (SMC_DATA)Data);
   }
 
   return Status;
 }
 
-// SmcWriteData32
+// SmcIoSmcWriteData32
 /// 
 ///
 /// @param 
@@ -334,23 +344,23 @@ SmcWriteData16 (
 /// @return 
 /// @retval 
 EFI_STATUS
-SmcWriteData32 (
+SmcIoSmcWriteData32 (
   IN SMC_DEV  *SmcDev,
   IN UINT32   Data
   )
 {
   EFI_STATUS Status;
 
-  Status = SmcWriteData8 (SmcDev, (SMC_DATA)(Data >> 24));
+  Status = SmcIoSmcWriteData8 (SmcDev, (SMC_DATA)(Data >> 24));
 
   if (!EFI_ERROR (Status)) {
-    Status = SmcWriteData8 (SmcDev, (SMC_DATA)(Data >> 16));
+    Status = SmcIoSmcWriteData8 (SmcDev, (SMC_DATA)(Data >> 16));
 
     if (!EFI_ERROR (Status)) {
-      Status = SmcWriteData8 (SmcDev, (SMC_DATA)(Data >> 8));
+      Status = SmcIoSmcWriteData8 (SmcDev, (SMC_DATA)(Data >> 8));
 
       if (!EFI_ERROR (Status)) {
-        Status = SmcWriteData8 (SmcDev, (SMC_DATA)Data);
+        Status = SmcIoSmcWriteData8 (SmcDev, (SMC_DATA)Data);
       }
     }
   }
@@ -358,7 +368,7 @@ SmcWriteData32 (
   return Status;
 }
 
-// SmcTimeoutWaitingForBusyClear
+// SmcIoSmcTimeoutWaitingForBusyClear
 /// 
 ///
 /// @param 
@@ -366,7 +376,7 @@ SmcWriteData32 (
 /// @return 
 /// @retval 
 EFI_STATUS
-SmcTimeoutWaitingForBusyClear (
+SmcIoSmcTimeoutWaitingForBusyClear (
   IN SMC_DEV  *SmcDev
   )
 {
@@ -376,10 +386,10 @@ SmcTimeoutWaitingForBusyClear (
   UINTN      Index;
 
   Index     = 20000;
-  SmcStatus = SmcReadStatus (SmcDev);
+  SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
   while ((SmcStatus & SMC_STATUS_BUSY) != 0) {
-    SmcStatus = SmcReadStatus (SmcDev);
+    SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
@@ -388,7 +398,7 @@ SmcTimeoutWaitingForBusyClear (
 
     --Index;
 
-    gBS->Stall (50);
+    gBS->Stall (ITERATION_STALL);
   }
 
   Status = EFI_SUCCESS;
@@ -397,7 +407,7 @@ Return:
   return Status;
 }
 
-// SmcTimeoutWaitingLongForBusyClear
+// SmcIoSmcTimeoutWaitingLongForBusyClear
 /// 
 ///
 /// @param 
@@ -405,7 +415,7 @@ Return:
 /// @return 
 /// @retval 
 EFI_STATUS
-SmcTimeoutWaitingLongForBusyClear (
+SmcIoSmcTimeoutWaitingLongForBusyClear (
   IN SMC_DEV  *SmcDev
   )
 {
@@ -415,10 +425,10 @@ SmcTimeoutWaitingLongForBusyClear (
   UINTN      Index;
 
   Index     = 100000;
-  SmcStatus = SmcReadStatus (SmcDev);
+  SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
   while ((SmcStatus & SMC_STATUS_BUSY) != 0) {
-    SmcStatus = SmcReadStatus (SmcDev);
+    SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
@@ -427,7 +437,7 @@ SmcTimeoutWaitingLongForBusyClear (
 
     --Index;
 
-    gBS->Stall (50);
+    gBS->Stall (ITERATION_STALL);
   }
 
   Status = EFI_SUCCESS;
@@ -436,7 +446,7 @@ Return:
   return Status;
 }
 
-// SmcSmcInABadState
+// SmcIoSmcSmcInABadState
 /// 
 ///
 /// @param 
@@ -444,19 +454,19 @@ Return:
 /// @return 
 /// @retval 
 EFI_STATUS
-SmcSmcInABadState (
+SmcIoSmcSmcInABadState (
   IN SMC_DEV  *SmcDev
   )
 {
   EFI_STATUS Status;
 
-  Status = SmcTimeoutWaitingForBusyClear (SmcDev);
+  Status = SmcIoSmcTimeoutWaitingForBusyClear (SmcDev);
 
   if (!EFI_ERROR (Status)) {
-    Status = SmcWriteCommand (SmcDev, SmcCmdReadValue);
+    Status = SmcIoSmcWriteCommand (SmcDev, SmcCmdReadValue);
 
     if (!EFI_ERROR (Status)) {
-      Status = SmcTimeoutWaitingForBusyClear (SmcDev);
+      Status = SmcIoSmcTimeoutWaitingForBusyClear (SmcDev);
     }
   }
 

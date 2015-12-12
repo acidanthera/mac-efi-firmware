@@ -26,45 +26,11 @@
 
 #include <EfiDriverLib.h>
 
-#include <IndustryStandard/AppleHid.h>
-
-#include <Protocol/AppleKeyMapImpl.h>
-
 #include <Library/AppleKeyMapLib.h>
 
-// AppleKeyMapGetKeyStrokesImpl
-/// 
-/// @param
-///
-/// @return
-/// @retval
-APPLE_KEY_STROKES_INFO *
-GetKeyStrokesByIndex (
-  IN EFI_LIST  *List,
-  IN UINTN     Index
-  ) // sub_459
-{
-  APPLE_KEY_STROKES_INFO *KeyStrokesInfo;
+#include "AppleKeyMapImplInternal.h"
 
-  BOOLEAN                Result;
-
-  for (
-    KeyStrokesInfo = KEY_STROKES_INFO_FROM_LIST_ENTRY (GetFirstNode (List));
-    KeyStrokesInfo->Hdr.Index != Index;
-    KeyStrokesInfo = KEY_STROKES_INFO_FROM_LIST_ENTRY (GetNextNode (List, &KeyStrokesInfo->Hdr.This))
-    ) {
-    Result = IsNull (List, &KeyStrokesInfo->Hdr.This);
-
-    if (Result) {
-      KeyStrokesInfo = NULL;
-      break;
-    }
-  }
-
-  return KeyStrokesInfo;
-}
-
-// AppleKeyMapCreateKeyStrokesBufferImpl
+// KeyMapCreateKeyStrokesBufferImpl
 /// Creates a new key set with a given number of keys allocated. The index within the database is returned.
 ///
 /// @param[in]  This            A pointer to the protocol instance.
@@ -77,7 +43,7 @@ GetKeyStrokesByIndex (
 /// @retval other                An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
-AppleKeyMapCreateKeyStrokesBufferImpl (
+KeyMapCreateKeyStrokesBufferImpl (
   IN  APPLE_KEY_MAP_DATABASE_PROTOCOL  *This,
   IN  UINTN                            KeyBufferSize,
   OUT UINTN                            *Index
@@ -90,7 +56,7 @@ AppleKeyMapCreateKeyStrokesBufferImpl (
   APPLE_KEY                *Memory;
   APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
 
-  Aggregator = AGGREGATOR_FROM_DATABASE_PROTOCOL (This);
+  Aggregator = APPLE_KEY_MAP_AGGREGATOR_FROM_DATABASE_PROTOCOL (This);
 
   if (Aggregator->KeyBuffer != NULL) {
     gBS->FreePool ((VOID *)Aggregator->KeyBuffer);
@@ -124,7 +90,7 @@ AppleKeyMapCreateKeyStrokesBufferImpl (
   return Status;
 }
 
-// AppleKeyMapRemoveKeyStrokesBufferImpl
+// KeyMapRemoveKeyStrokesBufferImpl
 /// Removes a key set specified by its index from the database.
 ///
 /// @param[in]  This  A pointer to the protocol instance.
@@ -136,7 +102,7 @@ AppleKeyMapCreateKeyStrokesBufferImpl (
 /// @retval other         An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
-AppleKeyMapRemoveKeyStrokesBufferImpl (
+KeyMapRemoveKeyStrokesBufferImpl (
   IN APPLE_KEY_MAP_DATABASE_PROTOCOL  *This,
   IN UINTN                            Index
   )
@@ -146,8 +112,8 @@ AppleKeyMapRemoveKeyStrokesBufferImpl (
   APPLE_KEY_MAP_AGGREGATOR *Aggregator;
   APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
 
-  Aggregator     = AGGREGATOR_FROM_DATABASE_PROTOCOL (This);
-  KeyStrokesInfo = GetKeyStrokesByIndex (&Aggregator->KeyStrokesInfoList, Index);
+  Aggregator     = APPLE_KEY_MAP_AGGREGATOR_FROM_DATABASE_PROTOCOL (This);
+  KeyStrokesInfo = KeyMapGetKeyStrokesByIndex (&Aggregator->KeyStrokesInfoList, Index);
   Status         = EFI_NOT_FOUND;
 
   if (KeyStrokesInfo != NULL) {
@@ -162,7 +128,7 @@ AppleKeyMapRemoveKeyStrokesBufferImpl (
   return Status;
 }
 
-// AppleKeyMapSetKeyStrokeBufferKeysImpl
+// KeyMapSetKeyStrokeBufferKeysImpl
 /// Sets the keys of a key set specified by its index to the given Keys buffer.
 ///
 /// @param[in] This      A pointer to the protocol instance.
@@ -178,7 +144,7 @@ AppleKeyMapRemoveKeyStrokesBufferImpl (
 /// @retval other                An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
-AppleKeyMapSetKeyStrokeBufferKeysImpl (
+KeyMapSetKeyStrokeBufferKeysImpl (
   IN APPLE_KEY_MAP_DATABASE_PROTOCOL  *This,
   IN UINTN                            Index,
   IN APPLE_MODIFIER_MAP               Modifiers,
@@ -191,8 +157,8 @@ AppleKeyMapSetKeyStrokeBufferKeysImpl (
   APPLE_KEY_MAP_AGGREGATOR *Aggregator;
   APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
 
-  Aggregator     = AGGREGATOR_FROM_DATABASE_PROTOCOL (This);
-  KeyStrokesInfo = GetKeyStrokesByIndex (&Aggregator->KeyStrokesInfoList, Index);
+  Aggregator     = APPLE_KEY_MAP_AGGREGATOR_FROM_DATABASE_PROTOCOL (This);
+  KeyStrokesInfo = KeyMapGetKeyStrokesByIndex (&Aggregator->KeyStrokesInfoList, Index);
   Status         = EFI_NOT_FOUND;
 
   if (KeyStrokesInfo != NULL) {

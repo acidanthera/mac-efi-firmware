@@ -12,7 +12,7 @@
 //
 
 ///
-/// @file      Protocol/AppleKeyMapAggregatorImpl/AppleKeyMapAggregatorImpl.c
+/// @file      Protocol/AppleKeyMapImpl/AppleKeyMapAggregatorImpl.c
 ///
 ///
 ///
@@ -26,13 +26,12 @@
 
 #include <EfiDriverLib.h>
 
-#include <IndustryStandard/AppleHid.h>
-
 #include EFI_PROTOCOL_DEFINITION (SimpleTextIn)
 #include EFI_PROTOCOL_CONSUMER (SimpleTextInputEx)
-#include <Protocol/AppleKeyMapImpl.h>
 
-// AppleKeyMapGetKeyStrokesImpl
+#include "AppleKeyMapImplInternal.h"
+
+// KeyMapGetKeyStrokesImpl
 /// Returns all pressed keys and key modifiers into the appropiate buffers.
 ///
 /// @param[in]  This      A pointer to the protocol instance.
@@ -49,7 +48,7 @@
 /// @retval other                An error returned by a sub-operation.
 EFI_STATUS
 EFIAPI
-AppleKeyMapGetKeyStrokesImpl (
+KeyMapGetKeyStrokesImpl (
   IN     APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   OUT    APPLE_MODIFIER_MAP                 *Modifiers,
   OUT    UINTN                              *NoKeys,
@@ -67,8 +66,8 @@ AppleKeyMapGetKeyStrokesImpl (
   UINTN                    Index2;
   APPLE_KEY                Key;
 
-  Aggregator     = AGGREGATOR_FROM_AGGREGATOR_PROTOCOL (This);
-  KeyStrokesInfo = KEY_STROKES_INFO_FROM_LIST_ENTRY (GetFirstNode (&Aggregator->KeyStrokesInfoList));
+  Aggregator     = APPLE_KEY_MAP_AGGREGATOR_FROM_AGGREGATOR_PROTOCOL (This);
+  KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (GetFirstNode (&Aggregator->KeyStrokesInfoList));
   Result         = IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This);
 
   if (Result) {
@@ -102,7 +101,7 @@ AppleKeyMapGetKeyStrokesImpl (
         } while (Index < KeyStrokesInfo->Hdr.NoKeys);
       }
 
-      KeyStrokesInfo = KEY_STROKES_INFO_FROM_LIST_ENTRY (
+      KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (
                          GetNextNode (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This)
                          );
       Result         = IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This);
@@ -129,57 +128,7 @@ Return:
   return Status;
 }
 
-// BubbleSort
-/// 
-/// @param
-///
-/// @return
-/// @retval
-VOID
-BubbleSort (
-  IN OUT UINT16 *Operand,
-  IN     UINTN  NoChilds
-  ) // sub_72C
-{
-  UINTN  NoRemainingChilds;
-  UINTN  Index;
-  UINTN  NoRemainingChilds2;
-  UINT16 *OperandPtr;
-  UINT16 FirstChild;
-
-  ASSERT (Operand != NULL);
-  ASSERT (NoChilds > 0);
-
-  if (Operand != NULL) {
-    ++Operand;
-    NoRemainingChilds = (NoChilds - 1);
-    Index             = 1;
-
-    do {
-      NoRemainingChilds2 = NoRemainingChilds;
-      OperandPtr         = Operand;
-
-      if (Index < NoChilds) {
-        do {
-          FirstChild = Operand[-1];
-
-          if (FirstChild > *OperandPtr) {
-            Operand[-1] = *OperandPtr;
-            *OperandPtr = FirstChild;
-          }
-
-          ++OperandPtr;
-          --NoRemainingChilds2;
-        } while (NoRemainingChilds2 > 0);
-      }
-
-      ++Index;
-      ++Operand;
-    } while ((NoRemainingChilds--) > 0);
-  }
-}
-
-// AppleKeyMapContainsKeyStrokesImpl
+// KeyMapContainsKeyStrokesImpl
 /// Returns whether or not a list of keys and their modifiers are part of the database of pressed keys.
 ///
 /// @param[in]      This       A pointer to the protocol instance.
@@ -194,7 +143,7 @@ BubbleSort (
 /// @retval EFI_NOT_FOUND The queried keys could not be found.
 EFI_STATUS
 EFIAPI
-AppleKeyMapContainsKeyStrokesImpl (
+KeyMapContainsKeyStrokesImpl (
   IN     APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   IN     APPLE_MODIFIER_MAP                 Modifiers,
   IN     UINTN                              NoKeys,
@@ -219,8 +168,8 @@ AppleKeyMapContainsKeyStrokesImpl (
       Status = EFI_NOT_FOUND;
 
       if ((DbModifiers == Modifiers) && (DbNoKeys == NoKeys)) {
-        BubbleSort ((UINT16 *)Keys, NoKeys);
-        BubbleSort ((UINT16 *)DbKeys, DbNoKeys);
+        KeyMapBubbleSort ((UINT16 *)Keys, NoKeys);
+        KeyMapBubbleSort ((UINT16 *)DbKeys, DbNoKeys);
 
         Result = EfiCompareMem ((VOID *)Keys, (VOID *)DbKeys, (NoKeys * sizeof (*Keys)));
 

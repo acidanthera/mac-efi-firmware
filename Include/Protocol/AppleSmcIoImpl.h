@@ -26,10 +26,13 @@
 
 #include <Protocol/AppleSmcIo.h>
 
+// APPLE_SMC_IO_PROTOCOL_REVISION
 #define APPLE_SMC_IO_PROTOCOL_REVISION  0x33
 
+/// @{
 #define SMC_DEV_SIGNATURE    EFI_SIGNATURE_64 ('A', 'p', 'p', 'l', 'e', 'S', 'm', 'c')
 #define SMC_DEV_FROM_THIS(x) CR ((x), SMC_DEV, SmcIo, SMC_DEV_SIGNATURE)
+/// @}
 
 #pragma pack(1)
 
@@ -44,152 +47,7 @@ typedef PACKED struct _SMC_DEV {
 
 #pragma pack()
 
-// SmcReadStatus
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-SMC_STATUS
-SmcReadStatus (
-  IN SMC_DEV  *SmcDev
-  );
-
-// SmcReadResult
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-SMC_RESULT
-SmcReadResult (
-  IN SMC_DEV  *SmcDev
-  );
-
-// SmcWriteCommand
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-EFI_STATUS
-SmcWriteCommand (
-  IN  SMC_DEV  *SmcDev,
-  OUT UINT32   Command
-  );
-
-// SmcReadData8
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-EFI_STATUS
-SmcReadData8 (
-  IN  SMC_DEV   *SmcDev,
-  OUT SMC_DATA  *Data
-  );
-
-// SmcReadData16
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-EFI_STATUS
-SmcReadData16 (
-  IN SMC_DEV  *SmcDev,
-  IN UINT16   *Data
-  );
-
-// SmcReadData32
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-EFI_STATUS
-SmcReadData32 (
-  IN SMC_DEV  *SmcDev,
-  IN UINT32   *Data
-  );
-
-// SmcWriteData8
-EFI_STATUS
-SmcWriteData8 (
-  IN SMC_DEV   *SmcDev,
-  IN SMC_DATA  Data
-  );
-
-// SmcWriteData16
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-EFI_STATUS
-SmcWriteData16 (
-  IN SMC_DEV  *SmcDev,
-  IN UINT16   Data
-  );
-
-// SmcWriteData32
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-EFI_STATUS
-SmcWriteData32 (
-  IN SMC_DEV  *SmcDev,
-  IN UINT32   Data
-  );
-
-// SmcTimeoutWaitingForBusyClear
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-EFI_STATUS
-SmcTimeoutWaitingForBusyClear (
-  IN SMC_DEV  *SmcDev
-  );
-
-// SmcTimeoutWaitingLongForBusyClear
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-EFI_STATUS
-SmcTimeoutWaitingLongForBusyClear (
-  IN SMC_DEV  *SmcDev
-  );
-
-// SmcSmcInABadState
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-EFI_STATUS
-SmcSmcInABadState (
-  IN SMC_DEV  *SmcDev
-  );
-
-// SmcReadValue
+// SmcIoSmcReadValueImpl
 /// 
 ///
 /// @param 
@@ -198,14 +56,14 @@ SmcSmcInABadState (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcReadValue (
+SmcIoSmcReadValueImpl (
   IN  APPLE_SMC_IO_PROTOCOL  *This,
   IN  SMC_KEY                Key,
   IN  SMC_DATA_SIZE          Size,
   OUT SMC_DATA               *Value
   );
 
-// SmcWriteValue
+// SmcIoSmcWriteValueImpl
 /// 
 ///
 /// @param 
@@ -214,14 +72,14 @@ SmcReadValue (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcWriteValue (
+SmcIoSmcWriteValueImpl (
   IN  APPLE_SMC_IO_PROTOCOL  *This,
   IN  SMC_KEY                Key,
   IN  UINT32                 Size,
   OUT SMC_DATA               *Value
   );
 
-// SmcMakeKey
+// SmcIoSmcMakeKeyImpl
 /// 
 ///
 /// @param 
@@ -230,12 +88,12 @@ SmcWriteValue (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcMakeKey (
+SmcIoSmcMakeKeyImpl (
   IN  CHAR8    *Name,
   OUT SMC_KEY  *Key
   );
 
-// SmcGetKeyCount
+// SmcIoSmcGetKeyCountImpl
 /// 
 ///
 /// @param 
@@ -244,12 +102,12 @@ SmcMakeKey (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcGetKeyCount (
+SmcIoSmcGetKeyCountImpl (
   IN  APPLE_SMC_IO_PROTOCOL  *This,
   OUT UINT32                 *Count
   );
 
-// SmcGetKeyFromIndex
+// SmcIoSmcGetKeyFromIndexImpl
 /// 
 ///
 /// @param 
@@ -258,13 +116,13 @@ SmcGetKeyCount (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcGetKeyFromIndex (
+SmcIoSmcGetKeyFromIndexImpl (
   IN  APPLE_SMC_IO_PROTOCOL  *This,
   IN  SMC_INDEX              Index,
   OUT SMC_KEY                *Key
   );
 
-// SmcGetKeyInfo
+// SmcIoSmcGetKeyInfoImpl
 /// 
 ///
 /// @param 
@@ -273,7 +131,7 @@ SmcGetKeyFromIndex (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcGetKeyInfo (
+SmcIoSmcGetKeyInfoImpl (
   IN     APPLE_SMC_IO_PROTOCOL  *This,
   IN     SMC_KEY                Key,
   IN OUT SMC_DATA_SIZE          *Size,
@@ -281,7 +139,7 @@ SmcGetKeyInfo (
   IN OUT SMC_KEY_ATTRIBUTES     *Attributes
   );
 
-// SmcReset
+// SmcIoSmcResetImpl
 /// 
 ///
 /// @param 
@@ -290,12 +148,12 @@ SmcGetKeyInfo (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcReset (
+SmcIoSmcResetImpl (
   IN APPLE_SMC_IO_PROTOCOL  *This,
   IN UINT32                 Mode
   );
 
-// SmcFlashType
+// SmcIoSmcFlashTypeImpl
 /// 
 ///
 /// @param 
@@ -304,12 +162,12 @@ SmcReset (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcFlashType (
+SmcIoSmcFlashTypeImpl (
   IN APPLE_SMC_IO_PROTOCOL  *This,
   IN UINT32                 Type
   );
 
-// SmcFlashWrite
+// SmcIoSmcFlashWriteImpl
 /// 
 ///
 /// @param 
@@ -318,14 +176,14 @@ SmcFlashType (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcFlashWrite (
+SmcIoSmcFlashWriteImpl (
   IN APPLE_SMC_IO_PROTOCOL  *This,
   IN UINT32                 Unknown,
   IN UINT32                 Size,
   IN SMC_DATA               *Data
   );
 
-// SmcFlashAuth
+// SmcIoSmcFlashAuthImpl
 /// 
 ///
 /// @param 
@@ -334,13 +192,13 @@ SmcFlashWrite (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcFlashAuth (
+SmcIoSmcFlashAuthImpl (
   IN APPLE_SMC_IO_PROTOCOL  *This,
   IN UINT32                 Size,
   IN SMC_DATA               *Data
   );
 
-// SmcUnsupported
+// SmcIoSmcUnsupportedImpl
 /// 
 ///
 /// @param 
@@ -349,8 +207,79 @@ SmcFlashAuth (
 /// @retval 
 EFI_STATUS
 EFIAPI
-SmcUnsupported (
+SmcIoSmcUnsupportedImpl (
   VOID
+  );
+
+// SmcIoSmcUnknown1Impl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
+EFI_STATUS
+EFIAPI
+SmcIoSmcUnknown1Impl (
+  VOID
+  );
+
+// SmcIoSmcUnknown2Impl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
+EFI_STATUS
+EFIAPI
+SmcIoSmcUnknown2Impl (
+  IN APPLE_SMC_IO_PROTOCOL  *This,
+  IN UINTN                  Ukn1,
+  IN UINTN                  Ukn2
+  );
+
+// SmcIoSmcUnknown3Impl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
+EFI_STATUS
+EFIAPI
+SmcIoSmcUnknown3Impl (
+  IN APPLE_SMC_IO_PROTOCOL  *This,
+  IN UINTN                  Ukn1,
+  IN UINTN                  Ukn2
+  );
+
+// SmcIoSmcUnknown4Impl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
+EFI_STATUS
+EFIAPI
+SmcIoSmcUnknown4Impl (
+  IN APPLE_SMC_IO_PROTOCOL  *This,
+  IN UINTN                  Ukn1
+  );
+
+// SmcIoSmcUnknown5Impl
+/// 
+///
+/// @param 
+///
+/// @return 
+/// @retval 
+EFI_STATUS
+EFIAPI
+SmcIoSmcUnknown5Impl (
+  IN APPLE_SMC_IO_PROTOCOL  *This,
+  IN UINTN                  Ukn1
   );
 
 #endif // ifndef __APPLE_SMC_IO_IMPL_H__

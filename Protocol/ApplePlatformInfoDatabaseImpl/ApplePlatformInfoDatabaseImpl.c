@@ -26,15 +26,15 @@
 
 #include <EfiDriverLib.h>
 
-#include <Protocol/ApplePlatformInfoDatabaseImpl.h>
+#include "ApplePlatformInfoDatabaseImplInternal.h"
 
 // mD20Data
-EFI_APPLE_SECTION mD20Data;
+EFI_APPLE_SECTION_IDENTIFIER mD20Data = { { { { 0, 0, 0 }, 0 } }, 0 };
 
 // mD30Data
-EFI_APPLE_SECTION mD30Data;
+EFI_APPLE_SECTION_IDENTIFIER mD30Data = { { { { 0, 0, 0 }, 0 } }, 0 };
 
-// ApplePlatformInfoDbGetFirstDataSizeImpl
+// PlatformInfoDbGetFirstDataSizeImpl
 /// 
 ///
 /// @param 
@@ -43,16 +43,16 @@ EFI_APPLE_SECTION mD30Data;
 /// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetFirstDataSizeImpl (
+PlatformInfoDbGetFirstDataSizeImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN OUT UINTN                                  *Size
   ) // sub_7E6U2F
 {
-  return ApplePlatformInfoDbGetDataImpl (This, NameGuid, 0, NULL, Size);
+  return PlatformInfoDbGetDataImpl (This, NameGuid, 0, NULL, Size);
 }
 
-// ApplePlatformInfoDbGetDataSizeImpl
+// PlatformInfoDbGetDataSizeImpl
 /// 
 ///
 /// @param 
@@ -61,17 +61,17 @@ ApplePlatformInfoDbGetFirstDataSizeImpl (
 /// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetDataSizeImpl (
+PlatformInfoDbGetDataSizeImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN     UINTN                                  XorValue,
   IN OUT UINTN                                  *Size
   ) // sub_804
 {
-  return ApplePlatformInfoDbGetDataImpl (This, NameGuid, XorValue, NULL, Size);
+  return PlatformInfoDbGetDataImpl (This, NameGuid, XorValue, NULL, Size);
 }
 
-// ApplePlatformInfoDbGetFirstDataImpl
+// PlatformInfoDbGetFirstDataImpl
 /// 
 ///
 /// @param 
@@ -80,17 +80,17 @@ ApplePlatformInfoDbGetDataSizeImpl (
 /// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetFirstDataImpl (
+PlatformInfoDbGetFirstDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN OUT VOID                                   *Data,
   IN OUT UINTN                                  *Size
   ) // sub_81F
 {
-  return ApplePlatformInfoDbGetDataImpl (This, NameGuid, 0, Data, Size);
+  return PlatformInfoDbGetDataImpl (This, NameGuid, 0, Data, Size);
 }
 
-// ApplePlatformInfoDbGetDataImpl
+// PlatformInfoDbGetDataImpl
 /// 
 ///
 /// @param 
@@ -99,7 +99,7 @@ ApplePlatformInfoDbGetFirstDataImpl (
 /// @retval 
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDbGetDataImpl (
+PlatformInfoDbGetDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
   IN     UINTN                                  Index,
@@ -150,15 +150,15 @@ ApplePlatformInfoDbGetDataImpl (
       ++SectionInstance;
 
       if ((ShiftedValue & XoredValue) == 0) {
-        Result = EfiCompareMem ((VOID *)&BufferPtr->Hdr, (VOID *)&mD20Data, sizeof (BufferPtr->Hdr));
+        Result = EfiCompareMem ((VOID *)&BufferPtr->Hdr, (VOID *)&mD20Data, sizeof (mD20Data));
 
         if (Result != 0) {
-          if ((BufferPtr->Hdr.CommonHeader.Size == 0) && (Buffer == NULL)) {
+          if ((BufferPtr->Hdr.Hdr.CommonHeader.Size == 0) && (Buffer == NULL)) {
             Buffer = BufferPtr;
 
             continue;
           } else {
-            Result = EfiCompareMem ((VOID *)&BufferPtr->Hdr, (VOID *)&mD30Data, sizeof (BufferPtr->Hdr));
+            Result = EfiCompareMem ((VOID *)&BufferPtr->Hdr, (VOID *)&mD30Data, sizeof (mD30Data));
 
             if (Result == 0) {
               if (Buffer != NULL) {

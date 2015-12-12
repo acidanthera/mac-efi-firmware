@@ -29,30 +29,34 @@
 
 #include EFI_PROTOCOL_CONSUMER (ConsoleControl)
 #include <Protocol/AppleKeyMapAggregator.h>
-#include <Protocol/AppleEventImpl.h>
 
 #include <Library/EfiEventLib.h>
 #include <Library/AppleKeyMapLib.h>
 #include <Library/AppleKeyMapAggregatorLib.h>
 #include <Library/AppleEventLib.h>
 
+#include "AppleEventImplInternal.h"
+
+// KEY_STROKE_DELAY
+#define KEY_STROKE_DELAY  5
+
 // mCLockOn
-BOOLEAN mCLockOn;
+BOOLEAN mCLockOn = FALSE;
 
 // mKeyStrokePollEvent
-static EFI_EVENT mKeyStrokePollEvent;
+static EFI_EVENT mKeyStrokePollEvent = NULL;
 
 // mModifiers
-static APPLE_MODIFIER_MAP mModifiers;
+static APPLE_MODIFIER_MAP mModifiers = 0;
 
 // mInitialized
-static BOOLEAN mInitialized;
+static BOOLEAN mInitialized = FALSE;
 
 // mKeyInformation
 static KEY_STROKE_INFORMATION mKeyInformation[10];
 
 // mPreviouslyCLockOn
-static BOOLEAN mPreviouslyCLockOn;
+static BOOLEAN mPreviouslyCLockOn = FALSE;
 
 // AppleKeyDescriptorFromScanCode
 /// 

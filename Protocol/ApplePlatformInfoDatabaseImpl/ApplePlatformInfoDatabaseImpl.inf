@@ -36,4 +36,5 @@
 
 [Sources]
   ../../Include/Protocol/ApplePlatformInfoDatabaseImpl.h
+  ApplePlatformInfoDatabaseImplInternal.h
   ApplePlatformInfoDatabaseImpl.c

@@ -34,13 +34,18 @@
 
 #include <Driver/EfiDevicePathPropertyDatabase.h>
 
+/// @{
+#define APPLE_PATH_PROPERTIES_VARIABLE_NAME    L"AAPL,PathProperties"
+#define APPLE_PATH_PROPERTY_VARIABLE_MAX_SIZE  768
+/// @}
+
 // mEfiDevicePathPropertyDatabaseProtocol
 static EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDevicePathPropertyDatabase = {
   EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION,
-  DevicePathPropertyDbGetPropertyValue,
-  DevicePathPropertyDbSetProperty,
-  DevicePathPropertyDbRemoveProperty,
-  DevicePathPropertyDbGetPropertyBuffer
+  DevicePathPropertyDbGetPropertyValueImpl,
+  DevicePathPropertyDbSetPropertyImpl,
+  DevicePathPropertyDbRemovePropertyImpl,
+  DevicePathPropertyDbGetPropertyBufferImpl
 };
 
 // GetNvramProperties
@@ -174,6 +179,8 @@ Return:
   return Status;
 }
 
+EFI_DRIVER_ENTRY_POINT (EfiDevicePathPropertyDatabaseMain);
+
 // EfiDevicePathPropertyDatabaseMain
 ///
 ///
@@ -241,7 +248,7 @@ EfiDevicePathPropertyDatabaseMain (
       if (!EFI_ERROR (Status)) {
         if (Database->Modified) {
           DataSize = 0;
-          Status   = DevicePathPropertyDbGetPropertyBuffer (&Database->Protocol, NULL, &DataSize);
+          Status   = DevicePathPropertyDbGetPropertyBufferImpl (&Database->Protocol, NULL, &DataSize);
 
           if (Status != EFI_BUFFER_TOO_SMALL) {
             Buffer = (EFI_DEVICE_PATH_PROPERTY_BUFFER *)EfiLibAllocatePool (DataSize);
@@ -250,7 +257,7 @@ EfiDevicePathPropertyDatabaseMain (
               Status = EFI_OUT_OF_RESOURCES;
               goto FreePoolReturn;
             } else {
-              Status     = DevicePathPropertyDbGetPropertyBuffer (&Database->Protocol, Buffer, &DataSize);
+              Status     = DevicePathPropertyDbGetPropertyBufferImpl (&Database->Protocol, Buffer, &DataSize);
               Attributes = (EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS);
 
               if (!EFI_ERROR (Status)) {

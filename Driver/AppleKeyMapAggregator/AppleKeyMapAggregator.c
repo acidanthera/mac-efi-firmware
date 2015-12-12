@@ -34,6 +34,8 @@
 
 #include <Driver/AppleKeyMapAggregator.h>
 
+EFI_DRIVER_ENTRY_POINT (AppleKeyMapAggregatorMain);
+
 // AppleKeyMapAggregatorMain
 ///
 /// @param[in] ImageHandle      The firmware allocated handle for the EFI image.  
@@ -78,12 +80,12 @@ AppleKeyMapAggregatorMain (
     Aggregator->Signature                               = APPLE_KEY_MAP_AGGREGATOR_SIGNATURE;
     Aggregator->NextKeyStrokeIndex                      = 3000;
     Aggregator->DatabaseProtocol.Revision               = APPLE_KEY_MAP_DATABASE_PROTOCOL_REVISION;
-    Aggregator->DatabaseProtocol.CreateKeyStrokesBuffer = AppleKeyMapCreateKeyStrokesBufferImpl;
-    Aggregator->DatabaseProtocol.RemoveKeyStrokesBuffer = AppleKeyMapRemoveKeyStrokesBufferImpl;
-    Aggregator->DatabaseProtocol.SetKeyStrokeBufferKeys = AppleKeyMapSetKeyStrokeBufferKeysImpl;
+    Aggregator->DatabaseProtocol.CreateKeyStrokesBuffer = KeyMapCreateKeyStrokesBufferImpl;
+    Aggregator->DatabaseProtocol.RemoveKeyStrokesBuffer = KeyMapRemoveKeyStrokesBufferImpl;
+    Aggregator->DatabaseProtocol.SetKeyStrokeBufferKeys = KeyMapSetKeyStrokeBufferKeysImpl;
     Aggregator->AggregatorProtocol.Revision             = APPLE_KEY_MAP_AGGREGATOR_PROTOCOL_REVISION;
-    Aggregator->AggregatorProtocol.GetKeyStrokes        = AppleKeyMapGetKeyStrokesImpl;
-    Aggregator->AggregatorProtocol.ContainsKeyStrokes   = AppleKeyMapContainsKeyStrokesImpl;
+    Aggregator->AggregatorProtocol.GetKeyStrokes        = KeyMapGetKeyStrokesImpl;
+    Aggregator->AggregatorProtocol.ContainsKeyStrokes   = KeyMapContainsKeyStrokesImpl;
 
     InitializeListHead (&Aggregator->KeyStrokesInfoList);
 

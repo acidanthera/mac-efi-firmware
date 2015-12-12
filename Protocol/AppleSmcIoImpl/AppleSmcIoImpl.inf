@@ -41,5 +41,6 @@
 
 [Sources]
   ../../Include/Protocol/AppleSmcIoImpl.h
-  AppleSmcIoImpl.c
+  AppleSmcIoImplInternal.h
   AppleSmcIoImplPmioLib.c
+  AppleSmcIoImpl.c

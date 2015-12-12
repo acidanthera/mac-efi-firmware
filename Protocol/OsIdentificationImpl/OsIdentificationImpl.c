@@ -27,9 +27,9 @@
 
 #include <Guid/AppleOsLoaded.h>
 
-#include <Protocol/OsIdentificationImpl.h>
+#include "OsIdentificationImplInternal.h"
 
-// AppleOsIdentificationOSName
+// OsIdentificationOSNameImpl
 /// 
 ///
 /// @param 
@@ -38,14 +38,14 @@
 /// @retval 
 VOID
 EFIAPI
-AppleOsIdentificationOSName (
+OsIdentificationOSNameImpl (
 	IN CHAR8  *OSName
 	)
 {
 	return;
 }
 
-// AppleOsIdentificationOSVendor
+// OsIdentificationOSVendorImpl
 /// 
 ///
 /// @param 
@@ -54,7 +54,7 @@ AppleOsIdentificationOSName (
 /// @retval 
 VOID
 EFIAPI
-AppleOsIdentificationOSVendor (
+OsIdentificationOSVendorImpl (
 	IN CHAR8  *OSVendor
 	)
 {
