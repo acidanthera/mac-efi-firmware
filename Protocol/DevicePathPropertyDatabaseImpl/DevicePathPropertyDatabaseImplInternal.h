@@ -26,20 +26,32 @@
 
 #include <Protocol/DevicePathPropertyDatabaseImpl.h>
 
-// EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE
+/// @{
 #define EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  EFI_SIGNATURE_32 ('D', 'p', 'n', 0x00)
-#define PROPERTY_NODE_FROM_LIST_ENTRY(Entry)     _CR (Entry, EFI_DEVICE_PATH_PROPERTY_NODE, Hdr.This);
+
+#define PROPERTY_NODE_FROM_LIST_ENTRY(Entry)                                    \
+  ((EFI_DEVICE_PATH_PROPERTY_NODE *)(CR (                                       \
+                                       Entry,                                   \
+                                       EFI_DEVICE_PATH_PROPERTY_NODE_HDR,       \
+                                       This,                                    \
+                                       EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  \
+                                       )))
+
 #define EFI_DEVICE_PATH_PROPERTY_NODE_SIZE(Node) (sizeof ((Node)->Hdr) + EfiDevicePathSize (&(Node)->DevicePath))
+/// @}
+
+// _EFI_DEVICE_PATH_PROPERTY_NODE_HDR
+typedef struct _EFI_DEVICE_PATH_PROPERTY_NODE_HDR {
+  UINTN          Signature;     ///< 
+  EFI_LIST_ENTRY This;          ///< 
+  UINTN          NoProperties;  ///< 
+  EFI_LIST       Properties;    ///< 
+} EFI_DEVICE_PATH_PROPERTY_NODE_HDR;
 
 // _DEVICE_PATH_PROPERTY_NODE
 typedef struct _DEVICE_PATH_PROPERTY_NODE {
-  struct {
-    UINTN          Signature;     ///< 
-    EFI_LIST_ENTRY This;          ///< 
-    UINTN          NoProperties;  ///< 
-    EFI_LIST       Properties;    ///< 
-  }                        Hdr;         ///< 
-  EFI_DEVICE_PATH_PROTOCOL DevicePath;  ///< 
+  EFI_DEVICE_PATH_PROPERTY_NODE_HDR Hdr;         ///< 
+  EFI_DEVICE_PATH_PROTOCOL          DevicePath;  ///< 
 } EFI_DEVICE_PATH_PROPERTY_NODE;
 
 /// @{

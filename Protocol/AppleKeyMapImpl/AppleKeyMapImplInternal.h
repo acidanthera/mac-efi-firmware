@@ -27,21 +27,25 @@
 #include <Protocol/AppleKeyMapImpl.h>
 
 /// @{
-#define APPLE_KEY_STROKES_INFO_SIGNATURE                  EFI_SIGNATURE_32 ('K', 'e', 'y', 'S')
-#define APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY(ListEntry) _CR ((ListEntry), APPLE_KEY_STROKES_INFO, Hdr.This)
+#define APPLE_KEY_STROKES_INFO_SIGNATURE              EFI_SIGNATURE_32 ('K', 'e', 'y', 'S')
+#define APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY(Entry)  \
+  ((APPLE_KEY_STROKES_INFO *)(CR ((Entry), APPLE_KEY_STROKES_INFO_HDR, This, APPLE_KEY_STROKES_INFO_SIGNATURE)))
 /// @}
+
+// _APPLE_KEY_STROKES_INFO_HDR
+typedef struct _APPLE_KEY_STROKES_INFO_HDR {
+  UINTN              Signature;      ///< 
+  EFI_LIST_ENTRY     This;           ///< 
+  UINTN              Index;          ///< 
+  UINTN              KeyBufferSize;  ///< 
+  UINTN              NoKeys;         ///< 
+  APPLE_MODIFIER_MAP Modifiers;      ///<
+} APPLE_KEY_STROKES_INFO_HDR;
 
 // _APPLE_KEY_STROKES_INFO
 typedef struct _APPLE_KEY_STROKES_INFO {
-  struct {
-    UINTN              Signature;      ///< 
-    EFI_LIST_ENTRY     This;           ///< 
-    UINTN              Index;          ///< 
-    UINTN              KeyBufferSize;  ///< 
-    UINTN              NoKeys;         ///< 
-    APPLE_MODIFIER_MAP Modifiers;      ///< 
-  }         Hdr;   ///< 
-  APPLE_KEY Keys;  ///< 
+  APPLE_KEY_STROKES_INFO_HDR Hdr;   ///< 
+  APPLE_KEY                  Keys;  ///< 
 } APPLE_KEY_STROKES_INFO;
 
 // KeyMapGetKeyStrokesByIndex
