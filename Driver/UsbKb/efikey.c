@@ -36,7 +36,7 @@
 #define APPLE_PLATFORM_INFO_KEYBOARD_GUID \
   { 0x51871CB9, 0xE25D, 0x44B4, { 0x96, 0x99, 0x0E, 0xE8, 0x64, 0x4C, 0xED, 0x69 } }
 
-static EFI_GUID gApplePlatformInfoKeyboardGuid = APPLE_PLATFORM_INFO_KEYBOARD_GUID;
+STATIC EFI_GUID gApplePlatformInfoKeyboardGuid = APPLE_PLATFORM_INFO_KEYBOARD_GUID;
   
 APPLE_PLATFORM_INFO_DATABASE_PROTOCOL *mPlatformInfo = NULL;
 
@@ -214,6 +214,10 @@ USBKeyboardDriverBindingSupported (
   EFI_USB_IO_PROTOCOL *UsbIo;
   EFI_STATUS          Status;
 
+  ASSERT (This != NULL);
+  ASSERT (Controller != NULL);
+  ASSERT (RemainingDevicePath != NULL);
+
   //
   // Check if USB_IO protocol is attached on the controller handle.
   //
@@ -290,6 +294,10 @@ USBKeyboardDriverBindingStart (
   EFI_USB_HID_DESCRIPTOR          HidDescriptor;
   UINT32                          Value;
   UINTN                           Shift;
+
+  ASSERT (This != NULL);
+  ASSERT (Controller != NULL);
+  ASSERT (RemainingDevicePath != NULL);
   
   UsbKeyboardDevice = NULL;
   Found             = FALSE;
@@ -665,6 +673,11 @@ USBKeyboardDriverBindingStop (
   USB_KB_DEV                  *UsbKeyboardDevice;
   EFI_USB_IO_PROTOCOL         *UsbIo;
 
+  ASSERT (This != NULL);
+  ASSERT (Controller != NULL);
+  ASSERT (NumberOfChildren > 0);
+  ASSERT (ChildHandleBuffer != NULL);
+
   Status = gBS->OpenProtocol (
                   Controller,
                   &gEfiSimpleTextInProtocolGuid,
@@ -777,6 +790,10 @@ USBKeyboardReadKeyStrokeWorker (
   EFI_STATUS                        Status;
   UINT8                             KeyChar;
 
+  ASSERT (UsbKeyboardDevice != NULL);
+  ASSERT (UsbKeyboardDevice->Signature == USB_KB_DEV_SIGNATURE);
+  ASSERT (KeyData != NULL);
+
   if (KeyData == NULL) {
     return EFI_INVALID_PARAMETER;
   }
@@ -835,6 +852,8 @@ USBKeyboardReset (
   EFI_STATUS          Status;
   USB_KB_DEV          *UsbKeyboardDevice;
   EFI_USB_IO_PROTOCOL *UsbIo;
+
+  ASSERT (This != NULL);
 
   UsbKeyboardDevice = USB_KB_DEV_FROM_THIS (This);
 
@@ -902,6 +921,9 @@ USBKeyboardReadKeyStroke (
   EFI_STATUS   Status;
   EFI_KEY_DATA KeyData;
 
+  ASSERT (This != NULL);
+  ASSERT (Key != NULL);
+
   UsbKeyboardDevice = USB_KB_DEV_FROM_THIS (This);
 
   Status = USBKeyboardReadKeyStrokeWorker (UsbKeyboardDevice, &KeyData);
@@ -936,6 +958,10 @@ USBKeyboardWaitForKey (
 --*/       
 {
   USB_KB_DEV  *UsbKeyboardDevice;
+
+  ASSERT (Event != NULL);
+  ASSERT (Context != NULL);
+  ASSERT (((USB_KB_DEV *)Context)->Signature == USB_KB_DEV_SIGNATURE);
 
   UsbKeyboardDevice = (USB_KB_DEV *) Context;
 
@@ -972,6 +998,9 @@ USBKeyboardCheckForKey (
   EFI_STATUS  Status;
   UINT8       KeyChar;
 
+  ASSERT (UsbKeyboardDevice != NULL);
+  ASSERT (UsbKeyboardDevice->Signature == USB_KB_DEV_SIGNATURE);
+
   //
   // Fetch raw data from the USB keyboard input,
   // and translate it into ASCII data.
@@ -1006,6 +1035,7 @@ KbdReportStatusCode (
 
 --*/
 {
+  ASSERT (DevicePath != NULL);
 
   ReportStatusCodeWithDevicePath (
     CodeType,

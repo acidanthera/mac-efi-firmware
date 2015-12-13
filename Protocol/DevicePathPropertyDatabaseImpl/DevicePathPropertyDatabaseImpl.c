@@ -53,7 +53,7 @@ DevicePathPropertyDbGetPropertyValueImpl (
   IN     EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN     EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN     CHAR16                                      *Name,
-  OUT    VOID                                        *Value,
+  OUT    VOID                                        *Value, OPTIONAL
   IN OUT UINTN                                       *Size
   ) // sub_593
 {
@@ -64,6 +64,13 @@ DevicePathPropertyDbGetPropertyValueImpl (
   EFI_DEVICE_PATH_PROPERTY          *Property;
   UINTN                             PropertySize;
   BOOLEAN                           BufferTooSmall;
+
+  ASSERT (This != NULL);
+  ASSERT (DevicePath != NULL);
+  ASSERT (Name != NULL);
+  ASSERT (Value);
+  ASSERT (Size != NULL);
+  ASSERT ((*Size == 0) || (Value != NULL));
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
   Node     = DevicePathPropertyDbGetPropertyNode (Database, DevicePath);
@@ -86,6 +93,8 @@ DevicePathPropertyDbGetPropertyValueImpl (
       }
     }
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -122,6 +131,12 @@ DevicePathPropertyDbSetPropertyImpl (
   UINTN                             PropertyNameSize;
   UINTN                             PropertyDataSize;
   EFI_DEVICE_PATH_PROPERTY_DATA     *PropertyData;
+
+  ASSERT (This != NULL);
+  ASSERT (DevicePath != NULL);
+  ASSERT (Name != NULL);
+  ASSERT (Value != NULL);
+  ASSERT (Size > 0);
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
   Node     = DevicePathPropertyDbGetPropertyNode (Database, DevicePath);
@@ -200,6 +215,8 @@ DevicePathPropertyDbSetPropertyImpl (
   }
 
 Return:
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -226,6 +243,10 @@ DevicePathPropertyDbRemovePropertyImpl (
   EFI_DEVICE_PATH_PROPERTY_DATABASE *Database;
   EFI_DEVICE_PATH_PROPERTY_NODE     *Node;
   EFI_DEVICE_PATH_PROPERTY          *Property;
+
+  ASSERT (This != NULL);
+  ASSERT (DevicePath != NULL);
+  ASSERT (Name != NULL);
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
   Node     = DevicePathPropertyDbGetPropertyNode (Database, DevicePath);
@@ -254,6 +275,8 @@ DevicePathPropertyDbRemovePropertyImpl (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -273,7 +296,7 @@ EFI_STATUS
 EFIAPI
 DevicePathPropertyDbGetPropertyBufferImpl (
   IN     EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
-  OUT    EFI_DEVICE_PATH_PROPERTY_BUFFER             *Buffer,
+  OUT    EFI_DEVICE_PATH_PROPERTY_BUFFER             *Buffer, OPTIONAL
   IN OUT UINTN                                       *Size
   ) // sub_893
 {
@@ -287,6 +310,10 @@ DevicePathPropertyDbGetPropertyBufferImpl (
   UINT32                               NoNodes;
   EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *BufferNode;
   VOID                                 *BufferPtr;
+
+  ASSERT (This != NULL);
+  ASSERT (Buffer != NULL);
+  ASSERT (Size != NULL);
 
   Nodes  = &(PROPERTY_DATABASE_FROM_PROTOCOL (This))->Nodes;
   Result = IsListEmpty (Nodes);
@@ -365,6 +392,8 @@ DevicePathPropertyDbGetPropertyBufferImpl (
       }
     }
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

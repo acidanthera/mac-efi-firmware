@@ -29,7 +29,7 @@
 #include <Protocol/AppleSmcIoImpl.h>
 
 // gAppleSmcIoProtocolTemplate
-static APPLE_SMC_IO_PROTOCOL gAppleSmcIoProtocolTemplate = {
+STATIC APPLE_SMC_IO_PROTOCOL gAppleSmcIoProtocolTemplate = {
   APPLE_SMC_IO_PROTOCOL_REVISION,
   SmcIoSmcReadValueImpl,
   SmcIoSmcWriteValueImpl,
@@ -79,6 +79,8 @@ AppleSmcIoMain (
   SMC_DEV             *SmcDevChild;
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
+
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gAppleSmcIoProtocolGuid);
 
   Status = gBS->LocateProtocol (&gEfiCpuIoProtocolGuid, NULL, (VOID **)&CpuIo);
 

@@ -40,7 +40,7 @@ APPLE_EVENT_PROTOCOL mAppleEventProtocol = {
   EventUnregisterHandlerImpl,
   EventSetCursorPositionImpl,
   EventSetEventNameImpl,
-  EventIsCapsLockActiveImpl
+  EventIsCapsLockOnImpl
 };
 
 // UnloadAppleEventDummy

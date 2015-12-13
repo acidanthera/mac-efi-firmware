@@ -90,6 +90,10 @@ UsbKeyboardComponentNameGetDriverName (
 
 --*/
 {
+  ASSERT (This != NULL);
+  ASSERT (Language != NULL);
+  ASSERT (DriverName != NULL);
+
   return EfiLibLookupUnicodeString (
           Language,
           gUsbKeyboardComponentName.SupportedLanguages,
@@ -156,6 +160,13 @@ UsbKeyboardComponentNameGetControllerName (
   USB_KB_DEV                  *UsbKbDev;
   EFI_SIMPLE_TEXT_IN_PROTOCOL *SimpleTxtIn;
   EFI_USB_IO_PROTOCOL         *UsbIoProtocol;
+
+  ASSERT (This != NULL);
+  ASSERT (ControllerHandle != NULL);
+  ASSERT (ChildHandle != NULL);
+  ASSERT (Language != NULL);
+  ASSERT (ControllerName != NULL);
+
   //
   // This is a device driver, so ChildHandle must be NULL.
   //

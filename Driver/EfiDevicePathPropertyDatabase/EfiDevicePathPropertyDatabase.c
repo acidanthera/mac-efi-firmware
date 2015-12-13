@@ -40,7 +40,7 @@
 /// @}
 
 // mEfiDevicePathPropertyDatabaseProtocol
-static EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDevicePathPropertyDatabase = {
+STATIC EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDevicePathPropertyDatabase = {
   EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION,
   DevicePathPropertyDbGetPropertyValueImpl,
   DevicePathPropertyDbSetPropertyImpl,
@@ -54,7 +54,7 @@ static EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDevicePathPropertyDatabase = 
 ///
 /// @return
 /// @retval
-static
+STATIC
 EFI_STATUS
 GetNvramProperties (
   IN EFI_GUID                           *VendorGuid,
@@ -77,6 +77,9 @@ GetNvramProperties (
   UINTN                                NoProperties;
   EFI_DEVICE_PATH_PROPERTY_DATA        *NameData;
   EFI_DEVICE_PATH_PROPERTY_DATA        *ValueData;
+
+  ASSERT (VendorGuid != NULL);
+  ASSERT (Database != NULL);
 
   NoVariables = 0;
   BufferSize  = 0;
@@ -210,6 +213,8 @@ EfiDevicePathPropertyDatabaseMain (
   EFI_HANDLE                        Handle;
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
+
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gEfiDevicePathPropertyDatabaseProtocolGuid);
 
   Status = gBS->LocateHandleBuffer (
                   ByProtocol,

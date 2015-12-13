@@ -43,7 +43,7 @@
 EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mEventHandleList);
 
 // mNoEventHandles
-static UINTN mNoEventHandles = 0;
+STATIC UINTN mNoEventHandles = 0;
 
 // EventRegisterHandlerImpl
 /// 
@@ -64,6 +64,10 @@ EventRegisterHandlerImpl (
   EFI_STATUS         Status;
 
   APPLE_EVENT_HANDLE *Event;
+
+  ASSERT (EventHandle != NULL);
+  ASSERT (NotifyFunction != NULL);
+  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -103,6 +107,8 @@ EventRegisterHandlerImpl (
   }
 
 Return:
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -122,6 +128,8 @@ EventUnregisterHandlerImpl (
   EFI_STATUS         Status;
 
   APPLE_EVENT_HANDLE *Event;
+
+  ASSERT (EventHandle != NULL);
 
   Status = EFI_INVALID_PARAMETER;
   Event  = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (&mEventHandleList);
@@ -143,6 +151,8 @@ EventUnregisterHandlerImpl (
   if (mNoEventHandles == 0) {
     EventCancelPollEvents ();
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -182,6 +192,9 @@ EventSetEventNameImpl (
   UINTN      AllocationSize;
   CHAR8      *Memory;
 
+  ASSERT (EventHandle != NULL);
+  ASSERT (EventName != NULL);
+
   Status = EFI_INVALID_PARAMETER;
 
   if ((EventHandle != NULL) && (EventName != NULL)) {
@@ -198,10 +211,12 @@ EventSetEventNameImpl (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
-// EventIsCapsLockActiveImpl
+// EventIsCapsLockOnImpl
 /// 
 ///
 /// @param 
@@ -210,18 +225,22 @@ EventSetEventNameImpl (
 /// @retval 
 EFI_STATUS
 EFIAPI
-EventIsCapsLockActiveImpl (
-  IN OUT BOOLEAN  *CapsLockActive
+EventIsCapsLockOnImpl (
+  IN OUT BOOLEAN  *CLockOn
   ) // sub_3582
 {
   EFI_STATUS Status;
 
+  ASSERT (CLockOn != NULL);
+
   Status = EFI_INVALID_PARAMETER;
 
-  if (CapsLockActive != NULL) {
-    *CapsLockActive = mCLockOn;
-    Status          = EFI_SUCCESS;
+  if (CLockOn != NULL) {
+    *CLockOn = mCLockOn;
+    Status   = EFI_SUCCESS;
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

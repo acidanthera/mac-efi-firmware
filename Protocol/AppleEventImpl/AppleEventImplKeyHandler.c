@@ -44,19 +44,19 @@
 BOOLEAN mCLockOn = FALSE;
 
 // mKeyStrokePollEvent
-static EFI_EVENT mKeyStrokePollEvent = NULL;
+STATIC EFI_EVENT mKeyStrokePollEvent = NULL;
 
 // mModifiers
-static APPLE_MODIFIER_MAP mModifiers = 0;
+STATIC APPLE_MODIFIER_MAP mModifiers = 0;
 
 // mInitialized
-static BOOLEAN mInitialized = FALSE;
+STATIC BOOLEAN mInitialized = FALSE;
 
 // mKeyInformation
-static KEY_STROKE_INFORMATION mKeyInformation[10];
+STATIC KEY_STROKE_INFORMATION mKeyInformation[10];
 
 // mPreviouslyCLockOn
-static BOOLEAN mPreviouslyCLockOn = FALSE;
+STATIC BOOLEAN mPreviouslyCLockOn = FALSE;
 
 // AppleKeyDescriptorFromScanCode
 /// 
@@ -65,7 +65,7 @@ static BOOLEAN mPreviouslyCLockOn = FALSE;
 ///
 /// @return 
 /// @retval 
-static
+STATIC
 EFI_STATUS
 AppleKeyEventDataFromInputKey (
   OUT APPLE_EVENT_DATA  *EventData,
@@ -76,6 +76,10 @@ AppleKeyEventDataFromInputKey (
   EFI_STATUS           Status;
 
   APPLE_KEY_EVENT_DATA *KeyEventData;
+
+  ASSERT (EventData != NULL);
+  ASSERT (AppleKey != NULL);
+  ASSERT (InputKey != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -94,6 +98,8 @@ AppleKeyEventDataFromInputKey (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -104,7 +110,7 @@ AppleKeyEventDataFromInputKey (
 ///
 /// @return 
 /// @retval 
-static
+STATIC
 EFI_STATUS
 GetCurrentKeyStroke (
   IN     APPLE_MODIFIER_MAP  Modifiers,
@@ -133,7 +139,11 @@ GetCurrentKeyStroke (
   UINTN                  NewKeyIndex;
   BOOLEAN                Shifted;
 
-  TempCLockOn = FALSE;
+  ASSERT (NoKeys != NULL);
+  ASSERT (Keys != NULL);
+  ASSERT (Key != NULL);
+
+  TempCLockOn     = FALSE;
   NoReleasedKeys  = 0;
   ReleasedKeysPtr = NULL;
 
@@ -350,6 +360,8 @@ NoNewKey:
     Status = EFI_SUCCESS;
   }
 
+  ASSERT_EFI_ERROR (Status);
+
 Return:
   return Status;
 }
@@ -361,7 +373,7 @@ Return:
 ///
 /// @return 
 /// @retval 
-static
+STATIC
 EFI_STATUS
 AppleEventDataFromCurrentKeyStroke (
   IN OUT APPLE_EVENT_DATA    *EventData,
@@ -377,6 +389,10 @@ AppleEventDataFromCurrentKeyStroke (
   EFI_CONSOLE_CONTROL_PROTOCOL    *Interface;
   EFI_CONSOLE_CONTROL_SCREEN_MODE Mode;
   UINTN                           Index;
+
+  ASSERT (mAppleKeyMapAggregator != NULL);
+  ASSERT (EventData != NULL);
+  ASSERT (Modifiers != NULL);
 
   EfiZeroMem (&InputKey, sizeof (InputKey));
 
@@ -414,6 +430,8 @@ AppleEventDataFromCurrentKeyStroke (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -436,6 +454,8 @@ KeyStrokePollNotifyFunction (
   APPLE_EVENT_DATA   EventData;
   APPLE_MODIFIER_MAP Modifiers;
   APPLE_MODIFIER_MAP PartialModifers;
+
+  ASSERT (Event != NULL);
 
   EventData.AppleKeyEventData = NULL;
   Modifiers                   = 0;
@@ -475,12 +495,14 @@ KeyStrokePollNotifyFunction (
 ///
 /// @return 
 /// @retval 
-static
+STATIC
 VOID
 Initialize (
   VOID
   ) // sub_143C
 {
+  ASSERT (!mInitialized);
+
   if (!mInitialized) {
     mInitialized = TRUE;
 
@@ -518,6 +540,8 @@ EventCreateKeyStrokePollEvent (
     Status              = ((mKeyStrokePollEvent == NULL) ? EFI_OUT_OF_RESOURCES : EFI_SUCCESS);
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -533,6 +557,8 @@ EventCancelKeyStrokePollEvent (
   VOID
   ) // sub_1417
 {
+  ASSERT (mKeyStrokePollEvent != NULL);
+
   CancelEvent (mKeyStrokePollEvent);
 
   mKeyStrokePollEvent = NULL;

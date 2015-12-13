@@ -35,7 +35,7 @@
 #include <Driver/ApplePlatformInfoDB.h>
 
 // mApplePlatformInfoDBProtocol
-static APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDBProtocol = {
+STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDBProtocol = {
   APPLE_PLATFORM_INFO_DATABASE_PROTOCOL_REVISION,
   PlatformInfoDbGetFirstDataImpl,
   PlatformInfoDbGetFirstDataSizeImpl,
@@ -79,6 +79,8 @@ ApplePlatformInfoDBMain (
   APPLE_PLATFORM_INFO_DATABASE *PlatformInfoDatabase;
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
+
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gApplePlatformInfoDatabaseProtocolGuid);
 
   FirmwareVolumeProtocol = NULL; /////
   HobListTable2          = NULL; /////////

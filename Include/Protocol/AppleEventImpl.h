@@ -101,7 +101,7 @@ EventSetEventNameImpl (
   IN     CHAR8               *EventName
   );
 
-// EventIsCapsLockActiveImpl
+// EventIsCapsLockOnImpl
 /// 
 ///
 /// @param 
@@ -110,7 +110,7 @@ EventSetEventNameImpl (
 /// @retval 
 EFI_STATUS
 EFIAPI
-EventIsCapsLockActiveImpl (
+EventIsCapsLockOnImpl (
   IN OUT BOOLEAN  *CapsLockOn
   );
 

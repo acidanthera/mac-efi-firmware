@@ -66,6 +66,11 @@ KeyMapGetKeyStrokesImpl (
   UINTN                    Index2;
   APPLE_KEY                Key;
 
+  ASSERT (This != NULL);
+  ASSERT (Modifiers != NULL);
+  ASSERT (NoKeys != NULL);
+  ASSERT ((*NoKeys == 0) || (Keys != NULL));
+
   Aggregator     = APPLE_KEY_MAP_AGGREGATOR_FROM_AGGREGATOR_PROTOCOL (This);
   KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (GetFirstNode (&Aggregator->KeyStrokesInfoList));
   Result         = IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This);
@@ -125,6 +130,8 @@ KeyMapGetKeyStrokesImpl (
   }
 
 Return:
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -159,6 +166,10 @@ KeyMapContainsKeyStrokesImpl (
   INTN               Result;
   UINTN              Index;
   UINTN              DbIndex;
+
+  ASSERT (This != NULL);
+  ASSERT (NoKeys > 0);
+  ASSERT (Keys != NULL);
 
   DbNoKeys = ARRAY_LENGTH (DbKeys);
   Status   = This->GetKeyStrokes (This, &DbModifiers, &DbNoKeys, DbKeys);
@@ -197,6 +208,8 @@ KeyMapContainsKeyStrokesImpl (
       }
     }
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

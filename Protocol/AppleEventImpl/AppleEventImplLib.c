@@ -42,16 +42,16 @@
 #include "AppleEventImplInternal.h"
 
 // mEfiLock
-static EFI_LOCK mEfiLock;
+STATIC EFI_LOCK mEfiLock;
 
 // mQueryEvent
-static EFI_EVENT mQueryEvent = NULL;
+STATIC EFI_EVENT mQueryEvent = NULL;
 
 // mQueryEventCreated
-static BOOLEAN mQueryEventCreated = FALSE;
+STATIC BOOLEAN mQueryEventCreated = FALSE;
 
 // mEventQueryList
-static EFI_LIST mEventQueryList = INITIALIZE_LIST_HEAD_VARIABLE (mEventQueryList);
+STATIC EFI_LIST mEventQueryList = INITIALIZE_LIST_HEAD_VARIABLE (mEventQueryList);
 
 // CreateTimerEvent
 /// 
@@ -73,19 +73,25 @@ CreateTimerEvent (
 
   EFI_STATUS Status;
 
+  ASSERT (NotifyTpl < EFI_TPL_CALLBACK);
+
   Event = NULL;
 
   if (NotifyTpl < EFI_TPL_CALLBACK) {
     Status = gBS->CreateEvent (
-      ((NotifyFunction != NULL) ? (EFI_EVENT_TIMER | EFI_EVENT_NOTIFY_SIGNAL) : EFI_EVENT_TIMER),
-      NotifyTpl,
-      NotifyFunction,
-      NotifyContext,
-      &Event
-      );
+                    ((NotifyFunction != NULL) ? (EFI_EVENT_TIMER | EFI_EVENT_NOTIFY_SIGNAL) : EFI_EVENT_TIMER),
+                    NotifyTpl,
+                    NotifyFunction,
+                    NotifyContext,
+                    &Event
+                    );
+
+    ASSERT_EFI_ERROR (Status);
 
     if (!EFI_ERROR (Status)) {
       Status = gBS->SetTimer (Event, (SignalPeriodic ? TimerPeriodic : TimerRelative), TriggerTime);
+
+      ASSERT_EFI_ERROR (Status);
 
       if (EFI_ERROR (Status)) {
         gBS->CloseEvent (Event);
@@ -134,6 +140,8 @@ CancelEvent (
 
   Status = gBS->SetTimer (Event, TimerCancel, 0);
 
+  ASSERT_EFI_ERROR (Status);
+
   if (!EFI_ERROR (Status)) {
     gBS->CloseEvent (Event);
   }
@@ -152,6 +160,8 @@ UnloadAppleEvent (
   IN EFI_HANDLE  ImageHandle
   ) // sub_945
 {
+  EFI_STATUS Status;
+
   if (mSimplePointerInstallNotifyEvent != NULL) {
     gBS->CloseEvent (mSimplePointerInstallNotifyEvent);
   }
@@ -160,7 +170,11 @@ UnloadAppleEvent (
   EventUnregisterHandlers ();
   EventCancelPollEvents ();
 
-  return gBS->UninstallProtocolInterface (ImageHandle, &gAppleEventProtocolGuid, (VOID *)&mAppleEventProtocol);
+  Status = gBS->UninstallProtocolInterface (ImageHandle, &gAppleEventProtocolGuid, (VOID *)&mAppleEventProtocol);
+
+  ASSERT_EFI_ERROR (Status);
+
+  return Status;
 }
 
 // EventImplInitialize
@@ -184,6 +198,8 @@ EventImplInitialize (
   AppleInitializeDriverLib (ImageHandle, SystemTable);
   DxeInitializeDriverLib (ImageHandle, SystemTable);
 
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gAppleEventProtocolGuid);
+
   Interface = NULL;
   Status    = gBS->InstallProtocolInterface (
                      &ImageHandle,
@@ -203,14 +219,16 @@ EventImplInitialize (
       Status = EventCreateSimplePointerInstallNotifyEvent ();
 
       if (!EFI_ERROR (Status)) {
-        goto returnStatus;
+        goto Return;
       }
     }
 
     UnloadAppleEvent (ImageHandle);
   }
 
-returnStatus:
+Return:
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -296,6 +314,8 @@ EventCreatePollEvents (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -334,6 +354,9 @@ EventCreateAppleEventQueryInfo (
 
   EFI_TIME                      CreationTime;
 
+  ASSERT (EventData.Raw != 0);
+  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
+
   QueryInfo = (APPLE_EVENT_QUERY_INFORMATION *)EfiLibAllocateZeroPool (sizeof (*QueryInfo));
 
   if (QueryInfo != NULL) {
@@ -354,6 +377,8 @@ EventCreateAppleEventQueryInfo (
       EfiCommonLibCopyMem ((VOID *)&QueryInfo->PointerPosition, (VOID *)PointerPosition, sizeof (*PointerPosition));
     }
   }
+
+  ASSERT (QueryInfo != NULL);
 
   return QueryInfo;
 }
@@ -403,6 +428,8 @@ QueryEventNotifyFunction (
 
   APPLE_EVENT_QUERY  *EventQuery;
   APPLE_EVENT_HANDLE *EventHandle;
+
+  ASSERT (Event != NULL);
 
   if (mQueryEventCreated) {
     do {
@@ -479,6 +506,9 @@ EventSignalAndCloseQueryEvent (
   VOID
   ) // sub_E54
 {
+  ASSERT (mQueryEventCreated);
+  ASSERT (mQueryEvent != NULL);
+
   gBS->SignalEvent (mQueryEvent);
 
   if (mQueryEventCreated && (mQueryEvent != NULL)) {
@@ -501,6 +531,9 @@ EventAddEventQuery (
   EFI_STATUS        Status;
 
   APPLE_EVENT_QUERY *EventQuery;
+
+  ASSERT (mQueryEventCreated);
+  ASSERT (mQueryEvent != NULL);
 
   if (mQueryEventCreated) {
     do {
@@ -539,6 +572,9 @@ EventCreateEventQuery (
 
   APPLE_EVENT_QUERY_INFORMATION *Information;
 
+  ASSERT (EventData.Raw != 0);
+  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
+
   Status = EFI_INVALID_PARAMETER;
 
   if (EventData.Raw != 0) {
@@ -551,6 +587,8 @@ EventCreateEventQuery (
       Status = EFI_SUCCESS;
     }
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

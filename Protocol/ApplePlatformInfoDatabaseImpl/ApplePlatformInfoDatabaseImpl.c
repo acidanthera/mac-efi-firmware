@@ -45,7 +45,7 @@ EFI_STATUS
 EFIAPI
 PlatformInfoDbGetFirstDataSizeImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
-  IN     EFI_GUID                               *NameGuid,
+  IN     EFI_GUID                               *NameGuid, OPTIONAL
   IN OUT UINTN                                  *Size
   ) // sub_7E6U2F
 {
@@ -63,12 +63,12 @@ EFI_STATUS
 EFIAPI
 PlatformInfoDbGetDataSizeImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
-  IN     EFI_GUID                               *NameGuid,
-  IN     UINTN                                  XorValue,
+  IN     EFI_GUID                               *NameGuid, OPTIONAL
+  IN     UINTN                                  Index, OPTIONAL
   IN OUT UINTN                                  *Size
   ) // sub_804
 {
-  return PlatformInfoDbGetDataImpl (This, NameGuid, XorValue, NULL, Size);
+  return PlatformInfoDbGetDataImpl (This, NameGuid, Index, NULL, Size);
 }
 
 // PlatformInfoDbGetFirstDataImpl
@@ -83,7 +83,7 @@ EFIAPI
 PlatformInfoDbGetFirstDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
-  IN OUT VOID                                   *Data,
+  IN OUT VOID                                   *Data, OPTIONAL
   IN OUT UINTN                                  *Size
   ) // sub_81F
 {
@@ -102,8 +102,8 @@ EFIAPI
 PlatformInfoDbGetDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
-  IN     UINTN                                  Index,
-  IN OUT VOID                                   *Data,
+  IN     UINTN                                  Index, OPTIONAL
+  IN OUT VOID                                   *Data, OPTIONAL
   IN OUT UINTN                                  *Size
   ) // sub_840
 {
@@ -123,6 +123,11 @@ PlatformInfoDbGetDataImpl (
 
   SectionInstance = 0;
   Status          = EFI_INVALID_PARAMETER;
+
+  ASSERT (This != NULL);
+  ASSERT (NameGuid != NULL);
+  ASSERT (Size != NULL);
+  ASSERT ((*Size == 0) || (Data != NULL));
 
   if ((This != NULL) && (NameGuid != NULL) && (Size != NULL)) {
     FirmwareVolume = (PLATFORM_INFO_PROTOCOL_FROM_DATABASE (This))->FirmwareVolumeProtocol;
@@ -207,6 +212,8 @@ PlatformInfoDbGetDataImpl (
       }
     }
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

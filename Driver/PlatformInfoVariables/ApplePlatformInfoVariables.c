@@ -35,7 +35,7 @@ EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
 //
 
 // mRegistration
-static VOID *mRegistration;
+STATIC VOID *mRegistration;
 
 // mProtocol
 struct {

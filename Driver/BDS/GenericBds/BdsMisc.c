@@ -24,8 +24,8 @@ Abstract:
 
 #define MAX_STRING_LEN        200
 
-static BOOLEAN   mFeaturerSwitch = TRUE;
-static BOOLEAN   mResetRequired = FALSE;
+STATIC BOOLEAN   mFeaturerSwitch = TRUE;
+STATIC BOOLEAN   mResetRequired = FALSE;
 
 extern UINT16 gPlatformBootTimeOutDefault;
 

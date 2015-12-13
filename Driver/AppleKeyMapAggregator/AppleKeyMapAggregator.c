@@ -60,6 +60,8 @@ AppleKeyMapAggregatorMain (
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
 
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gAppleKeyMapDatabaseProtocolGuid);
+
   Status = gBS->LocateHandleBuffer (
                   ByProtocol,
                   &gAppleKeyMapDatabaseProtocolGuid,

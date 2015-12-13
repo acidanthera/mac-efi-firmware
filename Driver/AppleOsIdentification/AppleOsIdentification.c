@@ -31,7 +31,7 @@
 #include <Driver/AppleOsIdentification.h>
 
 // mAppleOsIdentification
-static EFI_OS_IDENTIFICATION_PROTOCOL mAppleOsIdentification = {
+STATIC EFI_OS_IDENTIFICATION_PROTOCOL mAppleOsIdentification = {
   OS_IDENTIFICATION_PROTOCOL_REVISION,
   OsIdentificationOSNameImpl,
   OsIdentificationOSVendorImpl
@@ -55,6 +55,8 @@ AppleOsIdentificationMain (
   ) // start
 {
   AppleInitializeDriverLib (ImageHandle, SystemTable);
+
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gEfiOsIdentificationProtocolGuid);
 
   return gBS->InstallProtocolInterface (
                 ImageHandle,

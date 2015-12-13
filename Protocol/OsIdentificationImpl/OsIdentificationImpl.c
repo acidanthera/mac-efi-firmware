@@ -39,10 +39,12 @@
 VOID
 EFIAPI
 OsIdentificationOSNameImpl (
-	IN CHAR8  *OSName
-	)
+  IN CHAR8  *OSName
+  )
 {
-	return;
+  ASSERT (OSName != NULL);
+
+  return;
 }
 
 // OsIdentificationOSVendorImpl
@@ -55,14 +57,16 @@ OsIdentificationOSNameImpl (
 VOID
 EFIAPI
 OsIdentificationOSVendorImpl (
-	IN CHAR8  *OSVendor
-	)
+  IN CHAR8  *OSVendor
+  )
 {
-	INTN Result;
+  INTN Result;
 
-	Result = EfiAsciiStrCmp (OSVendor, OS_IDENTIFICATION_VENDOR_NAME);
+  ASSERT (OSVendor != NULL);
 
-	if (Result == 0) {
-		EfiLibNamedEventSignal (&gAppleOsLoadedNamedEventGuid);
-	}
+  Result = EfiAsciiStrCmp (OSVendor, OS_IDENTIFICATION_VENDOR_NAME);
+
+  if (Result == 0) {
+    EfiLibNamedEventSignal (&gAppleOsLoadedNamedEventGuid);
+  }
 }

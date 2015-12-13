@@ -57,22 +57,22 @@
 EFI_EVENT mSimplePointerInstallNotifyEvent = NULL;
 
 // mSimplePointerInstallNotifyRegistration
-static VOID *mSimplePointerInstallNotifyRegistration = NULL;
+STATIC VOID *mSimplePointerInstallNotifyRegistration = NULL;
 
 // mSimplePointerInstances
 EFI_PROTOCOL_INSTANCE *mSimplePointerInstances = NULL;
 
 // mNoSimplePointerInstances
-static UINTN mNoSimplePointerInstances = 0;
+STATIC UINTN mNoSimplePointerInstances = 0;
 
 // mSimplePointerPollEvent
-static EFI_EVENT mSimplePointerPollEvent = NULL;
+STATIC EFI_EVENT mSimplePointerPollEvent = NULL;
 
 // mUiScale
-static UINT8 mUiScale = 1;
+STATIC UINT8 mUiScale = 1;
 
 // mLeftButtonInformation
-static POINTER_BUTTON_INFORMATION mLeftButtonInformation = {
+STATIC POINTER_BUTTON_INFORMATION mLeftButtonInformation = {
   APPLE_EVENT_TYPE_LEFT_BUTTON,
   0,
   0,
@@ -84,7 +84,7 @@ static POINTER_BUTTON_INFORMATION mLeftButtonInformation = {
 };
 
 // mRightButtonInformation
-static POINTER_BUTTON_INFORMATION mRightButtonInformation = {
+STATIC POINTER_BUTTON_INFORMATION mRightButtonInformation = {
   APPLE_EVENT_TYPE_RIGHT_BUTTON,
   0,
   0,
@@ -96,16 +96,16 @@ static POINTER_BUTTON_INFORMATION mRightButtonInformation = {
 };
 
 // mCursorPosition
-static DIMENSION mCursorPosition;
+STATIC DIMENSION mCursorPosition;
 
 // mMouseMoved
-static BOOLEAN mMouseMoved;
+STATIC BOOLEAN mMouseMoved;
 
 // mScreenResolutionSet
-static BOOLEAN mScreenResolutionSet;
+STATIC BOOLEAN mScreenResolutionSet;
 
 // mScreenResolution
-static DIMENSION mScreenResolution;
+STATIC DIMENSION mScreenResolution;
 
 // AddProtocolInstance
 /// 
@@ -114,19 +114,24 @@ static DIMENSION mScreenResolution;
 ///
 /// @return 
 /// @retval 
-static
+STATIC
 VOID
 AddProtocolInstance (
-  IN EFI_HANDLE Handle,
-  IN VOID       *Interface
+  IN EFI_HANDLE  Handle,
+  IN VOID        *Interface
   )
 {
   EFI_PROTOCOL_INSTANCE *Buffer;
   UINTN                 Index;
 
+  ASSERT (Handle != NULL);
+  ASSERT (Interface != NULL);
+
   Buffer = (EFI_PROTOCOL_INSTANCE *)EfiLibAllocateZeroPool (
                                       ((mNoSimplePointerInstances + 1) * sizeof (*mSimplePointerInstances))
                                       );
+
+  ASSERT (Buffer != NULL);
 
   if (Buffer != NULL) {
     EfiCommonLibCopyMem (
@@ -154,7 +159,7 @@ AddProtocolInstance (
 ///
 /// @return 
 /// @retval 
-static
+STATIC
 VOID
 RemoveUninstalledInstances (
   IN OUT EFI_PROTOCOL_INSTANCE  **Instances,
@@ -172,7 +177,14 @@ RemoveUninstalledInstances (
   UINTN                 Index2;
   EFI_PROTOCOL_INSTANCE *InstanceBuffer;
 
+  ASSERT (Instances != NULL);
+  ASSERT (NoInstances != NULL);
+  ASSERT (*NoInstances > 0);
+  ASSERT (Protocol != NULL);
+
   Status = gBS->LocateHandleBuffer (ByProtocol, Protocol, NULL, &NumberHandles, &Buffer);
+
+  ASSERT_EFI_ERROR (Status);
 
   if (!EFI_ERROR (Status)) {
     if (*NoInstances > 0) {
@@ -256,6 +268,8 @@ SimplePointerInstallNotifyFunction (
   UINTN                       Index;
   EFI_SIMPLE_POINTER_PROTOCOL *Interface;
 
+  ASSERT (Event != NULL);
+
   if (Event != NULL) {
     Status = gBS->LocateHandleBuffer (
                     ByRegisterNotify,
@@ -274,12 +288,16 @@ SimplePointerInstallNotifyFunction (
                     );
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   if (!EFI_ERROR (Status)) {
     if (NumberHandles > 0) {
       Index = 0;
 
       do {
         Status = gBS->HandleProtocol (Buffer[Index], &gEfiSimplePointerProtocolGuid, (VOID **)&Interface);
+
+        ASSERT_EFI_ERROR (Status);
 
         if (!EFI_ERROR (Status)) {
           AddProtocolInstance (Buffer[Index], (VOID *)Interface);
@@ -331,6 +349,8 @@ EventCreateSimplePointerInstallNotifyEvent (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -367,6 +387,8 @@ GetScreenResolution (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -385,6 +407,8 @@ GetUiScaleData (
   INTN  AbsoluteValue;
   UINT8 Value;
   INTN  Factor;
+
+  ASSERT (Movement != 0);
 
   //
   // INTN  Mask;
@@ -420,6 +444,8 @@ CreatePointerEventQueryInformation (
   UINT32           FinalEventType;
   APPLE_EVENT_DATA EventData;
 
+  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
+
   FinalEventType = APPLE_EVENT_TYPE_MOUSE_MOVED;
 
   if (!BIT_SET ((UINT8)EventType, APPLE_EVENT_TYPE_MOUSE_MOVED)) {
@@ -454,6 +480,8 @@ HandleButtonInteraction (
   INT32                         HorizontalMovement;
   INT32                         VerticalMovement;
   APPLE_EVENT_TYPE              EventType;
+
+  ASSERT (PointerInfo != NULL);
 
   if (!EFI_ERROR (PointerStatus)) {
     if (!PointerInfo->PreviousButton) {
@@ -577,6 +605,8 @@ SimplePointerPollNotifyFunction (
   INTN                          Result;
   APPLE_EVENT_QUERY_INFORMATION *Information;
   APPLE_EVENT_DATA              EventData;
+
+  ASSERT (Event != NULL);
 
   Modifiers = GetModifierStrokes ();
 
@@ -729,6 +759,8 @@ EventCreateSimplePointerPollEvent (
     Status                                 = EFI_SUCCESS;
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -756,10 +788,13 @@ EventCancelSimplePointerPollEvent (
 /// @retval 
 EFI_STATUS
 EventInternalSetCursorPosition (
-  IN DIMENSION *Position
+  IN DIMENSION  *Position
   ) // sub_1D09
 {
   EFI_STATUS Status;
+
+  ASSERT (Position != NULL);
+  ASSERT ((Position->Horizontal < mScreenResolution.Horizontal) && (Position->Vertical < mScreenResolution.Vertical));
 
   if (!mScreenResolutionSet) {
     Status = GetScreenResolution ();
@@ -776,9 +811,11 @@ EventInternalSetCursorPosition (
   if ((Position->Horizontal < mScreenResolution.Horizontal) && (Position->Vertical < mScreenResolution.Vertical)) {
     mCursorPosition.Horizontal = Position->Horizontal;
     mCursorPosition.Vertical   = Position->Vertical;
-    Status                    = EFI_SUCCESS;
+    Status                     = EFI_SUCCESS;
   }
 
 Return:
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }

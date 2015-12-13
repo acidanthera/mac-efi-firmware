@@ -56,6 +56,10 @@ KeyMapCreateKeyStrokesBufferImpl (
   APPLE_KEY                *Memory;
   APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
 
+  ASSERT (This != NULL);
+  ASSERT (KeyBufferSize > 0);
+  ASSERT (Index != NULL);
+
   Aggregator = APPLE_KEY_MAP_AGGREGATOR_FROM_DATABASE_PROTOCOL (This);
 
   if (Aggregator->KeyBuffer != NULL) {
@@ -87,6 +91,8 @@ KeyMapCreateKeyStrokesBufferImpl (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -112,6 +118,8 @@ KeyMapRemoveKeyStrokesBufferImpl (
   APPLE_KEY_MAP_AGGREGATOR *Aggregator;
   APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
 
+  ASSERT (This != NULL);
+
   Aggregator     = APPLE_KEY_MAP_AGGREGATOR_FROM_DATABASE_PROTOCOL (This);
   KeyStrokesInfo = KeyMapGetKeyStrokesByIndex (&Aggregator->KeyStrokesInfoList, Index);
   Status         = EFI_NOT_FOUND;
@@ -124,6 +132,8 @@ KeyMapRemoveKeyStrokesBufferImpl (
 
     Status = EFI_SUCCESS;
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -157,6 +167,10 @@ KeyMapSetKeyStrokeBufferKeysImpl (
   APPLE_KEY_MAP_AGGREGATOR *Aggregator;
   APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
 
+  ASSERT (This != NULL);
+  ASSERT (NoKeys > 0);
+  ASSERT (Keys != NULL);
+
   Aggregator     = APPLE_KEY_MAP_AGGREGATOR_FROM_DATABASE_PROTOCOL (This);
   KeyStrokesInfo = KeyMapGetKeyStrokesByIndex (&Aggregator->KeyStrokesInfoList, Index);
   Status         = EFI_NOT_FOUND;
@@ -173,6 +187,8 @@ KeyMapSetKeyStrokeBufferKeysImpl (
       Status = EFI_SUCCESS;
     }
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

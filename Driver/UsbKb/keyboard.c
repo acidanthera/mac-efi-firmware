@@ -164,6 +164,8 @@ IsUSBKeyboard (
   EFI_STATUS                    Status;
   EFI_USB_INTERFACE_DESCRIPTOR  InterfaceDescriptor;
 
+  ASSERT (UsbIo != NULL);
+
   //
   // Get the Default interface descriptor, currently we
   // assume it is interface 1
@@ -212,6 +214,9 @@ InitUSBKeyboard (
   EFI_STATUS          Status;
   UINT32              TransferResult;
   EFI_USB_IO_PROTOCOL *UsbIo;
+
+  ASSERT (UsbKeyboardDevice != NULL);
+  ASSERT (UsbKeyboardDevice->Signature == USB_KB_DEV_SIGNATURE);
 
   UsbIo = UsbKeyboardDevice->UsbIo;
 
@@ -378,7 +383,9 @@ KeyboardHandler (
   UINTN               NoKeys;
   APPLE_KEY           Keys[34];
 
-  ASSERT (Context);
+  ASSERT (Data != NULL);
+  ASSERT (DataLength > 0);
+  ASSERT (Context != NULL);
 
   NewRepeatKey      = 0;
   DataPtr           = (UINT8 *) Data;
@@ -701,6 +708,9 @@ USBParseKey (
 {
   USB_KEY UsbKey;
 
+  ASSERT (UsbKeyboardDevice != NULL);
+  ASSERT (UsbKeyboardDevice->Signature == USB_KB_DEV_SIGNATURE);
+
   *KeyChar = 0;
 
   while (!IsUSBKeyboardBufferEmpty (UsbKeyboardDevice->KeyboardBuffer)) {
@@ -858,6 +868,11 @@ USBKeyCodeToEFIScanCode (
 {
   UINT8               Index;
 
+  ASSERT (UsbKeyboardDevice != NULL);
+  ASSERT (UsbKeyboardDevice->Signature == USB_KB_DEV_SIGNATURE);
+  ASSERT (USBKBD_VALID_KEYCODE (KeyChar));
+  ASSERT (Key != NULL);
+
   if (!USBKBD_VALID_KEYCODE (KeyChar)) {
     return EFI_NOT_READY;
   }
@@ -866,6 +881,8 @@ USBKeyCodeToEFIScanCode (
   // valid USB Key Code starts from 4
   //
   Index = (UINT8) (KeyChar - 4);
+
+  ASSERT (Index < USB_KEYCODE_MAX_MAKE);
 
   if (Index >= USB_KEYCODE_MAX_MAKE) {
     return EFI_NOT_READY;
@@ -943,6 +960,8 @@ InitUSBKeyBuffer (
     EFI_SUCCESS - Success
 --*/
 {
+  ASSERT (KeyboardBuffer != NULL);
+
   EfiZeroMem (KeyboardBuffer, sizeof (USB_KB_BUFFER));
 
   KeyboardBuffer->bHead = KeyboardBuffer->bTail;
@@ -989,6 +1008,7 @@ IsUSBKeyboardBufferFull (
 
 --*/
 {
+
   return (BOOLEAN)(((KeyboardBuffer.bTail + 1) % (MAX_KEY_ALLOWED + 1)) ==
                                                         KeyboardBuffer.bHead);
 }
@@ -1014,6 +1034,8 @@ InsertKeyCode (
 --*/
 {
   USB_KEY UsbKey;
+
+  ASSERT (KeyboardBuffer != NULL);
 
   //
   // if keyboard buffer is full, throw the
@@ -1053,6 +1075,9 @@ RemoveKeyCode (
     EFI_DEVICE_ERROR - Hardware Error
 --*/
 {
+  ASSERT (KeyboardBuffer != NULL);
+  ASSERT (UsbKey != NULL);
+
   if (IsUSBKeyboardBufferEmpty (*KeyboardBuffer)) {
     return EFI_DEVICE_ERROR;
   }
@@ -1086,6 +1111,8 @@ SetKeyLED (
 {
   LED_MAP Led;
   UINT8   ReportId;
+
+  ASSERT (UsbKeyboardDevice != NULL);
 
   //
   // Set each field in Led map.
@@ -1131,6 +1158,10 @@ USBKeyboardRepeatHandler (
 --*/
 {
   USB_KB_DEV  *UsbKeyboardDevice;
+
+  ASSERT (Event != NULL);
+  ASSERT (Context != NULL);
+  ASSERT (((USB_KB_DEV *)Context)->Signature == USB_KB_DEV_SIGNATURE);
 
   UsbKeyboardDevice = (USB_KB_DEV *) Context;
 
@@ -1182,6 +1213,10 @@ USBKeyboardRecoveryHandler (
   USB_KB_DEV          *UsbKeyboardDevice;
   EFI_USB_IO_PROTOCOL *UsbIo;
   UINT8               PacketSize;
+
+  ASSERT (Event != NULL);
+  ASSERT (Context != NULL);
+  ASSERT (((USB_KB_DEV *)Context)->Signature == USB_KB_DEV_SIGNATURE);
 
   UsbKeyboardDevice = (USB_KB_DEV *) Context;
 

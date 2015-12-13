@@ -71,7 +71,7 @@ EFIAPI
 PlatformInfoDbGetDataSizeImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
-  IN     UINTN                                  Index,
+  IN     UINTN                                  Index, OPTIONAL
   IN OUT UINTN                                  *Size
   );
 
@@ -87,7 +87,7 @@ EFIAPI
 PlatformInfoDbGetFirstDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
-  IN OUT VOID                                   *Data,
+  IN OUT VOID                                   *Data, OPTIONAL
   IN OUT UINTN                                  *Size
   );
 
@@ -103,8 +103,8 @@ EFIAPI
 PlatformInfoDbGetDataImpl (
   IN     APPLE_PLATFORM_INFO_DATABASE_PROTOCOL  *This,
   IN     EFI_GUID                               *NameGuid,
-  IN     UINTN                                  Index,
-  IN OUT VOID                                   *Data,
+  IN     UINTN                                  Index, OPTIONAL
+  IN OUT VOID                                   *Data, OPTIONAL
   IN OUT UINTN                                  *Size
   );
 

@@ -36,7 +36,7 @@
 
 // mBootFilePaths
 /// An array of file paths to search for in case no file is blessed.
-static CHAR16 *mBootFilePaths[4] = {
+STATIC CHAR16 *mBootFilePaths[4] = {
   APPLE_BOOTER_FILE_PATH,
   APPLE_REMOVABLE_MEDIA_FILE_NAME,
   EFI_REMOVABLE_MEDIA_FILE_NAME,
@@ -185,5 +185,7 @@ Done:
   }
 
 Return:
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }

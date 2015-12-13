@@ -32,7 +32,7 @@
 #include "AppleSmcIoImplInternal.h"
 
 // mNoKeysName
-static CHAR8 *mNoKeysName = "#Key";
+STATIC CHAR8 *mNoKeysName = "#Key";
 
 // SmcIoSmcReadValueImpl
 /// 
@@ -54,6 +54,10 @@ SmcIoSmcReadValueImpl (
 
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
+
+  ASSERT (This != NULL);
+  ASSERT (Size > 0);
+  ASSERT (Value != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -117,6 +121,8 @@ SmcIoSmcReadValueImpl (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -140,6 +146,10 @@ SmcIoSmcWriteValueImpl (
 
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
+
+  ASSERT (This != NULL);
+  ASSERT (Size > 0);
+  ASSERT (Value != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -190,6 +200,8 @@ SmcIoSmcWriteValueImpl (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -210,6 +222,9 @@ SmcIoSmcMakeKeyImpl (
   EFI_STATUS Status;
 
   UINTN      Index;
+
+  ASSERT (Name != NULL);
+  ASSERT (Key != NULL);
 
   if ((Name != NULL) && (Key != NULL)) {
     *Key  = 0;
@@ -233,6 +248,8 @@ SmcIoSmcMakeKeyImpl (
   Status = EFI_INVALID_PARAMETER;
 
 Return:
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -253,6 +270,9 @@ SmcIoSmcGetKeyCountImpl (
   EFI_STATUS Status;
 
   SMC_KEY    Key;
+
+  ASSERT (This != NULL);
+  ASSERT (Count != NULL);
 
   Status = SmcIoSmcMakeKeyImpl (mNoKeysName, &Key);
 
@@ -282,6 +302,9 @@ SmcIoSmcGetKeyFromIndexImpl (
 
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
+
+  ASSERT (This != NULL);
+  ASSERT (Key != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -319,6 +342,8 @@ SmcIoSmcGetKeyFromIndexImpl (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -332,17 +357,22 @@ SmcIoSmcGetKeyFromIndexImpl (
 EFI_STATUS
 EFIAPI
 SmcIoSmcGetKeyInfoImpl (
-  IN     APPLE_SMC_IO_PROTOCOL  *This,
-  IN     SMC_KEY                Key,
-  IN OUT SMC_DATA_SIZE          *Size,
-  IN OUT SMC_KEY_TYPE           *Type,
-  IN OUT SMC_KEY_ATTRIBUTES     *Attributes
+  IN  APPLE_SMC_IO_PROTOCOL  *This,
+  IN  SMC_KEY                Key,
+  OUT SMC_DATA_SIZE          *Size,
+  OUT SMC_KEY_TYPE           *Type,
+  OUT SMC_KEY_ATTRIBUTES     *Attributes
   )
 {
   EFI_STATUS Status;
 
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
+
+  ASSERT (This != NULL);
+  ASSERT (Size != NULL);
+  ASSERT (Type != NULL);
+  ASSERT (Attributes != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -388,6 +418,8 @@ SmcIoSmcGetKeyInfoImpl (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -409,6 +441,8 @@ SmcIoSmcResetImpl (
 
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
+
+  ASSERT (This != NULL);
 
   SmcDev = SMC_DEV_FROM_THIS (This);
   Status = EfiAcquireLockOrFail (&SmcDev->Lock);
@@ -438,6 +472,8 @@ SmcIoSmcResetImpl (
     EfiReleaseLock (&SmcDev->Lock);
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -459,6 +495,8 @@ SmcIoSmcFlashTypeImpl (
 
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
+
+  ASSERT (This != NULL);
 
   SmcDev = SMC_DEV_FROM_THIS (This);
   Status = EfiAcquireLockOrFail (&SmcDev->Lock);
@@ -488,6 +526,8 @@ SmcIoSmcFlashTypeImpl (
     EfiReleaseLock (&SmcDev->Lock);
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -512,6 +552,10 @@ SmcIoSmcFlashWriteImpl (
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
   SMC_DATA   Value;
+
+  ASSERT (This != NULL);
+  ASSERT (Size > 0);
+  ASSERT (Data != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -562,6 +606,8 @@ SmcIoSmcFlashWriteImpl (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -585,6 +631,10 @@ SmcIoSmcFlashAuthImpl (
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
   SMC_DATA   Value;
+
+  ASSERT (This != NULL);
+  ASSERT (Size > 0);
+  ASSERT (Data != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -631,6 +681,8 @@ SmcIoSmcFlashAuthImpl (
     }
   }
 
+  ASSERT_EFI_ERROR (Status);
+
   return Status;
 }
 
@@ -647,6 +699,8 @@ SmcIoSmcUnsupportedImpl (
   VOID
   )
 {
+  ASSERT (FALSE);
+
   return EFI_UNSUPPORTED;
 }
 
@@ -687,6 +741,8 @@ SmcIoSmcUnknown2Impl (
 
   SMC_DEV    *SmcDev;
 
+  ASSERT (This != NULL);
+
   SmcDev = SMC_DEV_FROM_THIS (This);
   Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
@@ -694,6 +750,8 @@ SmcIoSmcUnknown2Impl (
     // Status = sub_10D4 (Ukn1, Ukn2);
     EfiReleaseLock (&SmcDev->Lock);
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -717,6 +775,8 @@ SmcIoSmcUnknown3Impl (
 
   SMC_DEV    *SmcDev;
 
+  ASSERT (This != NULL);
+
   SmcDev = SMC_DEV_FROM_THIS (This);
   Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
@@ -724,6 +784,8 @@ SmcIoSmcUnknown3Impl (
     // Status = sub_1125 (Ukn1, Ukn2);
     EfiReleaseLock (&SmcDev->Lock);
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -746,6 +808,8 @@ SmcIoSmcUnknown4Impl (
 
   SMC_DEV    *SmcDev;
 
+  ASSERT (This != NULL);
+
   SmcDev = SMC_DEV_FROM_THIS (This);
   Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
@@ -753,6 +817,8 @@ SmcIoSmcUnknown4Impl (
     // Status = sub_1181 (Ukn1);
     EfiReleaseLock (&SmcDev->Lock);
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -775,6 +841,8 @@ SmcIoSmcUnknown5Impl (
 
   SMC_DEV    *SmcDev;
 
+  ASSERT (This != NULL);
+
   SmcDev = SMC_DEV_FROM_THIS (This);
   Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
@@ -782,6 +850,8 @@ SmcIoSmcUnknown5Impl (
     // Status = sub_11BB (Ukn1);
     EfiReleaseLock (&SmcDev->Lock);
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

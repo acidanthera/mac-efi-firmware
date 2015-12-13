@@ -34,7 +34,7 @@
 
 // mAppleBootPolicyProtocol
 /// The APPLE_BOOT_POLICY_PROTOCOL instance to get installed.
-static APPLE_BOOT_POLICY_PROTOCOL mAppleBootPolicyProtocol = {
+STATIC APPLE_BOOT_POLICY_PROTOCOL mAppleBootPolicyProtocol = {
   APPLE_BOOT_POLICY_PROTOCOL_REVISION,
   BootPolicyGetBootFileImpl
 };
@@ -62,6 +62,8 @@ AppleBootPolicyMain (
   EFI_HANDLE Handle;
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
+
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gAppleBootPolicyProtocolGuid);
 
   Status = gBS->LocateProtocol (&gAppleBootPolicyProtocolGuid, NULL, &Interface);
 
