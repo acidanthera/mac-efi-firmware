@@ -22,9 +22,10 @@
   INF_VERSION = 0x00010005
 
 [Packages]
-  EdkBridgePkg/EdkBridgePkg.dec
-  EfiMiscPkg/EfiMiscPkg.dec
   ApplePkg/ApplePkg.dec
+  AppleModulePkg/AppleModulePkg.dec
+  EfiMiscPkg/EfiMiscPkg.dec
+  EdkBridgePkg/EdkBridgePkg.dec
 
 [Protocols]
   gAppleKeyMapDatabaseProtocolGuid        ## CONSUMES
@@ -35,6 +36,7 @@
   AppleDriverLib
   UefiEfiIfrSupportLib
   UsbDxeLib
+  EfiKeyboardInformationImpl
 
 [Sources]
   efikey.h

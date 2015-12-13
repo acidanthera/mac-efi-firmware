@@ -20,7 +20,7 @@
   PLATFORM_NAME             = AppleModule
   PLATFORM_GUID             = 0ADCC78E-2FDC-4491-998D-8684A7B602E9
   PLATFORM_VERSION          = 2015-001
-  DSC_SPECIFICATION         = 0x00010018
+  DSC_SPECIFICATION         = 0x00010006
   OUTPUT_DIRECTORY          = Build/$(PLATFORM_NAME)
   SUPPORTED_ARCHITECTURES   = IA32|IPF|X64|EBC|ARM|AARCH64
   BUILD_TARGETS             = RELEASE|DEBUG
@@ -62,6 +62,7 @@
   ApplePlatformInfoDatabaseImpl|AppleModulePkg/Protocol/ApplePlatformInfoDatabaseImpl/ApplePlatformInfoDatabaseImpl.inf
   AppleSmcIoImpl|AppleModulePkg/Protocol/AppleSmcIoImpl/AppleSmcIoImpl.inf
   EfiDevicePathPropertyDatabaseImpl|AppleModulePkg/Protocol/DevicePathPropertyDatabaseImpl/DevicePathPropertyDatabaseImpl.inf
+  EfiKeyboardInformationImpl|AppleModulePkg/Protocol/KeyboardInformationImpl/KeyboardInformationImpl.inf
   EfiOsIdentificationImpl|AppleModulePkg/Protocol/OsIdentificationImpl/OsIdentificationImpl.inf
 
 [LibraryClasses.IA32, LibraryClasses.X64]

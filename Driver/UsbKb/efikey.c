@@ -25,7 +25,7 @@
 
 #include <Protocol/AppleKeyMapDatabase.h>
 #include <Protocol/ApplePlatformInfoDatabase.h>
-#include <Protocol/KeyboardInformation.h>
+#include <Protocol/KeyboardInformationImpl.h>
 
 #include <Library/UsbDxeLib/hid.h>
 #include <Library/UsbDxeLib/UsbDxeLib.h>
@@ -38,34 +38,14 @@
 
 STATIC EFI_GUID gApplePlatformInfoKeyboardGuid = APPLE_PLATFORM_INFO_KEYBOARD_GUID;
   
-APPLE_PLATFORM_INFO_DATABASE_PROTOCOL *mPlatformInfo = NULL;
+STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL *mPlatformInfo = NULL;
 
-UINT8 mCountryCode = 0;
-
-BOOLEAN mIdsInitialized = FALSE;
-
-UINT16 mIdVendor = 0;
-
-UINT16 mIdProduct = 0;
-
-EFI_STATUS
-EFIAPI
-UsbKbGetKeyboardDeviceInfo (
-  OUT UINT16  *IdVendor,
-  OUT UINT16  *IdProduct,
-  OUT UINT8   *CountryCode
-  )
-{
-  *IdVendor    = mIdVendor;
-  *IdProduct   = mIdProduct;
-  *CountryCode = mCountryCode;
-
-  return EFI_SUCCESS;
-}
+// mIdsInitialized
+STATIC BOOLEAN mIdsInitialized = FALSE;
 
 // mKeyboardInformation
-EFI_KEYBOARD_INFORMATION_PROTOCOL mKeyboardInformation = {
-  UsbKbGetKeyboardDeviceInfo
+STATIC EFI_KEYBOARD_INFORMATION_PROTOCOL mKeyboardInformation = {
+  KbInfoGetInfo
 };
 
 //
@@ -528,12 +508,12 @@ USBKeyboardDriverBindingStart (
       Status = UsbGetHidDescriptor (UsbIo, InterfaceNum, &HidDescriptor);
 
       if (Status == EFI_SUCCESS) {
-        mCountryCode = HidDescriptor.CountryCode;
+        gKeyboardInfoCountryCode = HidDescriptor.CountryCode;
       }
 
-      mIdVendor       = UsbKeyboardDevice->DeviceDescriptor.IdVendor;
-      mIdProduct      = UsbKeyboardDevice->DeviceDescriptor.IdProduct;
-      mIdsInitialized = TRUE;
+      gKeyboardInfoIdVendor  = UsbKeyboardDevice->DeviceDescriptor.IdVendor;
+      gKeyboardInfoIdProduct = UsbKeyboardDevice->DeviceDescriptor.IdProduct;
+      mIdsInitialized        = TRUE;
 
       gBS->InstallProtocolInterface (NULL, &gEfiKeyboardInformationProtocolGuid, EFI_NATIVE_INTERFACE, (VOID *)&mKeyboardInformation);
     }

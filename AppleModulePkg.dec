@@ -18,7 +18,7 @@
 
 [Defines]
   PACKAGE_NAME                   = AppleModulePkg
-  PACKAGE_GUID                   = 0abcc78e-2fdc-4481-998d-8684a7b602e9 # REPLACE
+  PACKAGE_GUID                   = E3F59D96-6479-45B4-9059-E47BC8148902
   PACKAGE_VERSION                = 2015-001
   DEC_SPECIFICATION              = 0x00010005
 
@@ -39,7 +39,10 @@
   ApplePlatformInfoDatabaseImpl|AppleModulePkg/Include/Protocol/ApplePlatformInfoDatabaseImpl.h
 
   ##  @libraryclass  
-  DevicePathPropertyDatabaseImpl|AppleModulePkg/Include/Protocol/DevicePathPropertyDatabaseImpl.h
+  EfiDevicePathPropertyDatabaseImpl|AppleModulePkg/Include/Protocol/DevicePathPropertyDatabaseImpl.h
 
   ##  @libraryclass  
-  OsIdentificationImpl|AppleModulePkg/Include/Protocol/OsIdentificationImpl.h
+  EfiKeyboardInformationImpl|AppleModulePkg/Protocol/KeyboardInformationImpl/KeyboardInformationImpl.inf
+
+  ##  @libraryclass  
+  EfiOsIdentificationImpl|AppleModulePkg/Include/Protocol/OsIdentificationImpl.h
