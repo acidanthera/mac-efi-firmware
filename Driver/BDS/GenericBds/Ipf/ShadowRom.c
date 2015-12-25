@@ -40,7 +40,7 @@ ShadowAllOptionRom()
     Status = gBS->LocateProtocol (
                     &gEfiLegacyBiosProtocolGuid,
                     NULL,
-                    &LegacyBios
+                    (VOID **)&LegacyBios
                     );
     if (!EFI_ERROR (Status)) {
       LegacyBios->PrepareToBootEfi (LegacyBios, NULL, NULL);

@@ -1,41 +1,19 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/AppleEventImpl/AppleEventImpl.c
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      31/02/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
 
 #include <AppleEfi.h>
 
 #include <Library/AppleDriverLib.h>
-
-#include <IndustryStandard/AppleHid.h>
-
-#include <Guid/AppleNvram.h>
-
-#include EFI_PROTOCOL_CONSUMER (ConsoleControl)
-#include EFI_PROTOCOL_CONSUMER (GraphicsOutput)
-#include EFI_PROTOCOL_CONSUMER (SimplePointer)
-#include <Protocol/AppleKeyMapAggregator.h>
-
-#include <Library/AppleEventLib.h>
-#include <Library/AppleKeyMapLib.h>
 
 #include "AppleEventImplInternal.h"
 
@@ -46,12 +24,6 @@ EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mEventHandleLis
 STATIC UINTN mNoEventHandles = 0;
 
 // EventRegisterHandlerImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventRegisterHandlerImpl (
@@ -113,12 +85,6 @@ Return:
 }
 
 // EventUnregisterHandlerImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventUnregisterHandlerImpl (
@@ -157,13 +123,7 @@ EventUnregisterHandlerImpl (
   return Status;
 }
 
-// EventSetCursorPositionImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
+// EventSetCursorPositionImpl 
 EFI_STATUS
 EFIAPI
 EventSetCursorPositionImpl (
@@ -174,12 +134,6 @@ EventSetCursorPositionImpl (
 }
 
 // EventSetEventNameImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventSetEventNameImpl (
@@ -217,12 +171,6 @@ EventSetEventNameImpl (
 }
 
 // EventIsCapsLockOnImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventIsCapsLockOnImpl (

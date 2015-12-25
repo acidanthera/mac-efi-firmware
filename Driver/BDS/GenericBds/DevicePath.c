@@ -20,12 +20,18 @@ Abstract:
 
 --*/
 
-#include "AppleEfi.h"
-#include "EfiPrintLib.h"
-#include "bdslib.h"
+#include <AppleEfi.h>
+
+#include EFI_GUID_DEFINITION (PcAnsi)
+
+#include EFI_PROTOCOL_DEFINITION (DebugPort)
 #include EFI_PROTOCOL_DEFINITION (DevicePathToText)
-#include EFI_PROTOCOL_DEFINITION (WinntIo)
-#include EFI_PROTOCOL_DEFINITION (WinntThunk)
+#include EFI_PROTOCOL_DEFINITION (WinNtIo)
+#include EFI_PROTOCOL_DEFINITION (WinNtThunk)
+
+#include <EfiPrintLib.h>
+#include "bdslib.h"
+
 EFI_GUID  mEfiWinNtThunkProtocolGuid                 = EFI_WIN_NT_THUNK_PROTOCOL_GUID;
 EFI_GUID  mEfiWinNtGopGuid                           = EFI_WIN_NT_GOP_GUID;
 EFI_GUID  mEfiWinNtSerialPortGuid                    = EFI_WIN_NT_SERIAL_PORT_GUID;
@@ -43,15 +49,15 @@ ReallocatePool (
 
 Routine Description:
 
-  Adjusts the size of a previously allocated buffer.
+  Adjusts the size of a previously allocated Buffer.
 
 Arguments:
 
-  OldPool               - A pointer to the buffer whose size is being adjusted.
+  OldPool               - A pointer to the Buffer whose size is being adjusted.
 
-  OldSize               - The size of the current buffer.
+  OldSize               - The size of the current Buffer.
 
-  NewSize               - The size of the new buffer.
+  NewSize               - The size of the new Buffer.
 
 Returns:
 
@@ -59,7 +65,7 @@ Returns:
 
   EFI_OUT_OF_RESOURCES  - The pool requested could not be allocated.
 
-  EFI_INVALID_PARAMETER - The buffer was invalid.
+  EFI_INVALID_PARAMETER - The Buffer was invalid.
 
 --*/
 {
@@ -92,7 +98,7 @@ CatPrint (
 Routine Description:
 
     Concatenates a formatted unicode string to allocated pool.  
-    The caller must free the resulting buffer.
+    The caller must free the resulting Buffer.
 
 Arguments:
 
@@ -103,8 +109,8 @@ Arguments:
 
 Returns:
 
-    Allocated buffer with the formatted string printed in it.  
-    The caller must free the allocated buffer.   The buffer
+    Allocated Buffer with the formatted string printed in it.  
+    The caller must free the allocated Buffer.   The Buffer
     allocation is not packed.
 
 --*/
@@ -286,7 +292,7 @@ Routine Description:
 
 Arguments:
 
-  Str     - The buffer store device name
+  Str     - The Buffer store device name
   DevPath - Pointer to vendor device path
 
 Returns:
@@ -1240,7 +1246,7 @@ DevicePathToStr (
   Status = gBS->LocateProtocol (
                   &gEfiDevicePathToTextProtocolGuid,
                   NULL,
-                  &DevPathToText
+                  (VOID **)&DevPathToText
                   );
   if (!EFI_ERROR (Status)) {
     ToText = DevPathToText->ConvertDevicePathToText (

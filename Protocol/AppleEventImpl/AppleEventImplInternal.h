@@ -1,28 +1,18 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/AppleEventImpl/AppleEventImplInternal.h
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      11/12/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
 
-#ifndef __APPLE_EVENT_IMPL_INTERNAL_H__
-#define __APPLE_EVENT_IMPL_INTERNAL_H__
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
+
+#ifndef APPLE_EVENT_IMPL_INTERNAL_H_
+#define APPLE_EVENT_IMPL_INTERNAL_H_
 
 #include <Protocol/AppleEventImpl.h>
 
@@ -33,18 +23,18 @@
 #define APPLE_EVENT_QUERY_FROM_LIST_ENTRY(ListEntry) \
   CR (ListEntry, APPLE_EVENT_QUERY, This, APPLE_EVENT_QUERY_SIGNATURE)
 
-// _APPLE_EVENT_QUERY
-typedef struct _APPLE_EVENT_QUERY {
+// APPLE_EVENT_QUERY
+typedef struct {
   UINT32                        Signature;     ///< 
   EFI_LIST_ENTRY                This;          ///< 
   APPLE_EVENT_QUERY_INFORMATION *Information;  ///< 
 } APPLE_EVENT_QUERY;
 
-// _PROTOCOL_INSTANCE
-typedef struct _EFI_PROTOCOL_INSTANCE {
-  EFI_HANDLE Handle;
-  VOID       *Interface;
-  BOOLEAN    Installed;
+// PROTOCOL_INSTANCE
+typedef struct {
+  EFI_HANDLE Handle;      ///<
+  VOID       *Interface;  ///<
+  BOOLEAN    Installed;   ///<
 } EFI_PROTOCOL_INSTANCE;
 
 // mAppleEventHandleList
@@ -65,15 +55,15 @@ extern EFI_LIST mEventHandleList;
 // mCLockOn
 extern BOOLEAN mCLockOn;
 
-// _KEY_STROKE_INFORMATION
-typedef struct _KEY_STROKE_INFORMATION {
+// KEY_STROKE_INFORMATION
+typedef struct {
   APPLE_KEY AppleKey;       ///< 
   UINTN     NoStrokes;      ///< 
   BOOLEAN   CurrentStroke;  ///< 
 } KEY_STROKE_INFORMATION;
 
-// _POINTER_BUTTON_INFORMATION
-typedef struct _POINTER_BUTTON_INFORMATION {
+// POINTER_BUTTON_INFORMATION
+typedef struct {
   UINTN     Button;             ///< 
   UINTN     NoButtonPressed;    ///< 
   UINTN     Polls;              ///< 
@@ -85,120 +75,60 @@ typedef struct _POINTER_BUTTON_INFORMATION {
 } POINTER_BUTTON_INFORMATION;
 
 // EventUnregisterHandlers
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventUnregisterHandlers (
   VOID
   );
 
 // EventSignalAndCloseQueryEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventSignalAndCloseQueryEvent (
   VOID
   );
 
 // EventCancelPollEvents
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventCancelPollEvents (
   VOID
   );
 
 // EventCreateQueryEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventCreateQueryEvent (
   VOID
   );
 
 // EventCreateSimplePointerInstallNotifyEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EventCreateSimplePointerInstallNotifyEvent (
   VOID
   );
 
 // EventCancelKeyStrokePollEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventCancelKeyStrokePollEvent (
   VOID
   );
 
 // EventCancelSimplePointerPollEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventCancelSimplePointerPollEvent (
   VOID
   );
 
 // EventCreateSimplePointerPollEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EventCreateSimplePointerPollEvent (
   VOID
   );
 
 // EventCreateKeyStrokePollEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EventCreateKeyStrokePollEvent (
   VOID
   );
 
 // EventCreateAppleEventQueryInfo
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 APPLE_EVENT_QUERY_INFORMATION *
 EventCreateAppleEventQueryInfo (
   IN APPLE_EVENT_DATA    EventData,
@@ -208,24 +138,12 @@ EventCreateAppleEventQueryInfo (
   );
 
 // EventAddEventQuery
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventAddEventQuery (
   IN APPLE_EVENT_QUERY_INFORMATION  *Information
   );
 
 // EventCreateEventQuery
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EventCreateEventQuery (
   IN APPLE_EVENT_DATA    EventData,
@@ -234,39 +152,21 @@ EventCreateEventQuery (
   );
 
 // EventInternalSetCursorPosition
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EventInternalSetCursorPosition (
   IN DIMENSION  *Position
   );
 
 // EventRemoveUnregisteredEvents
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventRemoveUnregisteredEvents (
   VOID
   );
 
 // EventCreatePollEvents
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EventCreatePollEvents (
   VOID
   );
 
-#endif // ifndef __APPLE_EVENT_IMPL_INTERNAL_H__
+#endif // APPLE_EVENT_IMPL_INTERNAL_H_

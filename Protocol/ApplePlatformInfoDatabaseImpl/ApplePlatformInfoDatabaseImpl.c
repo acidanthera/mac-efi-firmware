@@ -1,25 +1,15 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/ApplePlatformInfoDatabaseImpl/ApplePlatformInfoDatabaseImpl.c
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      11/10/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
 
 #include <AppleEfi.h>
 #include <EfiImageFormat.h>
@@ -35,12 +25,6 @@ EFI_APPLE_SECTION_IDENTIFIER mD20Data = { { { { 0, 0, 0 }, 0 } }, 0 };
 EFI_APPLE_SECTION_IDENTIFIER mD30Data = { { { { 0, 0, 0 }, 0 } }, 0 };
 
 // PlatformInfoDbGetFirstDataSizeImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 PlatformInfoDbGetFirstDataSizeImpl (
@@ -53,12 +37,6 @@ PlatformInfoDbGetFirstDataSizeImpl (
 }
 
 // PlatformInfoDbGetDataSizeImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 PlatformInfoDbGetDataSizeImpl (
@@ -72,12 +50,6 @@ PlatformInfoDbGetDataSizeImpl (
 }
 
 // PlatformInfoDbGetFirstDataImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 PlatformInfoDbGetFirstDataImpl (
@@ -91,12 +63,6 @@ PlatformInfoDbGetFirstDataImpl (
 }
 
 // PlatformInfoDbGetDataImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 PlatformInfoDbGetDataImpl (

@@ -1,28 +1,18 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/DevicePathPropertyDatabaseImpl/DevicePathPropertyDatabaseImplInternal.h
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      12/12/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
 
-#ifndef __DEVICE_PATH_PROPERTY_DATABASE_IMPL_INTERNAL_H__
-#define __DEVICE_PATH_PROPERTY_DATABASE_IMPL_INTERNAL_H__
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
+
+#ifndef DEVICE_PATH_PROPERTY_DATABASE_IMPL_INTERNAL_H_
+#define DEVICE_PATH_PROPERTY_DATABASE_IMPL_INTERNAL_H_
 
 #include <Protocol/DevicePathPropertyDatabaseImpl.h>
 
@@ -40,16 +30,16 @@
 #define EFI_DEVICE_PATH_PROPERTY_NODE_SIZE(Node) (sizeof ((Node)->Hdr) + EfiDevicePathSize (&(Node)->DevicePath))
 /// @}
 
-// _EFI_DEVICE_PATH_PROPERTY_NODE_HDR
-typedef struct _EFI_DEVICE_PATH_PROPERTY_NODE_HDR {
+// EFI_DEVICE_PATH_PROPERTY_NODE_HDR
+typedef struct {
   UINTN          Signature;     ///< 
   EFI_LIST_ENTRY This;          ///< 
   UINTN          NoProperties;  ///< 
   EFI_LIST       Properties;    ///< 
 } EFI_DEVICE_PATH_PROPERTY_NODE_HDR;
 
-// _DEVICE_PATH_PROPERTY_NODE
-typedef struct _DEVICE_PATH_PROPERTY_NODE {
+// DEVICE_PATH_PROPERTY_NODE
+typedef struct {
   EFI_DEVICE_PATH_PROPERTY_NODE_HDR Hdr;         ///< 
   EFI_DEVICE_PATH_PROTOCOL          DevicePath;  ///< 
 } EFI_DEVICE_PATH_PROPERTY_NODE;
@@ -67,8 +57,8 @@ typedef struct _DEVICE_PATH_PROPERTY_NODE {
 #define EFI_DEVICE_PATH_PROPERTY_VALUE_SIZE(Property) ((Property)->Value->Hdr.Size - sizeof ((Property)->Value->Hdr))
 /// @}
 
-// _EFI_DEVICE_PATH_PROPERTY
-typedef struct _EFI_DEVICE_PATH_PROPERTY {
+// EFI_DEVICE_PATH_PROPERTY
+typedef struct {
   UINTN                         Signature;  ///< 
   EFI_LIST_ENTRY                This;       ///< 
   EFI_DEVICE_PATH_PROPERTY_DATA *Name;      ///< 
@@ -76,11 +66,6 @@ typedef struct _EFI_DEVICE_PATH_PROPERTY {
 } EFI_DEVICE_PATH_PROPERTY;
 
 // DevicePathPropertyDbGetPropertyNode
-/// 
-/// @param
-///
-/// @return
-/// @retval
 EFI_DEVICE_PATH_PROPERTY_NODE *
 DevicePathPropertyDbGetPropertyNode (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Database,
@@ -88,11 +73,6 @@ DevicePathPropertyDbGetPropertyNode (
   );
 
 // DevicePathPropertyDbGetProperty
-/// 
-/// @param
-///
-/// @return
-/// @retval
 EFI_DEVICE_PATH_PROPERTY *
 DevicePathPropertyDbGetProperty (
   IN CHAR16                         *Name,
@@ -100,14 +80,9 @@ DevicePathPropertyDbGetProperty (
   );
 
 // DevicePathPropertyDbCallProtocol
-/// 
-/// @param
-///
-/// @return
-/// @retval
 VOID
 DevicePathPropertyDbCallProtocol (
   VOID
   );
 
-#endif // ifndef __DEVICE_PATH_PROPERTY_DATABASE_IMPL_INTERNAL_H__
+#endif // DEVICE_PATH_PROPERTY_DATABASE_IMPL_INTERNAL_H_

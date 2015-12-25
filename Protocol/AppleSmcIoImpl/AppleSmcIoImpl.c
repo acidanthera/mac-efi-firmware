@@ -1,31 +1,19 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/AppleSmcIoImpl/AppleSmcIoImpl.c
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      22/10/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
 
 #include <AppleEfi.h>
 
 #include <Library/AppleDriverLib.h>
-
-#include EFI_PROTOCOL_CONSUMER (CpuIo)
 
 #include <Library/AppleSmcMmioLib.h>
 
@@ -35,12 +23,6 @@
 STATIC CHAR8 *mNoKeysName = "#Key";
 
 // SmcIoSmcReadValueImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcReadValueImpl (
@@ -127,12 +109,6 @@ SmcIoSmcReadValueImpl (
 }
 
 // SmcIoSmcWriteValueImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcWriteValueImpl (
@@ -206,12 +182,6 @@ SmcIoSmcWriteValueImpl (
 }
 
 // SmcIoSmcMakeKeyImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcMakeKeyImpl (
@@ -254,12 +224,6 @@ Return:
 }
 
 // SmcGetyKeyCount
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcGetKeyCountImpl (
@@ -284,12 +248,6 @@ SmcIoSmcGetKeyCountImpl (
 }
 
 // SmcIoSmcGetKeyFromIndexImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcGetKeyFromIndexImpl (
@@ -348,12 +306,6 @@ SmcIoSmcGetKeyFromIndexImpl (
 }
 
 // SmcIoSmcGetKeyInfoImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcGetKeyInfoImpl (
@@ -424,12 +376,6 @@ SmcIoSmcGetKeyInfoImpl (
 }
 
 // SmcIoSmcResetImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcResetImpl (
@@ -478,12 +424,6 @@ SmcIoSmcResetImpl (
 }
 
 // SmcIoSmcFlashTypeImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcFlashTypeImpl (
@@ -532,12 +472,6 @@ SmcIoSmcFlashTypeImpl (
 }
 
 // SmcIoSmcFlashWriteImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcFlashWriteImpl (
@@ -612,12 +546,6 @@ SmcIoSmcFlashWriteImpl (
 }
 
 // SmcIoSmcFlashAuthImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcFlashAuthImpl (
@@ -687,12 +615,6 @@ SmcIoSmcFlashAuthImpl (
 }
 
 // SmcIoSmcUnsupportedImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcUnsupportedImpl (
@@ -705,12 +627,6 @@ SmcIoSmcUnsupportedImpl (
 }
 
 // SmcIoSmcUnknown1Impl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcUnknown1Impl (
@@ -723,12 +639,6 @@ SmcIoSmcUnknown1Impl (
 }
 
 // SmcIoSmcUnknown2Impl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcUnknown2Impl (
@@ -757,12 +667,6 @@ SmcIoSmcUnknown2Impl (
 }
 
 // SmcIoSmcUnknown3Impl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcUnknown3Impl (
@@ -791,12 +695,6 @@ SmcIoSmcUnknown3Impl (
 }
 
 // SmcIoSmcUnknown4Impl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcUnknown4Impl (
@@ -824,12 +722,6 @@ SmcIoSmcUnknown4Impl (
 }
 
 // SmcIoSmcUnknown5Impl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 SmcIoSmcUnknown5Impl (

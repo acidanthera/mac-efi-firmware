@@ -1,26 +1,15 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/AppleSmcIoImpl/AppleSmcIoImplPmioLib.c
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      22/10/2015: Initial version
-/// @date      09/12/2015: Reorganization
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
 
 #include <AppleEfi.h>
 
@@ -34,15 +23,9 @@
 #define ITERATION_STALL  50
 
 // SmcIoSmcReadStatus
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 SMC_STATUS
 SmcIoSmcReadStatus (
-  IN SMC_DEV  *SmcDev
+  IN SMC_DEV  *SmcDev UNALIGNED
   )
 {
   SMC_STATUS Status;
@@ -50,7 +33,7 @@ SmcIoSmcReadStatus (
   SmcDev->CpuIo->Io.Read (
                       SmcDev->CpuIo,
                       EfiCpuIoWidthUint8,
-                      (SmcDev->SmcIo.Address + SMC_PORT_STATUS),
+                      (SmcDev->SmcIo.Address + SMC_PORT_OFFSET_STATUS),
                       sizeof (Status),
                       (VOID *)&Status
                       );
@@ -59,15 +42,9 @@ SmcIoSmcReadStatus (
 }
 
 // SmcIoSmcReadResult
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 SMC_RESULT
 SmcIoSmcReadResult (
-  IN SMC_DEV  *SmcDev
+  IN SMC_DEV  *SmcDev UNALIGNED
   )
 {
   SMC_RESULT Result;
@@ -75,7 +52,7 @@ SmcIoSmcReadResult (
   SmcDev->CpuIo->Io.Read (
                       SmcDev->CpuIo,
                       EfiCpuIoWidthUint8,
-                      (SmcDev->SmcIo.Address + SMC_PORT_RESULT),
+                      (SmcDev->SmcIo.Address + SMC_PORT_OFFSET_RESULT),
                       sizeof (Result),
                       (VOID *)&Result
                       );
@@ -84,15 +61,9 @@ SmcIoSmcReadResult (
 }
 
 // SmcIoSmcWriteCommand
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcWriteCommand (
-  IN  SMC_DEV  *SmcDev,
+  IN  SMC_DEV  *SmcDev, UNALIGNED
   OUT UINT32   Command
   )
 {
@@ -120,7 +91,7 @@ SmcIoSmcWriteCommand (
   SmcDev->CpuIo->Io.Write (
                       SmcDev->CpuIo,
                       EfiCpuIoWidthUint8,
-                      (SmcDev->SmcIo.Address + SMC_PORT_COMMAND),
+                      (SmcDev->SmcIo.Address + SMC_PORT_OFFSET_COMMAND),
                       sizeof (SMC_COMMAND),
                       (VOID *)&Command
                       );
@@ -147,15 +118,9 @@ Return:
 }
 
 // SmcIoSmcReadData8
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcReadData8 (
-  IN  SMC_DEV   *SmcDev,
+  IN  SMC_DEV   *SmcDev, UNALIGNED
   OUT SMC_DATA  *Data
   )
 {
@@ -185,7 +150,7 @@ SmcIoSmcReadData8 (
     SmcDev->CpuIo->Io.Read (
                         SmcDev->CpuIo,
                         EfiCpuIoWidthUint8,
-                        (SmcDev->SmcIo.Address + SMC_PORT_DATA),
+                        (SmcDev->SmcIo.Address + SMC_PORT_OFFSET_DATA),
                         sizeof (Buffer),
                         (VOID *)&Buffer
                         );
@@ -201,15 +166,9 @@ Return:
 }
 
 // SmcIoSmcReadData16
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcReadData16 (
-  IN SMC_DEV  *SmcDev,
+  IN SMC_DEV  *SmcDev, UNALIGNED
   IN UINT16   *Data
   )
 {
@@ -231,15 +190,9 @@ SmcIoSmcReadData16 (
 }
 
 // SmcIoSmcReadData32
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcReadData32 (
-  IN SMC_DEV  *SmcDev,
+  IN SMC_DEV  *SmcDev, UNALIGNED
   IN UINT32   *Data
   )
 {
@@ -261,15 +214,9 @@ SmcIoSmcReadData32 (
 }
 
 // SmcIoSmcWriteData8
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcWriteData8 (
-  IN SMC_DEV   *SmcDev,
+  IN SMC_DEV   *SmcDev, UNALIGNED
   IN SMC_DATA  Data
   )
 {
@@ -298,7 +245,7 @@ SmcIoSmcWriteData8 (
     SmcDev->CpuIo->Io.Write (
                         SmcDev->CpuIo,
                         EfiCpuIoWidthUint8,
-                        (SmcDev->SmcIo.Address + SMC_PORT_DATA),
+                        (SmcDev->SmcIo.Address + SMC_PORT_OFFSET_DATA),
                         sizeof (Data),
                         (VOID *)&Data
                         );
@@ -313,15 +260,9 @@ Return:
 }
 
 // SmcIoSmcWriteData16
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcWriteData16 (
-  IN SMC_DEV  *SmcDev,
+  IN SMC_DEV  *SmcDev, UNALIGNED
   IN UINT16   Data
   )
 {
@@ -337,15 +278,9 @@ SmcIoSmcWriteData16 (
 }
 
 // SmcIoSmcWriteData32
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcWriteData32 (
-  IN SMC_DEV  *SmcDev,
+  IN SMC_DEV  *SmcDev, UNALIGNED
   IN UINT32   Data
   )
 {
@@ -369,15 +304,9 @@ SmcIoSmcWriteData32 (
 }
 
 // SmcIoSmcTimeoutWaitingForBusyClear
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcTimeoutWaitingForBusyClear (
-  IN SMC_DEV  *SmcDev
+  IN SMC_DEV  *SmcDev UNALIGNED
   )
 {
   EFI_STATUS Status;
@@ -408,15 +337,9 @@ Return:
 }
 
 // SmcIoSmcTimeoutWaitingLongForBusyClear
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcTimeoutWaitingLongForBusyClear (
-  IN SMC_DEV  *SmcDev
+  IN SMC_DEV  *SmcDev UNALIGNED
   )
 {
   EFI_STATUS Status;
@@ -447,15 +370,9 @@ Return:
 }
 
 // SmcIoSmcSmcInABadState
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 SmcIoSmcSmcInABadState (
-  IN SMC_DEV  *SmcDev
+  IN SMC_DEV  *SmcDev UNALIGNED
   )
 {
   EFI_STATUS Status;

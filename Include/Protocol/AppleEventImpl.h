@@ -1,28 +1,20 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Include/Protocol/AppleEventImpl.h
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      31/02/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
 
-#ifndef __APPLE_EVENT_IMPL_H__
-#define __APPLE_EVENT_IMPL_H__
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
+
+#ifndef APPLE_EVENT_IMPL_H_
+#define APPLE_EVENT_IMPL_H_
+
+#include <Library/AppleDriverLib.h>
 
 #include <IndustryStandard/AppleHid.h>
 
@@ -32,12 +24,6 @@
 #define APPLE_EVENT_PROTOCOL_REVISION  0x07
 
 // EventImplInitialize
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventImplInitialize (
@@ -46,12 +32,6 @@ EventImplInitialize (
   );
 
 // EventRegisterHandlerImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventRegisterHandlerImpl (
@@ -62,12 +42,6 @@ EventRegisterHandlerImpl (
   );
 
 // EventUnregisterHandlerImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventUnregisterHandlerImpl (
@@ -75,12 +49,6 @@ EventUnregisterHandlerImpl (
   );
 
 // EventSetCursorPositionImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventSetCursorPositionImpl (
@@ -88,12 +56,6 @@ EventSetCursorPositionImpl (
   );
 
 // EventSetEventNameImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventSetEventNameImpl (
@@ -102,16 +64,10 @@ EventSetEventNameImpl (
   );
 
 // EventIsCapsLockOnImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EFIAPI
 EventIsCapsLockOnImpl (
   IN OUT BOOLEAN  *CapsLockOn
   );
 
-#endif // ifndef __APPLE_EVENT_IMPL_H__
+#endif // APPLE_EVENT_IMPL_H_

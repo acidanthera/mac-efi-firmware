@@ -1,25 +1,15 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/AppleEventImpl/AppleEventImplKeyHandler.c
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      31/02/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
 
 #include <AppleEfi.h>
 
@@ -33,7 +23,6 @@
 #include <Library/EfiEventLib.h>
 #include <Library/AppleKeyMapLib.h>
 #include <Library/AppleKeyMapAggregatorLib.h>
-#include <Library/AppleEventLib.h>
 
 #include "AppleEventImplInternal.h"
 
@@ -59,13 +48,6 @@ STATIC KEY_STROKE_INFORMATION mKeyInformation[10];
 STATIC BOOLEAN mPreviouslyCLockOn = FALSE;
 
 // AppleKeyDescriptorFromScanCode
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-STATIC
 EFI_STATUS
 AppleKeyEventDataFromInputKey (
   OUT APPLE_EVENT_DATA  *EventData,
@@ -104,13 +86,6 @@ AppleKeyEventDataFromInputKey (
 }
 
 // GetCurrentKeyStroke
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-STATIC
 EFI_STATUS
 GetCurrentKeyStroke (
   IN     APPLE_MODIFIER_MAP  Modifiers,
@@ -367,13 +342,6 @@ Return:
 }
 
 // CreateAppleKeyDescriptorsFromKeyStrokes
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-STATIC
 EFI_STATUS
 AppleEventDataFromCurrentKeyStroke (
   IN OUT APPLE_EVENT_DATA    *EventData,
@@ -436,12 +404,6 @@ AppleEventDataFromCurrentKeyStroke (
 }
 
 // KeyStrokePollNotifyFunction
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EFIAPI
 KeyStrokePollNotifyFunction (
@@ -489,13 +451,6 @@ KeyStrokePollNotifyFunction (
 }
 
 // Initialize
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-STATIC
 VOID
 Initialize (
   VOID
@@ -515,12 +470,6 @@ Initialize (
 }
 
 // EventCreateKeyStrokePollEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EventCreateKeyStrokePollEvent (
   VOID
@@ -546,12 +495,6 @@ EventCreateKeyStrokePollEvent (
 }
 
 // EventCancelKeyStrokePollEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventCancelKeyStrokePollEvent (
   VOID

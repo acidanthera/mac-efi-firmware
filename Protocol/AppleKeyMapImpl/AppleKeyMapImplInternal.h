@@ -1,28 +1,18 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/AppleKeyMapImpl/AppleKeyMapImplInternal.h
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      12/12/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
 
-#ifndef __APPLE_KEY_MAP_IMPL_INTERNAL_H__
-#define __APPLE_KEY_MAP_IMPL_INTERNAL_H__
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
+
+#ifndef APPLE_KEY_MAP_IMPL_INTERNAL_H_
+#define APPLE_KEY_MAP_IMPL_INTERNAL_H_
 
 #include <Protocol/AppleKeyMapImpl.h>
 
@@ -32,8 +22,8 @@
   ((APPLE_KEY_STROKES_INFO *)(CR ((Entry), APPLE_KEY_STROKES_INFO_HDR, This, APPLE_KEY_STROKES_INFO_SIGNATURE)))
 /// @}
 
-// _APPLE_KEY_STROKES_INFO_HDR
-typedef struct _APPLE_KEY_STROKES_INFO_HDR {
+// APPLE_KEY_STROKES_INFO_HDR
+typedef struct {
   UINTN              Signature;      ///< 
   EFI_LIST_ENTRY     This;           ///< 
   UINTN              Index;          ///< 
@@ -42,18 +32,13 @@ typedef struct _APPLE_KEY_STROKES_INFO_HDR {
   APPLE_MODIFIER_MAP Modifiers;      ///<
 } APPLE_KEY_STROKES_INFO_HDR;
 
-// _APPLE_KEY_STROKES_INFO
-typedef struct _APPLE_KEY_STROKES_INFO {
+// APPLE_KEY_STROKES_INFO
+typedef struct {
   APPLE_KEY_STROKES_INFO_HDR Hdr;   ///< 
   APPLE_KEY                  Keys;  ///< 
 } APPLE_KEY_STROKES_INFO;
 
 // KeyMapGetKeyStrokesByIndex
-/// 
-/// @param
-///
-/// @return
-/// @retval
 APPLE_KEY_STROKES_INFO *
 KeyMapGetKeyStrokesByIndex (
   IN EFI_LIST  *List,
@@ -61,15 +46,10 @@ KeyMapGetKeyStrokesByIndex (
   );
 
 // KeyMapBubbleSort
-/// 
-/// @param
-///
-/// @return
-/// @retval
 VOID
 KeyMapBubbleSort (
   IN OUT UINT16 *Operand,
   IN     UINTN  NoChilds
   );
 
-#endif // ifndef __APPLE_KEY_MAP_IMPL_INTERNAL_H__
+#endif // APPLE_KEY_MAP_IMPL_INTERNAL_H_

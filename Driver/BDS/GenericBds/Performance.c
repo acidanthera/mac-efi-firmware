@@ -21,17 +21,22 @@ Abstract:
 
 --*/
 
-#include "AppleEfi.h"
-#include "EfiDriverLib.h"
-#include "EfiPrintLib.h"
+#define EFI_DXE_PERFORMANCE
 
 #ifdef EFI_DXE_PERFORMANCE
-#include "EfiImage.h"
+#include <AppleEfi.h>
+
+#include <Library/AppleDriverLib.h>
+
+#include EFI_GUID_DEFINITION (GenericVariable)
+
+#include EFI_ARCH_PROTOCOL_DEFINITION (Cpu)
+
+#include <BmMachine.h>
 #include "Performance.h"
 
 STATIC EFI_PHYSICAL_ADDRESS mAcpiLowMemoryBase = 0x0FFFFFFFF;
 
-STATIC
 VOID
 ConvertChar16ToChar8 (
   IN CHAR8      *Dest,
@@ -95,7 +100,7 @@ Returns:
   Status = gBS->LocateProtocol (
                   &gEfiPerformanceProtocolGuid,
                   NULL,
-                  &DrvPerf
+                  (VOID **)&DrvPerf
                   );
   if (EFI_ERROR (Status)) {
     return ;
@@ -107,7 +112,7 @@ Returns:
   Status = gBS->LocateProtocol (
                   &gEfiCpuArchProtocolGuid,
                   NULL,
-                  &Cpu
+                  (VOID **)&Cpu
                   );
   if (EFI_ERROR (Status)) {
     return ;
@@ -187,7 +192,7 @@ Returns:
                           );
     while (DumpData) {
       if (DumpData->Handle == Handles[mIndex]) {
-      	PdbFileName = &(DumpData->PdbFileName[0]);
+      	PdbFileName = (UINT8 *)&(DumpData->PdbFileName[0]);
       	if (DumpData->StartTick < DumpData->EndTick) {
       	  Ticker += (DumpData->EndTick - DumpData->StartTick);
       	}
@@ -212,7 +217,7 @@ Returns:
       EfiZeroMem (&mPerfData, sizeof (EFI_PERF_DATA));
 
       if (PdbFileName != NULL) {
-        EfiAsciiStrCpy (mPerfData.Token, PdbFileName);
+        EfiAsciiStrCpy (mPerfData.Token, (CHAR8 *)PdbFileName);
       }
       mPerfData.Duration = Duration;
 
@@ -252,7 +257,7 @@ Returns:
 
     EfiZeroMem (&mPerfData, sizeof (EFI_PERF_DATA));
 
-    ConvertChar16ToChar8 ((UINT8 *) mPerfData.Token, DumpData->Token);
+    ConvertChar16ToChar8 ((CHAR8 *)mPerfData.Token, DumpData->Token);
     mPerfData.Duration = (UINT32) DivU64x32 (
                                     DumpData->EndTick - DumpData->StartTick,
                                     (UINT32) Freq,

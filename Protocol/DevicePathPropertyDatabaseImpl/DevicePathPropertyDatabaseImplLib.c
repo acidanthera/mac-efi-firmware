@@ -1,33 +1,20 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/DevicePathPropertyDatabaseImpl/DevicePathPropertyDatabaseImplLib.c
-///
-///            Apple protocol to manage Device Properties from firmware.
-///
-/// @author    Download-Fritz
-/// @date      12/12/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
 
 #include <AppleEfi.h>
-#include <EfiDebug.h>
 #include <LinkedList.h>
 
 #include <Library/AppleDriverLib.h>
-
-#include <Guid/AppleNvram.h>
 
 #include "DevicePathPropertyDatabaseImplInternal.h"
 
@@ -40,11 +27,6 @@ EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
 //
 
 // DevicePathPropertyDbGetPropertyNode
-/// 
-/// @param
-///
-/// @return
-/// @retval
 EFI_DEVICE_PATH_PROPERTY_NODE *
 DevicePathPropertyDbGetPropertyNode (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Database,
@@ -86,11 +68,6 @@ DevicePathPropertyDbGetPropertyNode (
 }
 
 // DevicePathPropertyDbGetProperty
-/// 
-/// @param
-///
-/// @return
-/// @retval
 EFI_DEVICE_PATH_PROPERTY *
 DevicePathPropertyDbGetProperty (
   IN CHAR16                         *Name,
@@ -126,11 +103,6 @@ DevicePathPropertyDbGetProperty (
 }
 
 // DevicePathPropertyDbCallProtocol
-/// 
-/// @param
-///
-/// @return
-/// @retval
 VOID
 DevicePathPropertyDbCallProtocol (
   VOID
@@ -150,7 +122,7 @@ DevicePathPropertyDbCallProtocol (
       Status = gBS->HandleProtocol (Buffer[Index], &mUnknownProtocolGuid, &Interface);
 
       if (Status == EFI_SUCCESS) {
-        if (*((UINT32 *)((UINTN)Interface + sizeof (UINT32))) == 0) {
+        if (*(UINT32 *)((UINTN)Interface + sizeof (UINT32)) == 0) {
           (*(VOID (EFIAPI **)(VOID *))((UINTN)Interface + 232)) (Interface);
         }
       }

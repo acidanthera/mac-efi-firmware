@@ -19,8 +19,11 @@ Abstract:
 
 --*/
 
+#include <AppleEfi.h>
+
+#include EFI_GUID_DEFINITION (GlobalVariable)
+
 #include "BdsLib.h"
-#include "EfiPrintLib.h"
 
 BOOLEAN
 IsNvNeed (
@@ -80,16 +83,13 @@ Returns:
 
 --*/
 {
-  EFI_STATUS                Status;
   EFI_DEVICE_PATH_PROTOCOL  *VarConsole;
   UINTN                     DevicePathSize;
   EFI_DEVICE_PATH_PROTOCOL  *NewDevicePath;
   EFI_DEVICE_PATH_PROTOCOL  *TempNewDevicePath;
   UINT32                    Attributes;
 
-  VarConsole      = NULL;
   DevicePathSize  = 0;
-  Status          = EFI_UNSUPPORTED;
 
   //
   // Notes: check the device path point, here should check
@@ -210,7 +210,6 @@ Returns:
   UINTN                     Size;
   BOOLEAN                   DeviceExist;
 
-  Status      = EFI_SUCCESS;
   DeviceExist = FALSE;
 
   //
@@ -305,7 +304,6 @@ Returns:
 
 --*/
 {
-  EFI_STATUS                Status;
   UINTN                     Index;
   EFI_DEVICE_PATH_PROTOCOL  *ConDevicePath;
   UINTN                     HandleCount;
@@ -319,37 +317,37 @@ Returns:
   //
   // Update all the console varables
   //
-  Status = gBS->LocateHandleBuffer (
-                  ByProtocol,
-                  &gEfiSimpleTextInProtocolGuid,
-                  NULL,
-                  &HandleCount,
-                  &HandleBuffer
-                  );
+  gBS->LocateHandleBuffer (
+         ByProtocol,
+         &gEfiSimpleTextInProtocolGuid,
+         NULL,
+         &HandleCount,
+         &HandleBuffer
+         );
   for (Index = 0; Index < HandleCount; Index++) {
-    Status = gBS->HandleProtocol (
-                    HandleBuffer[Index],
-                    &gEfiDevicePathProtocolGuid,
-                    (VOID **) &ConDevicePath
-                    );
+    gBS->HandleProtocol (
+           HandleBuffer[Index],
+           &gEfiDevicePathProtocolGuid,
+           (VOID **) &ConDevicePath
+           );
     BdsLibUpdateConsoleVariable (L"ConIn", ConDevicePath, NULL);
   }
   
   EfiLibSafeFreePool(HandleBuffer);
   
-  Status = gBS->LocateHandleBuffer (
-                  ByProtocol,
-                  &gEfiSimpleTextOutProtocolGuid,
-                  NULL,
-                  &HandleCount,
-                  &HandleBuffer
-                  );
+  gBS->LocateHandleBuffer (
+         ByProtocol,
+         &gEfiSimpleTextOutProtocolGuid,
+         NULL,
+         &HandleCount,
+         &HandleBuffer
+         );
   for (Index = 0; Index < HandleCount; Index++) {
-    Status = gBS->HandleProtocol (
-                    HandleBuffer[Index],
-                    &gEfiDevicePathProtocolGuid,
-                    (VOID **) &ConDevicePath
-                    );
+    gBS->HandleProtocol (
+           HandleBuffer[Index],
+           &gEfiDevicePathProtocolGuid,
+           (VOID **) &ConDevicePath
+           );
     BdsLibUpdateConsoleVariable (L"ConOut", ConDevicePath, NULL);
     BdsLibUpdateConsoleVariable (L"ErrOut", ConDevicePath, NULL);
   }

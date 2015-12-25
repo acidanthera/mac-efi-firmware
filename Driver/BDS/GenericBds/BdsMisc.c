@@ -19,8 +19,21 @@ Abstract:
 
 --*/
 
-#include "BdsLib.h"
+#include <AppleEfi.h>
 
+#include EFI_GUID_DEFINITION (Hob)
+#include EFI_GUID_DEFINITION (GlobalVariable)
+#include EFI_GUID_DEFINITION (MemoryTypeInformation)
+
+#include EFI_PROTOCOL_DEFINITION (LoadedImage)
+#include EFI_PROTOCOL_DEFINITION (SimpleFileSystem)
+#include EFI_PROTOCOL_DEFINITION (FileInfo)
+#include EFI_PROTOCOL_DEFINITION (Hii)
+#include EFI_PROTOCOL_DEFINITION (FormBrowser)
+
+#include <EfiHobLib.h>
+#include <EfiPrintLib.h>
+#include "BdsLib.h"
 
 #define MAX_STRING_LEN        200
 
@@ -73,13 +86,14 @@ Returns:
   //
   // Notes: Platform should set default variable if non exists on all error cases!!!
   //
-  Status = gRT->SetVariable (
-                  L"Timeout",
-                  &gEfiGlobalVariableGuid,
-                  EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
-                  sizeof (UINT16),
-                  &Timeout
-                  );
+  gRT->SetVariable (
+         L"Timeout",
+         &gEfiGlobalVariableGuid,
+         EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
+         sizeof (UINT16),
+         &Timeout
+         );
+
   return Timeout;
 }
 
@@ -153,7 +167,7 @@ Returns:
                     );
 
     if (!EFI_ERROR (Status)) {
-      gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, &ImageInfo);
+      gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, (VOID **)&ImageInfo);
 
       //
       // Verify whether this image is a driver, if not,
@@ -174,7 +188,7 @@ Returns:
       //
       gBS->SetWatchdogTimer (5 * 60, 0x0000, 0x00, NULL);
 
-      Status = gBS->StartImage (ImageHandle, &ExitDataSize, &ExitData);
+      gBS->StartImage (ImageHandle, &ExitDataSize, &ExitData);
       DEBUG ((EFI_D_INFO | EFI_D_LOAD, "Driver Return Status = %r\n", Status));
 
       //
@@ -282,7 +296,6 @@ Returns:
 {
   EFI_STATUS                Status;
   UINTN                     Index;
-  UINT16                    MaxOptionNumber;
   UINT16                    RegisterOptionNumber;
   UINT16                    *TempOptionPtr;
   UINTN                     TempOptionSize;
@@ -296,15 +309,8 @@ Returns:
   BOOLEAN                   UpdateDescription;
   UINT16                    BootOrderEntry; 
   UINTN                     OrderItemNum;
-  
-
-  OptionPtr             = NULL;
+ 
   OptionSize            = 0;
-  TempPtr               = NULL;
-  OptionDevicePath      = NULL;
-  Description           = NULL;
-  MaxOptionNumber       = 0;
-  OptionOrderPtr        = NULL;
   UpdateDescription     = FALSE;
   EfiZeroMem (OptionName, sizeof (OptionName));
 
@@ -680,7 +686,7 @@ Returns:
         Option->BootCurrent = OptionOrder[Index];
 
         if (TRUE == TRUE) {
-          if (EfiStrCmp ("BootOrder", Option) && EfiStrCmp ("BootNext", Option)) {
+          if (EfiStrCmp ("BootOrder", (CHAR16 *)Option) && EfiStrCmp ("BootNext", (CHAR16 *)Option)) {
             // TRUE
           } else {
             // FALSE
@@ -764,7 +770,7 @@ BdsLibGetVariableAndSize (
 Routine Description:
 
   Read the EFI variable (VendorGuid/Name) and return a dynamically allocated
-  buffer, and the size of the buffer. If failure return NULL.
+  Buffer, and the size of the Buffer. If failure return NULL.
 
 Arguments:
 
@@ -777,7 +783,7 @@ Arguments:
 Returns:
 
   Dynamically allocated memory that contains a copy of the EFI variable.
-  Caller is responsible freeing the buffer.
+  Caller is responsible freeing the Buffer.
 
   NULL - Variable was not read
 
@@ -790,20 +796,20 @@ Returns:
   Buffer = NULL;
 
   //
-  // Pass in a zero size buffer to find the required buffer size.
+  // Pass in a zero size Buffer to find the required Buffer size.
   //
   BufferSize  = 0;
   Status      = gRT->GetVariable (Name, VendorGuid, NULL, &BufferSize, Buffer);
   if (Status == EFI_BUFFER_TOO_SMALL) {
     //
-    // Allocate the buffer to return
+    // Allocate the Buffer to return
     //
     Buffer = EfiLibAllocateZeroPool (BufferSize);
     if (Buffer == NULL) {
       return NULL;
     }
     //
-    // Read variable into the allocated buffer.
+    // Read variable into the allocated Buffer.
     //
     Status = gRT->GetVariable (Name, VendorGuid, NULL, &BufferSize, Buffer);
     if (EFI_ERROR (Status)) {
@@ -848,7 +854,6 @@ Returns:
   UINTN                     Size; 
   
   NewDevicePath     = NULL;
-  TempNewDevicePath = NULL;
 
   if (Multi == NULL || Single == NULL) {
     return Multi;
@@ -1158,10 +1163,7 @@ Returns:
 
 --*/
 {
-#if (EFI_SPECIFICATION_VERSION < 0x0002000A)
-  EFI_STATUS                    Status;
   EFI_FORM_BROWSER_PROTOCOL     *Browser;
-#endif
   EFI_INPUT_KEY                 Key;  
   CHAR16                        *StringBuffer1;
   CHAR16                        *StringBuffer2;    
@@ -1173,13 +1175,11 @@ Returns:
   if (IsResetReminderFeatureEnable ()) {
     if (IsResetRequired ()) {
 
-#if (EFI_SPECIFICATION_VERSION < 0x0002000A)    
-      Status = gBS->LocateProtocol (
-                      &gEfiFormBrowserProtocolGuid,
-                      NULL,
-                      &Browser
-                      );      
-#endif
+      gBS->LocateProtocol (
+             &gEfiFormBrowserProtocolGuid,
+             NULL,
+             (VOID **)&Browser
+             );
                       
       StringBuffer1 = EfiLibAllocateZeroPool (MAX_STRING_LEN * sizeof (CHAR16));
       ASSERT (StringBuffer1 != NULL);
@@ -1281,7 +1281,7 @@ Returns:
   BufferSize  = SIZE_OF_EFI_FILE_INFO + 200;
   do {
     Info   = NULL;
-    Status = gBS->AllocatePool (EfiBootServicesData, BufferSize, &Info);
+    Status = gBS->AllocatePool (EfiBootServicesData, BufferSize, (VOID **)&Info);
     if (EFI_ERROR (Status)) {
       goto Done;
     }
@@ -1390,13 +1390,13 @@ BdsLibGetHiiHandles (
 Routine Description:
 
   Determines the handles that are currently active in the database.
-  It's the caller's responsibility to free handle buffer.
+  It's the caller's responsibility to free handle Buffer.
 
 Arguments:
 
   This                  - A pointer to the EFI_HII_PROTOCOL instance.
-  HandleBufferLength    - On input, a pointer to the length of the handle buffer. On output, 
-                          the length of the handle buffer that is required for the handles found.
+  HandleBufferLength    - On input, a pointer to the length of the handle Buffer. On output, 
+                          the length of the handle Buffer that is required for the handles found.
   HiiHandleBuffer       - Pointer to an array of EFI_HII_PROTOCOL instances returned.
 
 Returns:
@@ -1413,7 +1413,7 @@ Returns:
   TempBufferLength = 0;
   
   //
-  // Try to find the actual buffer size for HiiHandle Buffer.
+  // Try to find the actual Buffer size for HiiHandle Buffer.
   //
   Status = Hii->FindHandles (Hii, &TempBufferLength, *HiiHandleBuffer);
   
@@ -1478,7 +1478,7 @@ Returns:
   //
   Status = EfiLibGetSystemConfigurationTable (
              &gEfiMemoryTypeInformationGuid,
-             &CurrentMemoryTypeInformation
+             (VOID **)&CurrentMemoryTypeInformation
              );
   if (EFI_ERROR (Status)) {
     return;
@@ -1490,7 +1490,7 @@ Returns:
   // If the previous Memory Type Information is not available, then set defaults
   //
   EfiLibGetSystemConfigurationTable (&gEfiHobListGuid, &HobList);
-  Status = GetNextGuidHob (&HobList, &gEfiMemoryTypeInformationGuid, &PreviousMemoryTypeInformation, &VariableSize);
+  Status = GetNextGuidHob (&HobList, &gEfiMemoryTypeInformationGuid, (VOID **)&PreviousMemoryTypeInformation, &VariableSize);
   if (EFI_ERROR (Status) || PreviousMemoryTypeInformation == NULL) {
   	//
   	// If Platform has not built Memory Type Info into the Hob, just return.
@@ -1542,7 +1542,7 @@ Returns:
   // If any changes were made to the Memory Type Information settings, then set the new variable value
   //
   if (UpdateRequired) {
-    Status = gRT->SetVariable (  
+    gRT->SetVariable (  
           EFI_MEMORY_TYPE_INFORMATION_VARIABLE_NAME, 
           &gEfiMemoryTypeInformationGuid,
           EFI_VARIABLE_NON_VOLATILE  | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
@@ -1550,8 +1550,6 @@ Returns:
           PreviousMemoryTypeInformation
           );
   }
-
-  return;
 }
 
 VOID

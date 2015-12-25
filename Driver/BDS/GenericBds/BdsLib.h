@@ -1,76 +1,33 @@
-/*++
-
-Copyright (c) 2004 - 2008, Intel Corporation                                                         
-All rights reserved. This program and the accompanying materials                          
-are licensed and made available under the terms and conditions of the BSD License         
-which accompanies this distribution.  The full text of the license may be found at        
-http://opensource.org/licenses/bsd-license.php                                            
-                                                                                          
-THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
-WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
-
-Module Name:
-
-  BdsLib.h
-
-Abstract:
-
+/** @file
   BDS library definition, include the file and data structure
 
---*/
+  Copyright (c) 2004 - 2008, Intel Corporation
+  All rights reserved.  This program and the accompanying materials
+  are licensed and made available under the terms and conditions of the BSD License
+  which accompanies this distribution.  The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php
+                                                                                          
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+**/
 
-#ifndef _BDS_LIB_H_
-#define _BDS_LIB_H_
+#ifndef BDS_LIB_H_
+#define BDS_LIB_H_
 
-#include "AppleEfi.h"
-#include "EfiDriverLib.h"
-#include "EfiPrintLib.h"
-#include "BmMachine.h"
-#include "EfiHobLib.h"
-#include "EfiImage.h"
-#include "pci22.h"
+#include <EfiImage.h>
+#include <PeiHob.h>
 
-#include EFI_PROTOCOL_DEFINITION (SerialIo)
-#include EFI_PROTOCOL_DEFINITION (BlockIo)
-#include EFI_PROTOCOL_DEFINITION (LegacyBios)
-#include EFI_PROTOCOL_DEFINITION (AcpiS3Save)
-#include EFI_PROTOCOL_DEFINITION (LoadedImage)
-#include EFI_PROTOCOL_DEFINITION (SimpleFileSystem)
-#include EFI_PROTOCOL_DEFINITION (FileInfo)
-#include EFI_PROTOCOL_DEFINITION (SimpleNetwork)
-#include EFI_PROTOCOL_DEFINITION (LoadFile)
-#include EFI_PROTOCOL_DEFINITION (PlatformDriverOverride)
-#include EFI_PROTOCOL_DEFINITION (ConsoleControl)
-#include EFI_PROTOCOL_DEFINITION (GraphicsOutput)
-#if (EFI_SPECIFICATION_VERSION >= 0x0002000A)
-#include "UefiIfrLibrary.h"
-#include EFI_PROTOCOL_DEFINITION (HiiDatabase)
-#else
+#include <Library/AppleDriverLib.h>
+
 #include EFI_PROTOCOL_DEFINITION (Hii)
-#include EFI_PROTOCOL_DEFINITION (FormBrowser)
-#endif
-#include EFI_PROTOCOL_DEFINITION (FirmwareVolume)
-#include EFI_PROTOCOL_DEFINITION (FirmwareVolume2)
-#include EFI_PROTOCOL_DEFINITION (FirmwareVolumeDispatch)
-#include EFI_PROTOCOL_DEFINITION (DebugPort)
-#include EFI_PROTOCOL_DEFINITION (PciIo)
-#include EFI_PROTOCOL_DEFINITION (TcgService)
-#include EFI_GUID_DEFINITION (PcAnsi)
-#include EFI_GUID_DEFINITION (Hob)
-#include EFI_GUID_DEFINITION (HotPlugDevice)
-#include EFI_GUID_DEFINITION (GlobalVariable)
-#include EFI_GUID_DEFINITION (GenericVariable)
-#include EFI_GUID_DEFINITION (EfiShell)
-#include EFI_GUID_DEFINITION (ConsoleInDevice)
-#include EFI_GUID_DEFINITION (ConsoleOutDevice)
-#include EFI_GUID_DEFINITION (StandardErrorDevice)
-#include EFI_GUID_DEFINITION (MemoryTypeInformation)
+
+#include <BmMachine.h>
 //
 // Include the performance head file and defind macro to add perf data
 //
 #ifdef EFI_DXE_PERFORMANCE
 #include "Performance.h"
-#define WRITE_BOOT_TO_OS_PERFORMANCE_DATA WriteBootToOsPerformanceData ()
+#define WRITE_BOOT_TO_OS_PERFORMANCE_DATA  WriteBootToOsPerformanceData ()
 #else
 #define WRITE_BOOT_TO_OS_PERFORMANCE_DATA
 #endif
@@ -523,7 +480,7 @@ BdsLibGetHiiHandles (
 // The boot type here can be added according to requirement
 //
 //
-// ACPI boot type. For ACPI device, cannot use sub-type to distinguish device, so hardcode their value
+// ACPI boot type.  For ACPI device, cannot use sub-type to distinguish device, so hardcode their value
 //
 #define  BDS_EFI_ACPI_FLOPPY_BOOT         0x0201
 //
@@ -612,4 +569,4 @@ EFI_TPL
 BdsLibGetCurrentTpl (
   VOID
   );
-#endif // _BDS_LIB_H_
+#endif // BDS_LIB_H_

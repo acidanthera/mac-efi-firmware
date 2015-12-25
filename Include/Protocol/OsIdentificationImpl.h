@@ -1,28 +1,18 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Include/Protocol/OsIdentificationImpl.h
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      18/07/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
 
-#ifndef __OS_IDENTIFICATION_IMPL_H__
-#define __OS_IDENTIFICATION_IMPL_H__
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
+
+#ifndef OS_IDENTIFICATION_IMPL_H_
+#define OS_IDENTIFICATION_IMPL_H_
 
 #include <Protocol/OsIdentification.h>
 
@@ -33,29 +23,17 @@
 #define OS_IDENTIFICATION_VENDOR_NAME  "Apple Inc."
 
 // OsIdentificationOSNameImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EFIAPI
 OsIdentificationOSNameImpl (
-	IN CHAR8 *OSName
-	);
+  IN CHAR8 *OSName
+  );
 
 // OsIdentificationOSVendorImpl
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EFIAPI
 OsIdentificationOSVendorImpl (
-	IN CHAR8 *OSVendor
-	);
+  IN CHAR8 *OSVendor
+  );
 
-#endif // ifndef __OS_IDENTIFICATION_IMPL_H__
+#endif // OS_IDENTIFICATION_IMPL_H_

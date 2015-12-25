@@ -1,54 +1,23 @@
-#/*++
+## @file
+# Component description file for GenericBdsLib module.
 #
-# Copyright (c) 2004 - 2007, Intel Corporation                                                         
-# All rights reserved. This program and the accompanying materials                          
-# are licensed and made available under the terms and conditions of the BSD License         
-# which accompanies this distribution.  The full text of the license may be found at        
-# http://opensource.org/licenses/bsd-license.php                                            
-#                                                                                           
-# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
-# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
-# 
-#  Module Name:
+# Copyright (c) 2004 - 2007, Intel Corporation
+# All rights reserved.  This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
 #
-#    GenericBds.inf
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #
-#  Abstract:
 #
-#    Component description file for GenericBdsLib module.
-#
+##
 
---*/
+[Defines]
+  BASE_NAME      = GenericBdsLib
+  COMPONENT_TYPE = LIBRARY
 
-[defines]
-BASE_NAME            = GenericBdsLib
-COMPONENT_TYPE       = LIBRARY
-
-[sources.common]
-  BdsBoot.c
-  BdsConsole.c
-  BdsConnect.c
-  DevicePath.c
-  Performance.c
-  BdsMisc.c
-
-  
-[sources.ia32]
-  Ia32\BmMachine.h
-  Ia32\ClearDr.asm
-
-[sources.ipf]
-  Ipf\BmMachine.h
-  Ipf\ShadowRom.c
-
-[sources.x64]
-  x64\BmMachine.h
-  x64\ClearDr.asm
-
-[sources.ebc]
-  Ebc\BmMachine.h
-  
-[includes.common]
+[Includes]
   $(EDK_SOURCE)\Foundation
   $(EDK_SOURCE)\Foundation\Efi
   $(EDK_SOURCE)\Foundation\Framework
@@ -62,21 +31,38 @@ COMPONENT_TYPE       = LIBRARY
   $(EDK_SOURCE)\Sample\Platform\Generic\Pei\Capsule
   $(EDK_SOURCE)\Sample\Platform\Generic\Dxe\GenericBds
   $(EDK_SOURCE)\Foundation\Include\IndustryStandard
-#
-# Only required if EFI_SPECIFICATION_VERSION >= 0x0002000A
-#
-  $(EDK_SOURCE)\Foundation\Library\Dxe\UefiEfiIfrSupportLib
 
-[includes.ia32]
+[Includes.IA32]
   $(EDK_SOURCE)\Foundation\Cpu\Pentium\Include
 
-[includes.x64]
+[Includes.X64]
   $(EDK_SOURCE)\Foundation\Cpu\Pentium\Include
 
-[includes.ipf]
+[Includes.IPF]
   $(EDK_SOURCE)\Foundation\Cpu\Itanium\Include
   
-[libraries.common]
+[Libraries]
   AppleDriverLib
-   
-[nmake.common]
+
+[Sources]
+  BdsBoot.c
+  BdsConsole.c
+  BdsConnect.c
+  DevicePath.c
+  Performance.c
+  BdsMisc.c
+  
+[Sources.IA32]
+  Ia32\BmMachine.h
+  Ia32\ClearDr.asm
+
+[Sources.IPF]
+  Ipf\BmMachine.h
+  Ipf\ShadowRom.c
+
+[Sources.X64]
+  X64\BmMachine.h
+  X64\ClearDr.asm
+
+[Sources.EBC]
+  Ebc\BmMachine.h

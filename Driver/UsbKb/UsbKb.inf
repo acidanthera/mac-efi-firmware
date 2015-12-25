@@ -1,9 +1,8 @@
-## @file Driver/UsbKb/UsbKb.inf
-#
+## @file
 # Component description file for UsbKb module
 #
 # Copyright (c) 2004, Intel Corporation
-# All rights reserved. This program and the accompanying materials
+# All rights reserved.  This program and the accompanying materials
 # are licensed and made available under the terms and conditions of the BSD License
 # which accompanies this distribution.  The full text of the license may be found at
 # http://opensource.org/licenses/bsd-license.php
@@ -18,7 +17,7 @@
   BASE_NAME   = UsbKb
   FILE_GUID   = 2D2E62CF-9ECF-43B7-8219-94E7FC713DFE
   MODULE_TYPE = UEFI_DRIVER
-  ENTRY_POINT = USBKeyboardDriverBindingEntryPoint
+  ENTRY_POINT = UsbKbMain
   INF_VERSION = 0x00010005
 
 [Packages]
@@ -30,7 +29,7 @@
 [Protocols]
   gAppleKeyMapDatabaseProtocolGuid        ## CONSUMES
   gApplePlatformInfoDatabaseProtocolGuid  ## SOMETIMES_CONSUMES
-  gEfiKeyboardInformationProtocolGuid     ## SOMETIMES_PRODUCES
+  gEfiKeyboardInfoProtocolGuid            ## SOMETIMES_PRODUCES
 
 [LibraryClasses]
   AppleDriverLib
@@ -39,8 +38,13 @@
   EfiKeyboardInformationImpl
 
 [Sources]
-  efikey.h
-  keyboard.h
-  efikey.c
-  keyboard.c
-  ComponentName.c
+  UsbKbInternal.h
+  UsbKb.c
+  UsbKbLib.h
+  UsbKbLib.c
+  UsbKbComponentNameImpl.h
+  UsbKbComponentNameImpl.c
+  UsbKbDriverBindingImpl.h
+  UsbKbDriverBindingImpl.c
+  UsbKbSimpleTextInputImpl.h
+  UsbKbSimpleTextInputImpl.c

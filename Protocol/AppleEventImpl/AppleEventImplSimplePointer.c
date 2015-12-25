@@ -1,25 +1,15 @@
-//
-// Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-//
-// This program and the accompanying materials have not been licensed.
-// Neither is its usage, its redistribution, in source or binary form,
-// licensed, nor implicitely or explicitely permitted, except when
-// required by applicable law.
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, either express or implied.
-//
+/** @file
+  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 
-///
-/// @file      Protocol/AppleEventImpl/AppleEventImplSimplePointer.c
-///
-///            
-///
-/// @author    Download-Fritz
-/// @date      31/02/2015: Initial version
-/// @copyright Copyright (C) 2005 - 2015 Apple Inc. All rights reserved.
-///
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
 
 #include <AppleEfi.h>
 
@@ -32,12 +22,9 @@
 
 #include EFI_PROTOCOL_CONSUMER (GraphicsOutput)
 #include EFI_PROTOCOL_CONSUMER (SimplePointer)
-#include <Protocol/AppleKeyMapAggregator.h>
 
 #include <Library/EfiEventLib.h>
-#include <Library/AppleKeyMapLib.h>
 #include <Library/AppleKeyMapAggregatorLib.h>
-#include <Library/AppleEventLib.h>
 #ifdef CPU_IA32
 #include <Library/AppleMathLib.h>
 #endif // ifdef CPU_IA32
@@ -108,13 +95,6 @@ STATIC BOOLEAN mScreenResolutionSet;
 STATIC DIMENSION mScreenResolution;
 
 // AddProtocolInstance
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-STATIC
 VOID
 AddProtocolInstance (
   IN EFI_HANDLE  Handle,
@@ -153,13 +133,6 @@ AddProtocolInstance (
 }
 
 // RemoveUninstalledInstances
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
-STATIC
 VOID
 RemoveUninstalledInstances (
   IN OUT EFI_PROTOCOL_INSTANCE  **Instances,
@@ -249,12 +222,6 @@ RemoveUninstalledInstances (
 }
 
 // SimplePointerInstallNotifyFunction
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EFIAPI
 SimplePointerInstallNotifyFunction (
@@ -312,12 +279,6 @@ SimplePointerInstallNotifyFunction (
 }
 
 // EventCreateSimplePointerInstallNotifyEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EventCreateSimplePointerInstallNotifyEvent (
   VOID
@@ -355,12 +316,6 @@ EventCreateSimplePointerInstallNotifyEvent (
 }
 
 // GetScreenResolution
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 GetScreenResolution (
   VOID
@@ -393,20 +348,14 @@ GetScreenResolution (
 }
 
 // GetUiScaleData
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 INT64
 GetUiScaleData (
-  IN INTN  Movement
+  IN INT64  Movement
   ) // sub_1FC0
 {
-  INTN  AbsoluteValue;
+  INT64 AbsoluteValue;
   UINT8 Value;
-  INTN  Factor;
+  INT64 Factor;
 
   ASSERT (Movement != 0);
 
@@ -425,16 +374,10 @@ GetUiScaleData (
     Factor = (Log2 (AbsoluteValue) + 1);
   }
 
-  return (Movement * Factor * mUiScale);
+  return (INT64)(MULT_S64_X64 ((INT64)(INT32)mUiScale, MULT_S64_X64 (Movement, Factor)));
 }
 
 // CreatePointerEventQueryInformation
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 APPLE_EVENT_QUERY_INFORMATION *
 CreatePointerEventQueryInformation (
   IN APPLE_EVENT_TYPE    EventType,
@@ -462,12 +405,6 @@ CreatePointerEventQueryInformation (
 }
 
 // HandleButtonInteraction
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 HandleButtonInteraction (
   IN     EFI_STATUS                  PointerStatus,
@@ -578,12 +515,6 @@ HandleButtonInteraction (
 }
 
 // SimplePointerPollNotifyFunction
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EFIAPI
 SimplePointerPollNotifyFunction (
@@ -621,8 +552,8 @@ SimplePointerPollNotifyFunction (
       Status    = Interface->GetState (Interface, &State);
 
       if (!EFI_ERROR (Status)) {
-        UiScaleX  = GetUiScaleData ((INTN)State.RelativeMovementX);
-        UiScaleY  = GetUiScaleData ((INTN)State.RelativeMovementY);
+        UiScaleX  = GetUiScaleData ((INT64)State.RelativeMovementX);
+        UiScaleY  = GetUiScaleData ((INT64)State.RelativeMovementY);
         MovementY = DIV_S64_X64 (UiScaleY, (INT64)Interface->Mode->ResolutionY);
         MovementX = DIV_S64_X64 (UiScaleX, (INT64)Interface->Mode->ResolutionX);
 
@@ -702,12 +633,6 @@ SimplePointerPollNotifyFunction (
 }
 
 // EventCreateSimplePointerPollEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 EFI_STATUS
 EventCreateSimplePointerPollEvent (
   VOID
@@ -734,7 +659,7 @@ EventCreateSimplePointerPollEvent (
 
       Interface->Reset (Interface, FALSE);
 
-      ++Interface;
+      ++Instance;
       ++Index;
     } while (Index < mNoSimplePointerInstances);
   }
@@ -765,12 +690,6 @@ EventCreateSimplePointerPollEvent (
 }
 
 // EventCancelSimplePointerPollEvent
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
 VOID
 EventCancelSimplePointerPollEvent (
   VOID
@@ -779,13 +698,7 @@ EventCancelSimplePointerPollEvent (
   CancelEvent (mSimplePointerPollEvent);
 }
 
-// EventInternalSetCursorPosition
-/// 
-///
-/// @param 
-///
-/// @return 
-/// @retval 
+// EventInternalSetCursorPosition 
 EFI_STATUS
 EventInternalSetCursorPosition (
   IN DIMENSION  *Position

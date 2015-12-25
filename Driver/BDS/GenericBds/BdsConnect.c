@@ -19,12 +19,21 @@ Abstract:
 
 --*/
 #define APPLE_EXTENSIONS
+
+#include <AppleEfi.h>
+
+#include <Library/AppleDriverLib.h>
+
+#include <IndustryStandard/pci22.h>
+
+#include EFI_PROTOCOL_CONSUMER (PciIo)
+
 #include "BdsLib.h"
 
 #ifdef APPLE_EXTENSIONS
 
 #define APPLE_BDS_ALL_DRIVERS_CONNECTED_GUID \
-  { 0x0B1E615C, 0xC27F, 0x4AD5, { 0x8E, 0x30 0x7A, 0x25, 0x61, 0x4C, 0x15, 0x8B } }
+  { 0x0B1E615C, 0xC27F, 0x4AD5, { 0x8E, 0x30, 0x7A, 0x25, 0x61, 0x4C, 0x15, 0x8B } }
 
 EFI_GUID gBdsAllDriversConnectedGuid = APPLE_BDS_ALL_DRIVERS_CONNECTED_GUID;
 
@@ -265,7 +274,7 @@ Returns:
   }
 
   for (Index = 0; Index < HandleCount; Index++) {
-    Status = gBS->ConnectController (HandleBuffer[Index], NULL, NULL, TRUE);
+    gBS->ConnectController (HandleBuffer[Index], NULL, NULL, TRUE);
   }
 
   gBS->FreePool (HandleBuffer);
@@ -316,7 +325,7 @@ Returns:
   }
 
   for (Index = 0; Index < HandleCount; Index++) {
-    Status = gBS->DisconnectController (HandleBuffer[Index], NULL, NULL);
+    gBS->DisconnectController (HandleBuffer[Index], NULL, NULL);
   }
 
   gBS->FreePool (HandleBuffer);

@@ -20,15 +20,30 @@ Abstract:
 
 --*/
 
+#include <AppleEfi.h>
+
+#include EFI_GUID_DEFINITION (GlobalVariable)
+#include EFI_GUID_DEFINITION (EfiShell)
+
+#include EFI_PROTOCOL_DEFINITION (BlockIo)
+#include EFI_PROTOCOL_DEFINITION (LegacyBios)
+#include EFI_PROTOCOL_DEFINITION (AcpiS3Save)
+#include EFI_PROTOCOL_DEFINITION (LoadedImage)
+#include EFI_PROTOCOL_DEFINITION (SimpleFileSystem)
+#include EFI_PROTOCOL_DEFINITION (SimpleNetwork)
+#include EFI_PROTOCOL_DEFINITION (FirmwareVolume)
+#include EFI_PROTOCOL_DEFINITION (FirmwareVolumeDispatch)
+#include EFI_PROTOCOL_DEFINITION (TcgService)
+
+#include <EfiPrintLib.h>
 #include "BdsLib.h"
 
 BOOLEAN mEnumBootDevice = FALSE;
 
-//
-// This GUID is used for an EFI Variable that stores the front device pathes
-// for a partial device path that starts with the HD node. 
-//
-EFI_GUID  mHdBootVariablePrivateGuid = { 0xfab7e9e1, 0x39dd, 0x4f2b, { 0x84, 0x8, 0xe2, 0xe, 0x90, 0x6c, 0xb6, 0xde } };
+// mHdBootVariablePrivateGuid
+/// This GUID is used for an EFI Variable that stores the front device pathes
+/// for a partial device path that starts with the HD node.
+EFI_GUID mHdBootVariablePrivateGuid = { 0xfab7e9e1, 0x39dd, 0x4f2b, { 0x84, 0x8, 0xe2, 0xe, 0x90, 0x6c, 0xb6, 0xde } };
 
 
 EFI_STATUS
@@ -57,21 +72,16 @@ Returns:
   EFI_STATUS                Status;
   EFI_LEGACY_BIOS_PROTOCOL  *LegacyBios;
 
-  Status = gBS->LocateProtocol (&gEfiLegacyBiosProtocolGuid, NULL, &LegacyBios);
+  Status = gBS->LocateProtocol (&gEfiLegacyBiosProtocolGuid, NULL, (VOID **)&LegacyBios);
   if (EFI_ERROR (Status)) {
-    //
     // If no LegacyBios protocol we do not support legacy boot
-    //
     return EFI_UNSUPPORTED;
   }
-  //
+
   // Notes: if we seperate the int 19, then we don't need to refresh BBS
-  //
   BdsRefreshBbsTableForBoot (Option);
 
-  //
   // Write boot to OS performance data for Legacy Boot
-  //
   WRITE_BOOT_TO_OS_PERFORMANCE_DATA;
 
   DEBUG ((EFI_D_INFO | EFI_D_LOAD, "Legacy Boot: %S\n", Option->Description));
@@ -145,7 +155,7 @@ Returns:
   // hook on the event EFI_EVENT_SIGNAL_READY_TO_BOOT or
   // EFI_EVENT_SIGNAL_LEGACY_BOOT
   //
-  Status = gBS->LocateProtocol (&gEfiAcpiS3SaveGuid, NULL, &AcpiS3Save);
+  Status = gBS->LocateProtocol (&gEfiAcpiS3SaveGuid, NULL, (VOID **)&AcpiS3Save);
   if (!EFI_ERROR (Status)) {
     AcpiS3Save->S3Save (AcpiS3Save, NULL);
   }
@@ -227,7 +237,7 @@ Returns:
   Status = gBS->LocateProtocol (
                   &gEfiTcgPlatformProtocolGuid,
                   NULL,
-                  &TcgPlatformProtocol
+                  (VOID **)&TcgPlatformProtocol
                   );  
   if (!EFI_ERROR (Status)) {
     Status = TcgPlatformProtocol->MeasureGptTable (DevicePath);
@@ -295,7 +305,7 @@ Returns:
   //
   // Provide the image with it's load options
   //
-  Status = gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, &ImageInfo);
+  Status = gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, (VOID **)&ImageInfo);
   ASSERT_EFI_ERROR (Status);
 
   if (Option->LoadOptionsSize != 0) {
@@ -449,13 +459,13 @@ Returns:
         //
         // Save the matching Device Path so we don't need to do a connect all next time
         //
-        Status = gRT->SetVariable (
-                        L"HDDP",
-                        &mHdBootVariablePrivateGuid,
-                        EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
-                        EfiDevicePathSize (CachedDevicePath),
-                        CachedDevicePath
-                        );
+        gRT->SetVariable (
+               L"HDDP",
+               &mHdBootVariablePrivateGuid,
+               EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
+               EfiDevicePathSize (CachedDevicePath),
+               CachedDevicePath
+               );
       }
       EfiLibSafeFreePool(Instance);
       gBS->FreePool (CachedDevicePath);
@@ -487,19 +497,15 @@ Returns:
     }
 
     if (MatchPartitionDevicePathNode (BlockIoDevicePath, HardDriveDevicePath)) {
-      //
       // Find the matched partition device path
-      //
-      DevicePath    = NextDevicePathNode ((EFI_DEVICE_PATH_PROTOCOL *) HardDriveDevicePath);
+
+      DevicePath     = NextDevicePathNode ((EFI_DEVICE_PATH_PROTOCOL *) HardDriveDevicePath);
       FullDevicePath = EfiAppendDevicePath (BlockIoDevicePath, DevicePath);
 
-      //
       // Save the matched patition device path in 'HDDP' variable
-      //
+
       if (CachedDevicePath != NULL) {
-        //
         // Save the matched patition device path as first instance of 'HDDP' variable
-        //        
         if (BdsLibMatchDevicePaths (CachedDevicePath, BlockIoDevicePath)) {
           TempNewDevicePath = CachedDevicePath;
           CachedDevicePath = BdsLibDelPartMatchInstance (CachedDevicePath, BlockIoDevicePath);
@@ -513,24 +519,25 @@ Returns:
           CachedDevicePath = EfiAppendDevicePathInstance (BlockIoDevicePath, CachedDevicePath);
           EfiLibSafeFreePool(TempNewDevicePath);
         }
-        //
+
         // Here limit the device path instance number to 12, which is max number for a system support 3 IDE controller
         // If the user try to boot many OS in different HDs or partitions, in theary, the 'HDDP' variable maybe become larger and larger.
-        //
-        InstanceNum = 0;
+
+        InstanceNum       = 0;
         TempNewDevicePath = CachedDevicePath;
+
         while (!IsDevicePathEnd (TempNewDevicePath)) {
           TempNewDevicePath = NextDevicePathNode (TempNewDevicePath);
-          //
+
           // Parse one instance
-          //
           while (!IsDevicePathEndType (TempNewDevicePath)) {
             TempNewDevicePath = NextDevicePathNode (TempNewDevicePath);
           }
-          InstanceNum++;
-          //
+
+          ++InstanceNum;
+
           // If the CachedDevicePath variable contain too much instance, only remain 12 instances.
-          //
+
           if (InstanceNum >= 12) {
             SetDevicePathEndNode (TempNewDevicePath);
             break;
@@ -539,17 +546,15 @@ Returns:
       } else {
         CachedDevicePath = EfiDuplicateDevicePath (BlockIoDevicePath);
       }
-      
-      //
+
       // Save the matching Device Path so we don't need to do a connect all next time
-      //
-      Status = gRT->SetVariable (
-                      L"HDDP",
-                      &mHdBootVariablePrivateGuid,
-                      EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
-                      EfiDevicePathSize (CachedDevicePath),
-                      CachedDevicePath
-                      );
+      gRT->SetVariable (
+             L"HDDP",
+             &mHdBootVariablePrivateGuid,
+             EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
+             EfiDevicePathSize (CachedDevicePath),
+             CachedDevicePath
+             );
                       
       break;
     }
@@ -628,9 +633,11 @@ Returns:
     case SIGNATURE_TYPE_GUID:
       Match = EfiCompareGuid ((EFI_GUID *)TmpHdPath->Signature, (EFI_GUID *)TempPath->Signature);
       break;
+
     case SIGNATURE_TYPE_MBR:
       Match = (BOOLEAN)(*((UINT32 *)(&(TmpHdPath->Signature[0]))) == *(UINT32 *)(&(TempPath->Signature[0])));
       break;
+
     default:
       Match = FALSE;
       break;
@@ -678,10 +685,7 @@ Returns:
   EFI_DEVICE_PATH_PROTOCOL  *DevicePath;
   EFI_DEVICE_PATH_PROTOCOL  *OptionDevicePath;
   UINT8                     *TempPtr;
-  CHAR16                    *Description;
 
-  Status        = EFI_SUCCESS;
-  BootOrder     = NULL;
   BootOrderSize = 0;
 
   BootOrder = BdsLibGetVariableAndSize (
@@ -714,7 +718,6 @@ Returns:
 
     TempPtr = BootOptionVar;
     TempPtr += sizeof (UINT32) + sizeof (UINT16);
-    Description = (CHAR16 *) TempPtr;
     TempPtr += EfiStrSize ((CHAR16 *) TempPtr);
     OptionDevicePath = (EFI_DEVICE_PATH_PROTOCOL *) TempPtr;
     OptionDevicePathSize = EfiDevicePathSize (OptionDevicePath);
@@ -780,13 +783,10 @@ Returns:
   UINTN                     Index;
   UINTN                     Index2;
   UINT16                    BootOption[BOOT_OPTION_MAX_CHAR];
-  UINTN                     OptionDevicePathSize;
   EFI_DEVICE_PATH_PROTOCOL  *OptionDevicePath;
   UINT8                     *TempPtr;
   CHAR16                    *Description;
 
-  Status        = EFI_SUCCESS;
-  BootOrder     = NULL;
   BootOrderSize = 0;
 
   BootOrder = BdsLibGetVariableAndSize (
@@ -816,7 +816,6 @@ Returns:
     Description = (CHAR16 *) TempPtr;
     TempPtr += EfiStrSize ((CHAR16 *) TempPtr);
     OptionDevicePath = (EFI_DEVICE_PATH_PROTOCOL *) TempPtr;
-    OptionDevicePathSize = EfiDevicePathSize (OptionDevicePath);
 
     //
     // Skip legacy boot option (BBS boot device)
@@ -832,13 +831,13 @@ Returns:
       //
       // Delete this invalid boot option "Boot####"
       //
-      Status = gRT->SetVariable (
-                      BootOption,
-                      &gEfiGlobalVariableGuid,
-                      EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
-                      0,
-                      NULL
-                      );
+      gRT->SetVariable (
+             BootOption,
+             &gEfiGlobalVariableGuid,
+             EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
+             0,
+             NULL
+             );
       //
       // Mark this boot option in boot order as deleted
       //
@@ -932,7 +931,6 @@ Returns:
   UINT16                        FloppyNumber;
   UINT16                        CdromNumber;
   UINT16                        UsbNumber;
-  UINT16                        ScsiNumber;
   UINT16                        MiscNumber;
   UINT16                        NonBlockNumber;
   UINTN                         NumberBlockIoHandles;
@@ -965,7 +963,6 @@ Returns:
   FloppyNumber = 0;
   CdromNumber = 0;
   UsbNumber = 0;
-  ScsiNumber = 0;
   MiscNumber = 0;
   EfiZeroMem (Buffer, sizeof (Buffer));
   //
@@ -1184,7 +1181,7 @@ Returns:
     Status = gBS->HandleProtocol (
                     FvHandleBuffer[Index],
                     &gEfiFirmwareVolumeDispatchProtocolGuid,
-                    &Fv
+                    (VOID **)&Fv
                     );
     if (EFI_ERROR (Status)) {
       continue;
@@ -1347,7 +1344,7 @@ Returns:
   CHAR16            *ExitData;
 
   //
-  // Init the boot option name buffer and temp link list
+  // Init the boot option name Buffer and temp link list
   //
   InitializeListHead (&TempList);
   EfiZeroMem (Buffer, sizeof (Buffer));
@@ -1436,7 +1433,7 @@ Returns:
       // Fail to find the proper BlockIo and simple file protocol, maybe because device not present,  we need to connect it firstly
       //
       UpdatedDevicePath = DevicePath;
-      Status = gBS->LocateDevicePath (&gEfiDevicePathProtocolGuid, &UpdatedDevicePath, &Handle);
+      gBS->LocateDevicePath (&gEfiDevicePathProtocolGuid, &UpdatedDevicePath, &Handle);
       gBS->ConnectController (Handle, NULL, NULL, TRUE);    
     }
   } else {
@@ -1448,7 +1445,7 @@ Returns:
     //
     // Get BlockIo protocal and check removable attribute
     //
-    Status = gBS->HandleProtocol (Handle, &gEfiBlockIoProtocolGuid, (VOID **)&BlockIo); 
+    gBS->HandleProtocol (Handle, &gEfiBlockIoProtocolGuid, (VOID **)&BlockIo); 
     //
     // Issue a dummy read to the device to check for media change.
     // When the removable media is changed, any Block IO read/write will
@@ -1479,7 +1476,7 @@ Returns:
   //
   DupDevicePath = EfiDuplicateDevicePath (DevicePath);
   UpdatedDevicePath = DupDevicePath;
-  Status = gBS->LocateDevicePath (&gEfiDevicePathProtocolGuid, &UpdatedDevicePath, &Handle);
+  gBS->LocateDevicePath (&gEfiDevicePathProtocolGuid, &UpdatedDevicePath, &Handle);
   //
   // if the resulting device path point to a usb node, and the usb node is a dummy node, should only let device path only point to the previous Pci node
   // Acpi()/Pci()/Usb() --> Acpi()/Pci()
@@ -2113,7 +2110,7 @@ Returns:
   Status = gBS->HandleProtocol (
              mBdsImageHandle,
              &gEfiLoadedImageProtocolGuid,
-             &LoadedImage
+             (VOID **)&LoadedImage
              );
   if (!EFI_ERROR (Status)) {
     Status = gBS->HandleProtocol (
