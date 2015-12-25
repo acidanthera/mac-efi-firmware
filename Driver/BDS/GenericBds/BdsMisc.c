@@ -1,23 +1,15 @@
-/*++
-
-Copyright (c) 2004 - 2009, Intel Corporation                                                         
-All rights reserved. This program and the accompanying materials                          
-are licensed and made available under the terms and conditions of the BSD License         
-which accompanies this distribution.  The full text of the license may be found at        
-http://opensource.org/licenses/bsd-license.php                                            
-                                                                                          
-THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
-WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
-
-Module Name:
-
-  BdsMisc.c
-
-Abstract:
-
+/** @file
   Misc BDS library function
 
---*/
+  Copyright (c) 2004 - 2009, Intel Corporation<BR>
+  All rights reserved. This program and the accompanying materials                          
+  are licensed and made available under the terms and conditions of the BSD License         
+  which accompanies this distribution.  The full text of the license may be found at        
+  http://opensource.org/licenses/bsd-license.php                                            
+                                                                                          
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
+**/
 
 #include <AppleEfi.h>
 
@@ -35,10 +27,10 @@ Abstract:
 #include <EfiPrintLib.h>
 #include "BdsLib.h"
 
-#define MAX_STRING_LEN        200
+#define MAX_STRING_LEN  200
 
-STATIC BOOLEAN   mFeaturerSwitch = TRUE;
-STATIC BOOLEAN   mResetRequired = FALSE;
+STATIC BOOLEAN mFeaturerSwitch = TRUE;
+STATIC BOOLEAN mResetRequired  = FALSE;
 
 extern UINT16 gPlatformBootTimeOutDefault;
 

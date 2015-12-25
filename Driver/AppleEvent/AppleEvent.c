@@ -14,7 +14,7 @@
 #include <AppleEfi.h>
 
 #include EFI_PROTOCOL_CONSUMER (LoadedImage)
-#include <Protocol/AppleEventImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleEventImpl)
 
 #include <Driver/AppleEvent.h>
 

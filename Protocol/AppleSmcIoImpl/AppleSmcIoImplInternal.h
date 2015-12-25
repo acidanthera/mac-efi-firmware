@@ -14,7 +14,7 @@
 #ifndef APPLE_SMC_IO_IMPL_INTERNAL_H_
 #define APPLE_SMC_IO_IMPL_INTERNAL_H_
 
-#include <Protocol/AppleSmcIoImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleSmcIoImpl)
 
 // SmcIoSmcReadStatus
 SMC_STATUS

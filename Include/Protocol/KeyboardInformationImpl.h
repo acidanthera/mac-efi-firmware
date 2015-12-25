@@ -14,7 +14,7 @@
 #ifndef KEYBOARD_INFORMATION_IMPL_H_
 #define KEYBOARD_INFORMATION_IMPL_H_
 
-#include <Protocol/KeyboardInfo.h>
+#include APPLE_PROTOCOL_PRODUCER (KeyboardInfo)
 
 // KbInfoGetInfo
 EFI_STATUS

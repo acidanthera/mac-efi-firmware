@@ -13,10 +13,9 @@
 
 #include <AppleEfi.h>
 
-#include <Library/AppleDriverLib.h>
+#include APPLE_PROTOCOL_PRODUCER (OsIdentificationImpl)
 
-#include <Protocol/OsIdentification.h>
-#include <Protocol/OsIdentificationImpl.h>
+#include <Library/AppleDriverLib.h>
 
 #include <Driver/AppleOsIdentification.h>
 

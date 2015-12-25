@@ -14,7 +14,6 @@
 **/
 
 #include <AppleEfi.h>
-#include <LinkedList.h>
 
 #include <Library/AppleDriverLib.h>
 

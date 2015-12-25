@@ -13,7 +13,7 @@
 
 #include <AppleEfi.h>
 
-#include <Protocol/KeyboardInformationImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (KeyboardInformationImpl)
 
 // gKeyboardInfoIdVendor
 UINT16 gKeyboardInfoIdVendor = 0;

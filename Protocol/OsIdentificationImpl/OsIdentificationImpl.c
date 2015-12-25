@@ -13,9 +13,9 @@
 
 #include <AppleEfi.h>
 
-#include <Library/AppleDriverLib.h>
+#include APPLE_GUID_DEFINITION (AppleOsLoaded)
 
-#include <Guid/AppleOsLoaded.h>
+#include <Library/AppleDriverLib.h>
 
 #include "OsIdentificationImplInternal.h"
 

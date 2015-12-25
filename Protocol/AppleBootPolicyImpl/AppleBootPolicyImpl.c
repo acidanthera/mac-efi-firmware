@@ -14,12 +14,13 @@
 **/
 
 #include <AppleEfi.h>
+#include <AppleMisc.h>
 
-#include <Library/AppleDriverLib.h>
-
-#include <Guid/AppleBless.h>
+#include APPLE_GUID_DEFINITION (AppleBless)
 
 #include EFI_PROTOCOL_CONSUMER (SimpleFileSystem)
+
+#include <Library/AppleDriverLib.h>
 
 #include "AppleBootPolicyImplInternal.h"
 

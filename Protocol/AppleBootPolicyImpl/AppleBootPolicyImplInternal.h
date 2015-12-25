@@ -14,7 +14,7 @@
 #ifndef APPLE_BOOT_POLICY_IMPL_INTERNAL_H_
 #define APPLE_BOOT_POLICY_IMPL_INTERNAL_H_
 
-#include <Protocol/AppleBootPolicyImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleBootPolicyImpl)
 
 // BootPolicyFileExists
 /** Checks whether the given file exists or not.

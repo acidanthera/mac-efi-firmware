@@ -1,5 +1,5 @@
 ## @file
-# Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.
+# Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 #
 # This program and the accompanying materials have not been licensed.
 # Neither is its usage, its redistribution, in source or binary form,
@@ -23,6 +23,24 @@
   Include
 
 [LibraryClasses]
+  ##  @libraryclass
+  AppleDriverLib|ApplePkg/Include/Library/AppleDriverLib.h
+
+  ##  @libraryclass  
+  AppleKeyMapAggregatorLib|ApplePkg/Include/Library/AppleKeyMapAggregatorLib.h
+
+  ##  @libraryclass  
+  AppleKeyMapLib|ApplePkg/Include/Library/AppleKeyMapLib.h
+
+  ##  @libraryclass  
+  AppleMathLib|ApplePkg/Include/Library/AppleMathLib.h
+
+  ##  @libraryclass  
+  AppleSmcIoLib|ApplePkg/Include/Library/AppleSmcIoLib.h
+
+  ##  @libraryclass  
+  UsbDxeLib|ApplePkg/Include/Library/UsbDxeLib.h
+
   ##  @libraryclass  
   AppleBootPolicyImpl|AppleModulePkg/Include/Protocol/AppleBootPolicyImpl.h
 

@@ -16,8 +16,8 @@
 
 #include <IndustryStandard/AppleHid.h>
 
-#include <Protocol/AppleKeyMapAggregator.h>
-#include <Protocol/AppleKeyMapDatabase.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleKeyMapAggregator)
+#include APPLE_PROTOCOL_PRODUCER (AppleKeyMapDatabase)
 
 /// @{
 #define APPLE_KEY_MAP_PROTOCOLS_REVISION            0x010000

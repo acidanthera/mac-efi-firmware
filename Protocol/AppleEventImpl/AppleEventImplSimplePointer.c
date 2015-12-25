@@ -12,17 +12,18 @@
 **/
 
 #include <AppleEfi.h>
+#include <AppleMisc.h>
 
-#include <Library/AppleDriverLib.h>
 #include <EfiCommonLib.h>
 
 #include <IndustryStandard/AppleHid.h>
 
-#include <Guid/AppleNvram.h>
+#include APPLE_GUID_DEFINITION (AppleNvram)
 
 #include EFI_PROTOCOL_CONSUMER (GraphicsOutput)
 #include EFI_PROTOCOL_CONSUMER (SimplePointer)
 
+#include <Library/AppleDriverLib.h>
 #include <Library/EfiEventLib.h>
 #include <Library/AppleKeyMapAggregatorLib.h>
 #ifdef CPU_IA32

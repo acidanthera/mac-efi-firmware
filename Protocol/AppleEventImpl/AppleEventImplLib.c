@@ -14,13 +14,11 @@
 #include <AppleEfi.h>
 #include <EfiDebug.h>
 
-#include <Library/AppleDriverLib.h>
-
 #include <IndustryStandard/AppleHid.h>
 
 #include EFI_PROTOCOL_CONSUMER (LoadedImage)
 
-#include <Library/AppleEventLib.h>
+#include <Library/AppleDriverLib.h>
 
 #include "AppleEventImplInternal.h"
 

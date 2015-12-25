@@ -14,7 +14,7 @@
 #ifndef DEVICE_PATH_PROPERTY_DATABASE_IMPL_INTERNAL_H_
 #define DEVICE_PATH_PROPERTY_DATABASE_IMPL_INTERNAL_H_
 
-#include <Protocol/DevicePathPropertyDatabaseImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (DevicePathPropertyDatabaseImpl)
 
 /// @{
 #define EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  EFI_SIGNATURE_32 ('D', 'p', 'n', 0x00)

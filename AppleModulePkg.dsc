@@ -1,5 +1,5 @@
 ## @file
-# Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.
+# Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
 #
 # This program and the accompanying materials have not been licensed.
 # Neither is its usage, its redistribution, in source or binary form,
@@ -40,13 +40,13 @@
 
   # Apple
 
-  AppleDriverLib|ApplePkg/Library/AppleDriverLib/AppleDriverLib.inf
-  AppleKeyMapAggregatorLib|ApplePkg/Library/AppleKeyMapAggregatorLib/AppleKeyMapAggregatorLib.inf
-  AppleKeyMapLib|ApplePkg/Library/AppleKeyMapLib/AppleKeyMapLib.inf
-  AppleMathLib|ApplePkg/Library/AppleMathLib/AppleMathLib.inf
-  AppleSmcMmioLib|ApplePkg/Library/AppleSmcMmioLib/AppleSmcMmioLib.inf
-  MmioLib|ApplePkg/Library/BaseMmioLib/BaseMmioLib.inf
-  UsbDxeLib|ApplePkg/Library/UsbDxeLib/UsbDxeLib.inf
+  AppleDriverLib|AppleModulePkg/Library/AppleDriverLib/AppleDriverLib.inf
+  AppleKeyMapAggregatorLib|AppleModulePkg/Library/AppleKeyMapAggregatorLib/AppleKeyMapAggregatorLib.inf
+  AppleKeyMapLib|AppleModulePkg/Library/AppleKeyMapLib/AppleKeyMapLib.inf
+  AppleMathLib|AppleModulePkg/Library/AppleMathLib/AppleMathLib.inf
+  AppleSmcMmioLib|AppleModulePkg/Library/AppleSmcMmioLib/AppleSmcMmioLib.inf
+  MmioLib|AppleModulePkg/Library/BaseMmioLib/BaseMmioLib.inf
+  UsbDxeLib|AppleModulePkg/Library/UsbDxeLib/UsbDxeLib.inf
 
   # Apple protocol implementations
 
@@ -69,6 +69,14 @@
   NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
 
 [Components]
+  AppleModulePkg/Library/AppleDriverLib/AppleDriverLib.inf
+  AppleModulePkg/Library/BaseMmioLib/BaseMmioLib.inf
+  AppleModulePkg/Library/AppleKeyMapLib/AppleKeyMapLib.inf
+  AppleModulePkg/Library/AppleKeyMapAggregatorLib/AppleKeyMapAggregatorLib.inf
+  AppleModulePkg/Library/AppleMathLib/AppleMathLib.inf
+  AppleModulePkg/Library/AppleSmcMmioLib/AppleSmcMmioLib.inf
+  AppleModulePkg/Library/UsbDxeLib/UsbDxeLib.inf
+
   AppleModulePkg/Protocol/AppleEventImpl/AppleEventImpl.inf
   AppleModulePkg/Protocol/AppleBootPolicyImpl/AppleBootPolicyImpl.inf
   AppleModulePkg/Protocol/AppleKeyMapImpl/AppleKeyMapImpl.inf

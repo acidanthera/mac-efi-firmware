@@ -15,9 +15,9 @@
 
 #include <AppleEfi.h>
 
-#include <Library/AppleDriverLib.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleBootPolicyImpl)
 
-#include <Protocol/AppleBootPolicyImpl.h>
+#include <Library/AppleDriverLib.h>
 
 #include <Driver/AppleBootPolicy.h>
 

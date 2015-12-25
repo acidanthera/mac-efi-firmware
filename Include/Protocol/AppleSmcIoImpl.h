@@ -15,7 +15,9 @@
 #define APPLE_SMC_IO_IMPL_H_
 
 #include EFI_PROTOCOL_DEFINITION (CpuIo)
-#include <Protocol/AppleSmcIo.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleSmcIo)
+
+#include <Library/AppleDriverLib.h>
 
 // APPLE_SMC_IO_PROTOCOL_REVISION
 #define APPLE_SMC_IO_PROTOCOL_REVISION  0x33

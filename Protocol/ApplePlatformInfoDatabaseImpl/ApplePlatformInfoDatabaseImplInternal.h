@@ -14,18 +14,18 @@
 #ifndef APPLE_PLATFORM_INFO_DATABASE_IMPL_INTERNAL_H_
 #define APPLE_PLATFORM_INFO_DATABASE_IMPL_INTERNAL_H_
 
-#include <Protocol/ApplePlatformInfoDatabaseImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (ApplePlatformInfoDatabaseImpl)
 
 #pragma pack (1)
 
 // EFI_APPLE_SECTION_IDENTIFIER
-typedef struct {
+typedef PACKED struct {
   EFI_RAW_SECTION Hdr;    ///< 
   UINT32          Ukn_4;  ///< 
 } EFI_APPLE_SECTION_IDENTIFIER;
 
 // EFI_APPLE_SECTION
-typedef struct {
+typedef PACKED struct {
   EFI_APPLE_SECTION_IDENTIFIER Hdr;    ///< 
   UINT64                       int_8;  ///< 
   UINT32                       Size;   ///< 

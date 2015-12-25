@@ -14,7 +14,7 @@
 #ifndef OS_IDENTIFICATION_IMPL_H_
 #define OS_IDENTIFICATION_IMPL_H_
 
-#include <Protocol/OsIdentificationImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (OsIdentificationImpl)
 
 // OS_IDENTIFICATION_VENDOR_NAME
 #define OS_IDENTIFICATION_VENDOR_NAME  "Apple Inc."

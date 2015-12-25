@@ -12,14 +12,14 @@
 **/
 
 #include <AppleEfi.h>
+#include <AppleMisc.h>
 #include <LinkedList.h>
 
+#include APPLE_GUID_DEFINITION (AppleNvram)
+
+#include APPLE_PROTOCOL_PRODUCER (DevicePathPropertyDatabaseImpl)
+
 #include <Library/AppleDriverLib.h>
-
-#include <Guid/AppleNvram.h>
-
-#include <Protocol/DevicePathPropertyDatabase.h>
-#include <Protocol/DevicePathPropertyDatabaseImpl.h>
 
 #include <Driver/EfiDevicePathPropertyDatabase.h>
 

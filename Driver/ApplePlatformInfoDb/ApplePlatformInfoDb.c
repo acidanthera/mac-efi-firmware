@@ -13,14 +13,14 @@
 
 #include <AppleEfi.h>
 
+#include EFI_GUID_DEFINITION (Hob)
+#include APPLE_GUID_DEFINITION (AppleFile)
+#include APPLE_GUID_DEFINITION (AppleHob)
+
+#include APPLE_PROTOCOL_PRODUCER (ApplePlatformInfoDatabaseImpl)
+
 #include <Library/AppleDriverLib.h>
 #include <EfiHobLib.h>
-
-#include EFI_GUID_DEFINITION (Hob)
-#include <Guid/AppleFile.h>
-#include <Guid/AppleHob.h>
-
-#include <Protocol/ApplePlatformInfoDatabaseImpl.h>
 
 #include <Driver/ApplePlatformInfoDB.h>
 

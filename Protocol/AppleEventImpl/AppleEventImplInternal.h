@@ -14,7 +14,7 @@
 #ifndef APPLE_EVENT_IMPL_INTERNAL_H_
 #define APPLE_EVENT_IMPL_INTERNAL_H_
 
-#include <Protocol/AppleEventImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleEventImpl)
 
 // APPLE_EVENT_QUERY_SIGNATURE
 #define APPLE_EVENT_QUERY_SIGNATURE  EFI_SIGNATURE_32 ('A', 'E', 'v', 'Q')

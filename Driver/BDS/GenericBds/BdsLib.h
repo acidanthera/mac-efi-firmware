@@ -1,12 +1,12 @@
 /** @file
   BDS library definition, include the file and data structure
 
-  Copyright (c) 2004 - 2008, Intel Corporation
+  Copyright (c) 2004 - 2008, Intel Corporation<BR>
   All rights reserved.  This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
   which accompanies this distribution.  The full text of the license may be found at
   http://opensource.org/licenses/bsd-license.php
-                                                                                          
+
   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
@@ -17,19 +17,19 @@
 #include <EfiImage.h>
 #include <PeiHob.h>
 
-#include <Library/AppleDriverLib.h>
-
 #include EFI_PROTOCOL_DEFINITION (Hii)
+
+#include <Library/AppleDriverLib.h>
 
 #include <BmMachine.h>
 //
 // Include the performance head file and defind macro to add perf data
 //
 #ifdef EFI_DXE_PERFORMANCE
-#include "Performance.h"
-#define WRITE_BOOT_TO_OS_PERFORMANCE_DATA  WriteBootToOsPerformanceData ()
+  #include "Performance.h"
+  #define WRITE_BOOT_TO_OS_PERFORMANCE_DATA  WriteBootToOsPerformanceData ()
 #else
-#define WRITE_BOOT_TO_OS_PERFORMANCE_DATA
+  #define WRITE_BOOT_TO_OS_PERFORMANCE_DATA
 #endif
 
 extern EFI_HANDLE mBdsImageHandle;

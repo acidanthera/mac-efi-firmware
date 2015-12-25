@@ -12,14 +12,14 @@
 **/
 
 #include <AppleEfi.h>
-
-#include <Library/AppleDriverLib.h>
+#include <AppleMisc.h>
 
 #include <IndustryStandard/AppleHid.h>
 
 #include EFI_PROTOCOL_CONSUMER (ConsoleControl)
-#include <Protocol/AppleKeyMapAggregator.h>
+#include APPLE_PROTOCOL_CONSUMER (AppleKeyMapAggregator)
 
+#include <Library/AppleDriverLib.h>
 #include <Library/EfiEventLib.h>
 #include <Library/AppleKeyMapLib.h>
 #include <Library/AppleKeyMapAggregatorLib.h>

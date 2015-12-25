@@ -14,11 +14,11 @@
 #include <AppleEfi.h>
 #include <LinkedList.h>
 
-#include <Library/AppleDriverLib.h>
-
 #include <IndustryStandard/AppleHid.h>
 
-#include <Protocol/AppleKeyMapImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleKeyMapImpl)
+
+#include <Library/AppleDriverLib.h>
 
 #include <Driver/AppleKeyMapAggregator.h>
 

@@ -12,9 +12,9 @@
 **/
 
 #include <AppleEfi.h>
+#include <AppleMisc.h>
 
 #include <Library/AppleDriverLib.h>
-
 #include <Library/AppleSmcMmioLib.h>
 
 #include "AppleSmcIoImplInternal.h"

@@ -13,10 +13,10 @@
 
 #include <AppleEfi.h>
 
-#include <Library/AppleDriverLib.h>
-
 #include EFI_PROTOCOL_CONSUMER (CpuIo)
-#include <Protocol/AppleSmcIoImpl.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleSmcIoImpl)
+
+#include <Library/AppleDriverLib.h>
 
 #include <Driver/AppleSmcIo.h>
 

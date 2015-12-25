@@ -14,11 +14,11 @@
 #ifndef APPLE_EVENT_IMPL_H_
 #define APPLE_EVENT_IMPL_H_
 
-#include <Library/AppleDriverLib.h>
-
 #include <IndustryStandard/AppleHid.h>
 
-#include <Protocol/AppleEvent.h>
+#include APPLE_PROTOCOL_PRODUCER (AppleEvent)
+
+#include <Library/AppleDriverLib.h>
 
 // APPLE_EVENT_PROTOCOL_REVISION
 #define APPLE_EVENT_PROTOCOL_REVISION  0x07

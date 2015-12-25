@@ -12,6 +12,7 @@
 **/
 
 #include <AppleEfi.h>
+#include <AppleMisc.h>
 
 #include <Library/AppleDriverLib.h>
 
