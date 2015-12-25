@@ -66,9 +66,7 @@ AppleKeyMapAggregatorMain (
       gBS->FreePool ((VOID *)Buffer);
     }
   } else {
-    Aggregator                                          = (APPLE_KEY_MAP_AGGREGATOR *)EfiLibAllocateZeroPool (
-                                                                                        sizeof (*Aggregator)
-                                                                                        );
+    Aggregator                                          = EfiLibAllocateZeroPool (sizeof (*Aggregator));
     Aggregator->Signature                               = APPLE_KEY_MAP_AGGREGATOR_SIGNATURE;
     Aggregator->NextKeyStrokeIndex                      = 3000;
     Aggregator->DatabaseProtocol.Revision               = APPLE_KEY_MAP_DATABASE_PROTOCOL_REVISION;

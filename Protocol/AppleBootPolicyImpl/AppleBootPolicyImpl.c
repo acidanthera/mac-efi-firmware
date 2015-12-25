@@ -79,7 +79,7 @@ BootPolicyGetBootFileImpl (
       Status = Root->GetInfo (Root, &gAppleBlessedFileInfoId, &Size, NULL);
 
       if (Status == EFI_BUFFER_TOO_SMALL) {
-        FilePath.DevPath = (EFI_DEVICE_PATH_PROTOCOL *)EfiLibAllocateZeroPool (Size);
+        FilePath.DevPath = EfiLibAllocateZeroPool (Size);
 
         if (FilePath.DevPath != NULL) {
           Status = Root->GetInfo (Root, &gAppleBlessedFileInfoId, &Size, FilePath.DevPath);
@@ -99,7 +99,7 @@ BootPolicyGetBootFileImpl (
       Status = Root->GetInfo (Root, &gAppleBlessedFolderInfoId, &Size, NULL);
 
       if (Status == EFI_BUFFER_TOO_SMALL) {
-        FilePath.DevPath = (EFI_DEVICE_PATH_PROTOCOL *)EfiLibAllocateZeroPool (Size);
+        FilePath.DevPath = EfiLibAllocateZeroPool (Size);
 
         if (FilePath.DevPath != NULL) {
           Status = Root->GetInfo (Root, &gAppleBlessedFolderInfoId, &Size, FilePath.DevPath);
@@ -108,9 +108,9 @@ BootPolicyGetBootFileImpl (
           if (!EFI_ERROR (Status)) {
             while (!IsDevicePathEnd (FilePath.DevPath)) {
               if ((DevicePathType (FilePath.DevPath) == MEDIA_DEVICE_PATH)
-                && (DevicePathSubType (FilePath.DevPath) == MEDIA_FILEPATH_DP)) {
+               && (DevicePathSubType (FilePath.DevPath) == MEDIA_FILEPATH_DP)) {
                 Size = EfiStrSize (FilePath.FilePath->PathName);
-                Path = (CHAR16 *)EfiLibAllocatePool (Size);
+                Path = EfiLibAllocatePool (Size);
 
                 if (Path != NULL) {
                   EfiStrCpy (Path, FilePath.FilePath->PathName);
@@ -129,20 +129,19 @@ BootPolicyGetBootFileImpl (
 
           if (!EFI_ERROR (Status)) {
             Size     = (EfiStrSize (Path) + EfiStrSize (APPLE_BOOTER_FILE_NAME) - sizeof (*Path));
-            FullPath = (CHAR16 *)EfiLibAllocateZeroPool (Size);
+            FullPath = EfiLibAllocateZeroPool (Size);
 
             if (FullPath != NULL) {
               EfiStrCpy (FullPath, Path);
               EfiStrCat (FullPath, APPLE_BOOTER_FILE_NAME);
 
               if (BootPolicyFileExists (Root, FullPath)) {
-                *BootFilePath  = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (Device, FullPath);
+                *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (Device, FullPath);
 
                 gBS->FreePool ((VOID *)FullPath);
                 gBS->FreePool ((VOID *)Path);
 
                 Status = EFI_SUCCESS;
-
                 goto Return;
               }
 

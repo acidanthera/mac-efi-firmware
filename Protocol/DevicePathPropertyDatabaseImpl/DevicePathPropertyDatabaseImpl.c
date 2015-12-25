@@ -132,7 +132,7 @@ DevicePathPropertyDbSetPropertyImpl (
 
   if (Node == NULL) {
     DevicePathSize = EfiDevicePathSize (DevicePath);
-    Node           = (EFI_DEVICE_PATH_PROPERTY_NODE *)EfiLibAllocateZeroPool (sizeof (Node) + DevicePathSize);
+    Node           = EfiLibAllocateZeroPool (sizeof (Node) + DevicePathSize);
     Status         = EFI_OUT_OF_RESOURCES;
 
     if (Node == NULL) {
@@ -156,7 +156,6 @@ DevicePathPropertyDbSetPropertyImpl (
 
       if (Result == 0) {
         Status = EFI_SUCCESS;
-
         goto Return;
       }
     }
@@ -171,17 +170,17 @@ DevicePathPropertyDbSetPropertyImpl (
   }
 
   Database->Modified = TRUE;
-  Property           = (EFI_DEVICE_PATH_PROPERTY *)EfiLibAllocateZeroPool (sizeof (Property));
+  Property           = EfiLibAllocateZeroPool (sizeof (Property));
   Status             = EFI_OUT_OF_RESOURCES;
 
   if (Property != NULL) {
     PropertyNameSize   = (EfiStrSize (Name) + sizeof (PropertyData->Hdr));
-    PropertyData       = (EFI_DEVICE_PATH_PROPERTY_DATA *)EfiLibAllocateZeroPool (PropertyNameSize);
+    PropertyData       = EfiLibAllocateZeroPool (PropertyNameSize);
     Property->Name     = PropertyData;
 
     if (PropertyData != NULL) {
       PropertyDataSize = (Size + sizeof (PropertyData->Hdr));
-      PropertyData     = (EFI_DEVICE_PATH_PROPERTY_DATA *)EfiLibAllocateZeroPool (PropertyDataSize);
+      PropertyData     = EfiLibAllocateZeroPool (PropertyDataSize);
       Property->Value  = PropertyData;
 
       if (PropertyData != NULL) {
@@ -246,6 +245,7 @@ DevicePathPropertyDbRemovePropertyImpl (
   } else {
     Property = DevicePathPropertyDbGetProperty (Name, Node);
     Status   = EFI_NOT_FOUND;
+
     if (Property != NULL) {
       Database->Modified = TRUE;
 
@@ -366,9 +366,9 @@ DevicePathPropertyDbGetPropertyBufferImpl (
             gBS->CopyMem (BufferPtr, (VOID *)Property->Name, (UINTN)Property->Name->Hdr.Size);
             gBS->CopyMem (
                    (VOID *)((UINTN)BufferPtr + (UINTN)Property->Name->Hdr.Size),
-                    Property->Value,
-                    (UINTN)Property->Value->Hdr.Size
-                    );
+                   Property->Value,
+                   (UINTN)Property->Value->Hdr.Size
+                   );
 
             BufferPtr   = (VOID *)((UINTN)BufferPtr + (Property->Name->Hdr.Size + Property->Value->Hdr.Size));
             BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);

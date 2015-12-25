@@ -66,7 +66,7 @@ AppleKeyEventDataFromInputKey (
   Status = EFI_INVALID_PARAMETER;
 
   if ((EventData != NULL) && (AppleKey != NULL) && (InputKey != NULL)) {
-    KeyEventData = (APPLE_KEY_EVENT_DATA *)EfiLibAllocateZeroPool (sizeof (*KeyEventData));
+    KeyEventData = EfiLibAllocateZeroPool (sizeof (*KeyEventData));
     Status       = EFI_OUT_OF_RESOURCES;
 
     if (KeyEventData != NULL) {
@@ -167,7 +167,7 @@ GetCurrentKeyStroke (
 
   if (NoReleasedKeys > 0) {
     ReleasedKeysSize = (sizeof (*ReleasedKeys) * NoReleasedKeys);
-    ReleasedKeysPtr  = (APPLE_KEY *)EfiLibAllocatePool (ReleasedKeysSize);
+    ReleasedKeysPtr  = EfiLibAllocatePool (ReleasedKeysSize);
 
     if (ReleasedKeysPtr != NULL) {
       EfiCommonLibCopyMem ((VOID *)ReleasedKeysPtr, (VOID *)&ReleasedKeys, ReleasedKeysSize);

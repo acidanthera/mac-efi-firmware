@@ -107,9 +107,7 @@ AddProtocolInstance (
   ASSERT (Handle != NULL);
   ASSERT (Interface != NULL);
 
-  Buffer = (EFI_PROTOCOL_INSTANCE *)EfiLibAllocateZeroPool (
-                                      ((mNoSimplePointerInstances + 1) * sizeof (*mSimplePointerInstances))
-                                      );
+  Buffer = EfiLibAllocateZeroPool (((mNoSimplePointerInstances + 1) * sizeof (*mSimplePointerInstances)));
 
   ASSERT (Buffer != NULL);
 
@@ -184,7 +182,7 @@ RemoveUninstalledInstances (
       } while (Index < *NoInstances);
 
       if (NoMatches != *NoInstances) {
-        InstanceBuffer = (EFI_PROTOCOL_INSTANCE *)EfiLibAllocateZeroPool (NoMatches * sizeof (*InstanceBuffer));
+        InstanceBuffer = EfiLibAllocateZeroPool (NoMatches * sizeof (*InstanceBuffer));
 
         if (InstanceBuffer != NULL) {
           if (*NoInstances > 0) {

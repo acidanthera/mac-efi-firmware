@@ -173,7 +173,7 @@ ApplePlatformInfoDBMain (
     }
   }
 
-  PlatformInfoDatabase = (APPLE_PLATFORM_INFO_DATABASE *)EfiLibAllocatePool (sizeof (*PlatformInfoDatabase));
+  PlatformInfoDatabase = EfiLibAllocatePool (sizeof (*PlatformInfoDatabase));
   Status               = EFI_OUT_OF_RESOURCES;
 
   if (PlatformInfoDatabase != NULL) {

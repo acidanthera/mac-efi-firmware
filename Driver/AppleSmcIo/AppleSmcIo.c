@@ -71,7 +71,7 @@ AppleSmcIoMain (
   Status = gBS->LocateProtocol (&gEfiCpuIoProtocolGuid, NULL, (VOID **)&CpuIo);
 
   if (!EFI_ERROR (Status)) {
-    SmcDev = (SMC_DEV *)EfiLibAllocateZeroPool (sizeof (*SmcDev));
+    SmcDev = EfiLibAllocateZeroPool (sizeof (*SmcDev));
 
     if (SmcDev == NULL) {
       Status = EFI_OUT_OF_RESOURCES;
@@ -114,7 +114,7 @@ AppleSmcIoMain (
               Status = SmcIoSmcReadValueImpl (&SmcDev->SmcIo, SMC_KEY_ADR, sizeof (SmcAddress), (VOID *)&SmcAddress);
 
               if (!EFI_ERROR (Status)) {
-                SmcDevChild = (SMC_DEV *)EfiLibAllocateZeroPool (sizeof (*SmcDevChild));
+                SmcDevChild = EfiLibAllocateZeroPool (sizeof (*SmcDevChild));
 
                 if (SmcDevChild != NULL) {
                   SmcDevChild->Signature = SMC_DEV_SIGNATURE;

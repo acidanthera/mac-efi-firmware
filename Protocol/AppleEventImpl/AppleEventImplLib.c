@@ -280,7 +280,7 @@ EventCreateAppleEventQueryInfo (
   ASSERT (EventData.Raw != 0);
   ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
 
-  QueryInfo = (APPLE_EVENT_QUERY_INFORMATION *)EfiLibAllocateZeroPool (sizeof (*QueryInfo));
+  QueryInfo = EfiLibAllocateZeroPool (sizeof (*QueryInfo));
 
   if (QueryInfo != NULL) {
     gRT->GetTime (&CreationTime, NULL);
@@ -433,7 +433,7 @@ EventAddEventQuery (
       Status = EfiAcquireLockOrFail (&mEfiLock);
     } while (Status != EFI_SUCCESS);
 
-    EventQuery = (APPLE_EVENT_QUERY *)EfiLibAllocatePool (sizeof (*EventQuery));
+    EventQuery = EfiLibAllocatePool (sizeof (*EventQuery));
 
     if (EventQuery != NULL) {
       EventQuery->Signature   = APPLE_EVENT_QUERY_SIGNATURE;

@@ -157,7 +157,7 @@ UsbKbBindingStart (
     if (EFI_ERROR (Status)) {
       gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
     } else {
-      UsbKbDev = (USB_KB_DEV *)EfiLibAllocateZeroPool (sizeof (*UsbKbDev));
+      UsbKbDev = EfiLibAllocateZeroPool (sizeof (*UsbKbDev));
       
       if (UsbKbDev == NULL) {
         gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);

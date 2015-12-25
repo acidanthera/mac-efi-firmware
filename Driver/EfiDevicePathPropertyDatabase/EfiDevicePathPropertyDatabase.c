@@ -83,7 +83,7 @@ GetNvramProperties (
 
   if (BufferSize > 0) {
     Status = EFI_OUT_OF_RESOURCES;
-    Buffer = (EFI_DEVICE_PATH_PROPERTY_BUFFER *)EfiLibAllocatePool (BufferSize);
+    Buffer = EfiLibAllocatePool (BufferSize);
 
     if (Buffer != NULL) {
       BufferPtr = Buffer;
@@ -216,7 +216,7 @@ EfiDevicePathPropertyDatabaseMain (
       gBS->FreePool ((VOID *)Buffer);
     }
   } else {
-    Database            = (EFI_DEVICE_PATH_PROPERTY_DATABASE *)EfiLibAllocatePool (sizeof (*Database));
+    Database            = EfiLibAllocatePool (sizeof (*Database));
     Database->Signature = EFI_DEVICE_PATH_PROPERTY_DATABASE_SIGNATURE;
 
     gBS->CopyMem (
@@ -241,7 +241,7 @@ EfiDevicePathPropertyDatabaseMain (
           Status   = DevicePathPropertyDbGetPropertyBufferImpl (&Database->Protocol, NULL, &DataSize);
 
           if (Status != EFI_BUFFER_TOO_SMALL) {
-            Buffer = (EFI_DEVICE_PATH_PROPERTY_BUFFER *)EfiLibAllocatePool (DataSize);
+            Buffer = EfiLibAllocatePool (DataSize);
 
             if (Buffer == NULL) {
               Status = EFI_OUT_OF_RESOURCES;

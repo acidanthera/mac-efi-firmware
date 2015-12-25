@@ -58,7 +58,7 @@ EventRegisterHandlerImpl (
       }
     }
 
-    Event  = (APPLE_EVENT_HANDLE *)EfiLibAllocatePool (sizeof (*Event));
+    Event  = EfiLibAllocatePool (sizeof (*Event));
     Status = EFI_OUT_OF_RESOURCES;
 
     if (Event != NULL) {
@@ -153,7 +153,7 @@ EventSetEventNameImpl (
 
   if ((EventHandle != NULL) && (EventName != NULL)) {
     AllocationSize    = EfiAsciiStrSize (EventName);
-    Memory            = (CHAR8 *)EfiLibAllocateZeroPool (AllocationSize);
+    Memory            = EfiLibAllocateZeroPool (AllocationSize);
     EventHandle->Name = Memory;
 
     Status = EFI_OUT_OF_RESOURCES;
