@@ -26,8 +26,8 @@
   EdkBridgePkg/EdkBridgePkg.dec
 
 [Guids]
-  gAppleBootGuid         ## CONSUMES ## PRODUCES
-  gAppleVendorNvramGuid  ## CONSUMES ## PRODUCES
+  gAppleBootVariableGuid    ## CONSUMES ## PRODUCES
+  gAppleVendorVariableGuid  ## CONSUMES ## PRODUCES
 
 [Protocols]
   gEfiDevicePathPropertyDatabaseProtocolGuid  ## PRODUCES

@@ -227,13 +227,13 @@ EfiDevicePathPropertyDatabaseMain (
 
     InitializeListHead (&Database->Nodes);
 
-    Status = GetNvramProperties (&gAppleVendorNvramGuid, FALSE, Database);
+    Status = GetNvramProperties (&gAppleVendorVariableGuid, FALSE, Database);
 
     if (EFI_ERROR (Status)) {
       gBS->FreePool ((VOID *)Database);
     } else {
       Database->Modified = FALSE;
-      Status             = GetNvramProperties (&gAppleBootGuid, TRUE, Database);
+      Status             = GetNvramProperties (&gAppleBootVariableGuid, TRUE, Database);
 
       if (!EFI_ERROR (Status)) {
         if (Database->Modified) {
@@ -259,7 +259,7 @@ EfiDevicePathPropertyDatabaseMain (
                   VariableSize = EFI_MIN (DataSize, APPLE_PATH_PROPERTY_VARIABLE_MAX_SIZE);
                   Status       = gRT->SetVariable (
                                         VariableName,
-                                        &gAppleVendorNvramGuid,
+                                        &gAppleVendorVariableGuid,
                                         Attributes,
                                         VariableSize,
                                         (VOID *)Buffer
@@ -282,7 +282,7 @@ EfiDevicePathPropertyDatabaseMain (
                   VariableSize = 0;
                   Status       = gRT->GetVariable (
                                         VariableName,
-                                        &gAppleVendorNvramGuid,
+                                        &gAppleVendorVariableGuid,
                                         &Attributes,
                                         &VariableSize,
                                         NULL
@@ -294,7 +294,7 @@ EfiDevicePathPropertyDatabaseMain (
                   }
 
                   VariableSize = 0;
-                  Status       = gRT->SetVariable (VariableName, &gAppleVendorNvramGuid, Attributes, 0, NULL);
+                  Status       = gRT->SetVariable (VariableName, &gAppleVendorVariableGuid, Attributes, 0, NULL);
                   ++Index;
                 } while (!EFI_ERROR (Status));
               }

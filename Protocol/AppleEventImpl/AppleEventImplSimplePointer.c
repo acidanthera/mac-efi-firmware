@@ -646,7 +646,7 @@ EventCreateSimplePointerPollEvent (
 
   DataSize = sizeof (mUiScale);
 
-  gRT->GetVariable (UI_SCALE_VARIABLE_NAME, &gAppleVendorNvramGuid, NULL, &DataSize, (VOID *)&mUiScale);
+  gRT->GetVariable (UI_SCALE_VARIABLE_NAME, &gAppleVendorVariableGuid, NULL, &DataSize, (VOID *)&mUiScale);
   RemoveUninstalledInstances (&mSimplePointerInstances, &mNoSimplePointerInstances, &gEfiSimplePointerProtocolGuid);
 
   if (mNoSimplePointerInstances > 0) {

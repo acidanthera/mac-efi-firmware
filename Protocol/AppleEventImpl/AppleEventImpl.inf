@@ -26,7 +26,7 @@
   EdkBridgePkg/EdkBridgePkg.dec
 
 [Guids]
-  gAppleVendorNvramGuid  ## CONSUMES
+  gAppleVendorVariableGuid  ## CONSUMES
 
 [Protocols]
   gAppleKeyMapAggregatorProtocolGuid  ## SOMETIMES_CONSUMES
