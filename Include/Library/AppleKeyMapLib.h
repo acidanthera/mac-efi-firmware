@@ -2,7 +2,7 @@
   The AppleKeyMap library to be used with the AppleKeyMap protocol.  Contains necessary
   structure definitions and useful additional data.
 
-  Copyright (C) 2005 - 2015 Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,

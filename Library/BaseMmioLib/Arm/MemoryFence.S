@@ -1,7 +1,7 @@
 ## @file
 # MemoryFence() for AArch64
 #
-# Copyright (c) 2013, ARM Ltd. All rights reserved.
+# Copyright (C) 2013, ARM Ltd. All rights reserved.
 #
 # This program and the accompanying materials
 # are licensed and made available under the terms and conditions of the BSD License

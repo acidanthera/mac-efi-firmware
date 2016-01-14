@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 2004 - 2008, Intel Corporation<BR>
+  Copyright (C) 2004 - 2008, Intel Corporation<BR>
   Portions Copyright (C) 2005 - 2015, Apple Inc<BR>
   All rights reserved.  This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License

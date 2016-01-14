@@ -1,7 +1,7 @@
 /** @file
   Header file for USB Keyboard Driver's Data Structures
 
-  Copyright (c) 2004 - 2007, Intel Corporation<BR>
+  Copyright (C) 2004 - 2007, Intel Corporation<BR>
   Portions Copyright (C) 2005 - 2015, Apple Inc<BR>
   All rights reserved.  This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
