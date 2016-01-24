@@ -34,7 +34,7 @@
   EdkFrameworkGuidLib|EdkCompatibilityPkg/Foundation/Framework/Guid/EdkFrameworkGuidLib.inf
   EfiCommonLib|EdkBridgePkg/Library/EfiCommonLib/EfiCommonLib_Edk2.inf
   EfiProtocolLib|EdkCompatibilityPkg/Foundation/Efi/Protocol/EfiProtocolLib.inf
-  EdkGuidLib|EdkCompatibilityPkg/Foundation/Guid/EdkGuidLib.inf
+  EdkGuidLib|EdkBridgePkg/Guid/EdkGuidLib/EdkGuidLib.inf 
   EdkFrameworkProtocolLib|EdkCompatibilityPkg/Foundation/Framework/Protocol/EdkFrameworkProtocolLib.inf
   UefiEfiIfrSupportLib|EdkCompatibilityPkg/Foundation/Library/Dxe/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
 
