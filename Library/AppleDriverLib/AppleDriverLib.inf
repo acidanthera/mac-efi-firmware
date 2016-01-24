@@ -36,5 +36,4 @@
   EdkProtocolLib
 
 [Sources]
-  ../../Include/Library/AppleDriverLib.h
   AppleDriverLib.c

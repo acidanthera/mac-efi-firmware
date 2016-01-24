@@ -28,7 +28,5 @@
   AppleDriverLib
 
 [Sources]
-  ../../Include/Protocol/DevicePathPropertyDatabaseImpl.h
-  DevicePathPropertyDatabaseImplInternal.h
   DevicePathPropertyDatabaseImplLib.c
   DevicePathPropertyDatabaseImpl.c

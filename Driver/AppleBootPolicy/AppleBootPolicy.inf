@@ -33,5 +33,4 @@
   AppleBootPolicyImpl
 
 [Sources]
-  ../../Include/Driver/AppleBootPolicy.h
   AppleBootPolicy.c

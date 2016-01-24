@@ -35,5 +35,4 @@
   AppleKeyMapImpl
 
 [Sources]
-  ../../Include/Driver/AppleKeyMapAggregator.h
   AppleKeyMapAggregator.c

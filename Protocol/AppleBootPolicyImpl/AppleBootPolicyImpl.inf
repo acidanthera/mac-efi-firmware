@@ -32,7 +32,5 @@
   AppleDriverLib
 
 [Sources]
-  ../../Include/Protocol/AppleBootPolicyImpl.h
-  AppleBootPolicyImplInternal.h
   AppleBootPolicyImplLib.c
   AppleBootPolicyImpl.c

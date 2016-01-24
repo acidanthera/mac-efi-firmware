@@ -29,8 +29,6 @@
   AppleDriverLib
 
 [Sources]
-  ../../Include/Protocol/AppleKeyMapImpl.h
-  AppleKeyMapImplInternal.h
   AppleKeyMapImplLib.c
   AppleKeyMapAggregatorImpl.c
   AppleKeyMapDatabaseImpl.c

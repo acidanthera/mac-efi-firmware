@@ -37,5 +37,4 @@
   EfiDevicePathPropertyDatabaseImpl
 
 [Sources]
-  ../../Include/Driver/EfiDevicePathPropertyDatabase.h
   EfiDevicePathPropertyDatabase.c

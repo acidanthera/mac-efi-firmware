@@ -25,6 +25,5 @@
   EdkBridgePkg/EdkBridgePkg.dec
 
 [Sources]
-  ..\..\Include\Library\UsbDxeLib.h
   UsbDxeLib.c
 

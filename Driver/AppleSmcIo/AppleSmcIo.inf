@@ -34,5 +34,4 @@
   AppleSmcIoImpl
 
 [Sources]
-  ../../Include/Driver/AppleSmcIo.h
   AppleSmcIo.c

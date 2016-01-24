@@ -33,7 +33,5 @@
   AppleSmcMmioLib
 
 [Sources]
-  ../../Include/Protocol/AppleSmcIoImpl.h
-  AppleSmcIoImplInternal.h
   AppleSmcIoImplPmioLib.c
   AppleSmcIoImpl.c

@@ -34,5 +34,4 @@
   AppleEventImpl
 
 [Sources]
-  ../../Include/Driver/AppleEvent.h
   AppleEvent.c

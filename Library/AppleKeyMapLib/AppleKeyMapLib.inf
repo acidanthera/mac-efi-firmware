@@ -26,5 +26,4 @@
   EdkBridgePkg/EdkBridgePkg.dec
 
 [Sources]
-  ../../Include/Library/AppleKeyMapLib.h
   AppleKeyMapLib.c

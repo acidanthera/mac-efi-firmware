@@ -25,5 +25,4 @@
   EdkBridgePkg/EdkBridgePkg.dec
 
 [Sources]
-  ../../Include/Protocol/KeyboardInformationImpl.h
   KeyboardInformationImpl.c
