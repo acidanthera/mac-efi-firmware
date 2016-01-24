@@ -24,8 +24,8 @@
 
 #include <Driver/ApplePlatformInfoDB.h>
 
-// mApplePlatformInfoDBProtocol
-STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDBProtocol = {
+// mApplePlatformInfoDbProtocol
+STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDbProtocol = {
   APPLE_PLATFORM_INFO_DATABASE_PROTOCOL_REVISION,
   PlatformInfoDbGetFirstDataImpl,
   PlatformInfoDbGetFirstDataSizeImpl,
@@ -183,8 +183,8 @@ ApplePlatformInfoDBMain (
 
     EfiCopyMem (
       (VOID *)&PlatformInfoDatabase->Protocol,
-      (VOID *)&mApplePlatformInfoDBProtocol,
-      sizeof (mApplePlatformInfoDBProtocol)
+      (VOID *)&mApplePlatformInfoDbProtocol,
+      sizeof (mApplePlatformInfoDbProtocol)
       );
     
     Status = gBS->InstallProtocolInterface (
