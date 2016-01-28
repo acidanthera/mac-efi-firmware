@@ -1,7 +1,3 @@
-sudo:
-  - true
-  - false
-
 language:
   - c
 
@@ -10,45 +6,45 @@ os:
   - osx
 
 compiler:
-  - clang
   - gcc
+  - clang
 
 matrix:
   exclude:
     - os: osx
       compiler: gcc
-    - os: osx
-      sudo: false
-    - os: linux
-      compiler: clang
-    - os: linux
-      sudo: true
 
 addons:
- apt:
-   sources:
-     - ubuntu-toolchain-r-test
-   packages:
-     - gcc-4.9
-     - uuid-dev
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.6
+    packages:
+      - gcc-5
+      - clang-3.6
+      - uuid-dev
+
+before_install:
+  - . .travis/before_install.sh
 
 install:
   - . .travis/install.sh
-  - cd $TRAVIS_BUILD_DIR/..
+  - cd $TRAVIS_BUILD_DIR/../
   - export PACKAGES_PATH=$PWD
   - git clone --branch=development https://github.com/CupertinoNet/EfiMiscPkg.git
   - git clone --branch=development https://github.com/CupertinoNet/EdkBridgePkg.git
   - git clone --branch=development https://github.com/CupertinoNet/ApplePkg.git
   - git clone https://github.com/tianocore/edk2.git
-  - cd edk2
-  - make -C BaseTools
+  - cd edk2/
+  - make -C BaseTools/
   - . edksetup.sh
-  - cd $TRAVIS_BUILD_DIR
+  - cd $TRAVIS_BUILD_DIR/
 
 script:
   - . .travis/build.sh
 
 notifications:
+  email: false 
   irc:
     channels:
       - "irc.ext3.net#apple-efi"
