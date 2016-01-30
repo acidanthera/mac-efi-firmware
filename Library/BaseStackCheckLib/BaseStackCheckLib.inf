@@ -1,0 +1,32 @@
+## @file
+# Stack Check Library
+#
+# Stack Check Library
+#
+# Copyright (C) 2014, ARM Ltd. All rights reserved.<BR>
+#
+# This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution. The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php.
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+##
+
+[Defines]
+  BASE_NAME       = BaseStackCheckLib
+  MODULE_TYPE     = BASE
+  LIBRARY_CLASS   = NULL
+  VERSION_STRING  = 1.0
+  FILE_GUID       = 5f6579f7-b648-4fdb-9f19-4c17e27e8eff
+  INF_VERSION     = 0x00010005
+# VALID_ARCHITECTURES = ARM AARCH64
+
+[Packages]
+  EdkBridgePkg/EdkBridgePkg.dec
+
+[Sources]
+  BaseStackCheckGcc.c | GCC
+  BaseStackCheckGcc.c | RVCT
