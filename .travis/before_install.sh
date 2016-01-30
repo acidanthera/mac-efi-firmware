@@ -4,15 +4,13 @@ set -e
 
 if [ "$TRAVIS_OS_NAME" = "linux" ]; then
   cd /tmp/
-  wget https://releases.linaro.org/components/toolchain/binaries/latest-5.2/aarch64-linux-gnu/gcc-linaro-5.2-2015.11-1-x86_64_aarch64-linux-gnu.tar.xz -O gcc-aarch64.tar.gz
+  wget https://releases.linaro.org/components/toolchain/binaries/5.2-2015.11-2/aarch64-linux-gnu/gcc-linaro-5.2-2015.11-2-x86_64_aarch64-linux-gnu.tar.xz -O gcc-aarch64.tar.gz
+  wget https://releases.linaro.org/components/toolchain/binaries/5.2-2015.11-2/arm-linux-gnueabi/gcc-linaro-5.2-2015.11-2-x86_64_arm-linux-gnueabi.tar.xz -O gcc-arm.tar.gz 
   tar -xf gcc-aarch64.tar.gz
-  export PATH=$PATH:${PWD}/gcc-linaro-5.2-2015.11-1-x86_64_aarch64-linux-gnu/bin/
+  tar -xf gcc-arm.tar.gz
+  export PATH=$PATH:${PWD}/gcc-linaro-5.2-2015.11-2-x86_64_aarch64-linux-gnu/bin/:${PWD}/gcc-linaro-5.2-2015.11-2-x86_64_arm-linux-gnueabi/bin/
 
   if [ "$CC" = "gcc" ]; then
-    wget https://releases.linaro.org/components/toolchain/binaries/latest-5.2/arm-linux-gnueabi/gcc-linaro-5.2-2015.11-1-x86_64_arm-linux-gnueabi.tar.xz -O gcc-arm.tar.gz 
-    tar -xf gcc-arm.tar.gz
-    export PATH=$PATH:${PWD}/gcc-linaro-5.2-2015.11-1-x86_64_arm-linux-gnueabi/bin/
-
     mkdir gcc-bin
     cd gcc-bin/
 
