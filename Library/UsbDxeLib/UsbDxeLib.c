@@ -43,6 +43,7 @@ UsbGetDescriptor (
   )
 {
   EFI_STATUS             EfiStatus;
+
   EFI_USB_DEVICE_REQUEST DevReq;
 
   ASSERT (UsbIo != NULL);
@@ -151,6 +152,7 @@ UsbGetInterface (
   )
 {
   EFI_STATUS             EfiStatus;
+
   EFI_USB_DEVICE_REQUEST DevReq;
 
   ASSERT (UsbIo != NULL);
@@ -249,6 +251,7 @@ UsbGetConfiguration (
   )
 {
   EFI_STATUS             EfiStatus;
+
   EFI_USB_DEVICE_REQUEST DevReq;
 
   ASSERT (UsbIo != NULL);
@@ -741,7 +744,7 @@ UsbGetProtocolRequest (
   Request.Request     = EFI_USB_GET_PROTOCOL_REQUEST;
   Request.Value       = 0;
   Request.Index       = Interface;
-  Request.Length      = 1;
+  Request.Length      = sizeof (*Protocol);
   Status              = UsbIo->UsbControlTransfer (
                                  UsbIo,
                                  &Request,
@@ -891,7 +894,7 @@ UsbGetIdleRequest (
   Request.Request     = EFI_USB_GET_IDLE_REQUEST;
   Request.Value       = ReportId;
   Request.Index       = Interface;
-  Request.Length      = 1;
+  Request.Length      = sizeof (*Duration);
   Status              = UsbIo->UsbControlTransfer (
                                  UsbIo,
                                  &Request,

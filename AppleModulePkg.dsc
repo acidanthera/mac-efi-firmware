@@ -94,6 +94,9 @@
   AppleModulePkg/Driver/EfiDevicePathPropertyDatabase/EfiDevicePathPropertyDatabase.inf
   AppleModulePkg/Driver/UsbKb/UsbKb.inf
 
+[Components.AARCH64, Components.ARM]
+  AppleModulePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
+
 [BuildOptions]
 
 # General build options
