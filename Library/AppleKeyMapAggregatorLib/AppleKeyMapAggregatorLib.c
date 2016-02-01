@@ -21,7 +21,8 @@
 #include <Library/AppleKeyMapAggregatorLib.h>
 
 // mAppleKeyMapAggregator
-GLOBAL_REMOVE_IF_UNREFERENCED APPLE_KEY_MAP_AGGREGATOR_PROTOCOL *mAppleKeyMapAggregator = NULL;
+GLOBAL_REMOVE_IF_UNREFERENCED
+APPLE_KEY_MAP_AGGREGATOR_PROTOCOL *mAppleKeyMapAggregator = NULL;
 
 // GetAppleKeyStrokes
 EFI_STATUS
@@ -46,7 +47,12 @@ GetAppleKeyStrokes (
     if ((Modifiers != NULL) && (NoKeys != NULL) && (Keys != NULL)) {
       *NoKeys = 0;
       *Keys   = NULL;
-      Status  = mAppleKeyMapAggregator->GetKeyStrokes (mAppleKeyMapAggregator, Modifiers, NoKeys, NULL);
+      Status  = mAppleKeyMapAggregator->GetKeyStrokes (
+                                          mAppleKeyMapAggregator,
+                                          Modifiers,
+                                          NoKeys,
+                                          NULL
+                                          );
 
       ASSERT (Status == EFI_BUFFER_TOO_SMALL);
 
@@ -60,7 +66,12 @@ GetAppleKeyStrokes (
             *NoKeys = 0;
             Status  = EFI_OUT_OF_RESOURCES;
           } else {
-            Status = mAppleKeyMapAggregator->GetKeyStrokes (mAppleKeyMapAggregator, Modifiers, NoKeys, *Keys);
+            Status = mAppleKeyMapAggregator->GetKeyStrokes (
+                                               mAppleKeyMapAggregator,
+                                               Modifiers,
+                                               NoKeys,
+                                               *Keys
+                                               );
 
             if (EFI_ERROR (Status)) {
               gBS->FreePool ((VOID *)*Keys);

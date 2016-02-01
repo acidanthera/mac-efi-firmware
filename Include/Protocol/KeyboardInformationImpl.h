@@ -16,15 +16,6 @@
 
 #include APPLE_PROTOCOL_PRODUCER (KeyboardInfo)
 
-// KbInfoGetInfo
-EFI_STATUS
-EFIAPI
-KbInfoGetInfo (
-  OUT UINT16  *IdVendor,
-  OUT UINT16  *IdProduct,
-  OUT UINT8   *CountryCode
-  );
-
 // gKeyboardInfoIdVendor
 extern UINT16 gKeyboardInfoIdVendor;
 
@@ -33,6 +24,15 @@ extern UINT8 gKeyboardInfoCountryCode;
 
 // gKeyboardInfoIdProduct
 extern UINT16 gKeyboardInfoIdProduct;
+
+// KbInfoGetInfo
+EFI_STATUS
+EFIAPI
+KbInfoGetInfo (
+  OUT UINT16  *IdVendor,
+  OUT UINT16  *IdProduct,
+  OUT UINT8   *CountryCode
+  );
 
 #endif // KEYBOARD_INFORMATION_IMPL_H_
 

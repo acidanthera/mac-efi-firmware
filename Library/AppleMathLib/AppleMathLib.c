@@ -18,8 +18,8 @@
     generates a 64-bit unsigned result.
 
   This function multiplies the 64-bit unsigned value Multiplicand by the 64-bit
-  unsigned value Multiplier and generates a 64-bit unsigned result. This 64-
-  bit unsigned result is returned.
+  unsigned value Multiplier and generates a 64-bit unsigned result. This 64-bit
+  unsigned result is returned.
 
   @param  Multiplicand  A 64-bit unsigned value.
   @param  Multiplier    A 64-bit unsigned value.
@@ -37,8 +37,8 @@ MultU64x64 (
 }
 
 // MultS64x64
-/** Multiplies a 64-bit signed integer by a 64-bit signed integer and generates a
-    64-bit signed result.
+/** Multiplies a 64-bit signed integer by a 64-bit signed integer and generates
+    a 64-bit signed result.
 
   This function multiplies the 64-bit signed value Multiplicand by the 64-bit
   signed value Multiplier and generates a 64-bit signed result. This 64-bit
@@ -61,15 +61,16 @@ MultS64x64 (
 
 // MathLibDivU64x32
 /** Divides a 64-bit unsigned integer by a 32-bit unsigned integer and
-    generates a 64-bit unsigned result and an optional 32-bit unsigned remainder.
+    generates a 64-bit unsigned result and an optional 32-bit unsigned
+    remainder.
 
   This function divides the 64-bit unsigned value Dividend by the 32-bit
   unsigned value Divisor and generates a 64-bit unsigned quotient.
   This function returns the 64-bit unsigned quotient.
 
-  It is the caller's responsibility to not call this function with a Divisor of 0.
-  If Divisor is 0, then the quotient should be assumed to be the largest negative
-  integer.
+  It is the caller's responsibility to not call this function with a Divisor of
+  0.  If Divisor is 0, then the quotient should be assumed to be the largest
+  negative integer.
 
   If Divisor is 0, then ASSERT().
 
@@ -92,15 +93,16 @@ MathLibDivU64x32 (
 
 // MathLibDivU64x64
 /** Divides a 64-bit unsigned integer by a 64-bit unsigned integer and
-    generates a 64-bit unsigned result and an optional 64-bit unsigned remainder.
+    generates a 64-bit unsigned result and an optional 64-bit unsigned
+    remainder.
 
   This function divides the 64-bit unsigned value Dividend by the 64-bit
   unsigned value Divisor and generates a 64-bit unsigned quotient.
   This function returns the 64-bit unsigned quotient.
 
-  It is the caller's responsibility to not call this function with a Divisor of 0.
-  If Divisor is 0, then the quotient should be assumed to be the largest negative
-  integer.
+  It is the caller's responsibility to not call this function with a Divisor of
+  0.  If Divisor is 0, then the quotient should be assumed to be the largest
+  negative integer.
 
   If Divisor is 0, then ASSERT().
 
@@ -129,9 +131,9 @@ MathLibDivU64x64 (
   value Divisor and generates a 64-bit signed quotient. This function
   returns the 64-bit signed quotient.
 
-  It is the caller's responsibility to not call this function with a Divisor of 0.
-  If Divisor is 0, then the quotient should be assumed to be the largest negative
-  integer.
+  It is the caller's responsibility to not call this function with a Divisor of
+  0.  If Divisor is 0, then the quotient should be assumed to be the largest
+  negative integer.
 
   If Divisor is 0, then ASSERT().
 

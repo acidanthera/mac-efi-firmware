@@ -1,5 +1,6 @@
 /** @file
   Common Dxe Libarary for USB
+  HID class request
 
   Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
 
@@ -593,7 +594,8 @@ UsbClearEndpointHalt (
                            &EndpointDescriptor
                            );
 
-      if (!EFI_ERROR (EfiStatus) && (EndpointDescriptor.EndpointAddress == EndpointNo)) {
+      if (!EFI_ERROR (EfiStatus)
+       && (EndpointDescriptor.EndpointAddress == EndpointNo)) {
         break;
       }
     }
@@ -619,7 +621,8 @@ UsbClearEndpointHalt (
 
   @param[in]  UsbIo          EFI_USB_IO_PROTOCOL
   @param[in]  InterfaceNum   Hid interface number
-  @param[out] HidDescriptor  Caller allocated Buffer to store Usb hid descriptor
+  @param[out] HidDescriptor  Caller allocated Buffer to store Usb hid
+                             descriptor
                              if successfully returned.
 
   @retval EFI_SUCCESS       Success
@@ -665,8 +668,8 @@ UsbGetHidDescriptor (
   @param[in]  UsbIo             EFI_USB_IO_PROTOCOL.
   @param[in]  InterfaceNum      Report interface number.
   @param[in]  DescriptorSize    Length of DescriptorBuffer.
-  @param[out] DescriptorBuffer  Caller allocated Buffer to store Usb report descriptor
-                                if successfully returned.
+  @param[out] DescriptorBuffer  Caller allocated Buffer to store Usb report
+                                descriptor if successfully returned.
 
   @retval EFI_SUCCESS       Success
   @retval EFI_DEVICE_ERROR  Hardware error

@@ -18,7 +18,8 @@
 /** Implements EFI_SIMPLE_TEXT_IN_PROTOCOL.Reset () function.
 
   @param[in] This                  The EFI_SIMPLE_TEXT_IN_PROTOCOL instance.
-  @param[in] ExtendedVerification  Indicates that the driver may perform a more exhaustive verification operation of
+  @param[in] ExtendedVerification  Indicates that the driver may perform a more
+                                   exhaustive verification operation of
 
   @retval EFI_SUCCESS       Success
   @retval EFI_DEVICE_ERROR  Hardware Error

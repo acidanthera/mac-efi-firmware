@@ -29,7 +29,6 @@
   @return  The value read.
 **/
 UINT8
-EFIAPI
 MmioRead8 (
   IN UINTN  Address
   )
@@ -58,7 +57,6 @@ MmioRead8 (
   @return  Value.
 **/
 UINT8
-EFIAPI
 MmioWrite8 (
   IN UINTN  Address,
   IN UINT8  Value
@@ -74,8 +72,8 @@ MmioWrite8 (
 // MmioRead16
 /** Reads a 16-bit MMIO register.
 
-  Reads the 16-bit MMIO register specified by Address.  The 16-bit read value is
-  returned.  This function must guarantee that all MMIO read and write
+  Reads the 16-bit MMIO register specified by Address.  The 16-bit read value
+  is returned.  This function must guarantee that all MMIO read and write
   operations are serialized.
 
   If 16-bit MMIO register operations are not supported, then ASSERT().
@@ -86,14 +84,13 @@ MmioWrite8 (
   @return  The value read.
 **/
 UINT16
-EFIAPI
 MmioRead16 (
   IN UINTN Address
   )
 {
   UINT16 Value;
 
-  ASSERT ((Address & 1) == 0);
+  ASSERT ((Address & (sizeof (UINT16) - 1)) == 0);
 
   MemoryFence ();
   Value = *(VOLATILE UINT16 *)Address;
@@ -118,13 +115,12 @@ MmioRead16 (
   @return  Value.
 **/
 UINT16
-EFIAPI
 MmioWrite16 (
   IN UINTN   Address,
   IN UINT16  Value
   )
 {
-  ASSERT ((Address & 1) == 0);
+  ASSERT ((Address & (sizeof (UINT16) - 1)) == 0);
 
   MemoryFence ();
   *(VOLATILE UINT16 *)Address = Value;
@@ -136,8 +132,8 @@ MmioWrite16 (
 // MmioRead32
 /** Reads a 32-bit MMIO register.
 
-  Reads the 32-bit MMIO register specified by Address.  The 32-bit read value is
-  returned.  This function must guarantee that all MMIO read and write
+  Reads the 32-bit MMIO register specified by Address.  The 32-bit read value
+  is returned.  This function must guarantee that all MMIO read and write
   operations are serialized.
 
   If 32-bit MMIO register operations are not supported, then ASSERT().
@@ -148,14 +144,13 @@ MmioWrite16 (
   @return  The value read.
 **/
 UINT32
-EFIAPI
 MmioRead32 (
   IN UINTN  Address
   )
 {
   UINT32 Value;
 
-  ASSERT ((Address & 3) == 0);
+  ASSERT ((Address & (sizeof (UINT32) - 1)) == 0);
   
   MemoryFence ();
   Value = *(VOLATILE UINT32 *)Address;
@@ -180,13 +175,12 @@ MmioRead32 (
   @return  Value.
 **/
 UINT32
-EFIAPI
 MmioWrite32 (
   IN UINTN   Address,
   IN UINT32  Value
   )
 {
-  ASSERT ((Address & 3) == 0);
+  ASSERT ((Address & (sizeof (UINT32) - 1)) == 0);
   
   MemoryFence ();
   *(VOLATILE UINT32 *)Address = Value;
@@ -198,8 +192,8 @@ MmioWrite32 (
 // MmioRead64
 /** Reads a 64-bit MMIO register.
 
-  Reads the 64-bit MMIO register specified by Address.  The 64-bit read value is
-  returned.  This function must guarantee that all MMIO read and write
+  Reads the 64-bit MMIO register specified by Address.  The 64-bit read value
+  is returned.  This function must guarantee that all MMIO read and write
   operations are serialized.
 
   If 64-bit MMIO register operations are not supported, then ASSERT().
@@ -210,14 +204,13 @@ MmioWrite32 (
   @return  The value read.
 **/
 UINT64
-EFIAPI
 MmioRead64 (
   IN UINTN  Address
   )
 {
   UINT64 Value;
 
-  ASSERT ((Address & 7) == 0);
+  ASSERT ((Address & (sizeof (UINT64) - 1)) == 0);
   
   MemoryFence ();
   Value = *(VOLATILE UINT64 *)Address;
@@ -240,13 +233,12 @@ MmioRead64 (
   @param[in] Value    The value to write to the MMIO register.
 **/
 UINT64
-EFIAPI
 MmioWrite64 (
   IN UINTN   Address,
   IN UINT64  Value
   )
 {
-  ASSERT ((Address & 7) == 0);
+  ASSERT ((Address & (sizeof (UINT64) - 1)) == 0);
   
   MemoryFence ();
   *(VOLATILE UINT64 *)Address = Value;

@@ -22,6 +22,7 @@
 #include <Library/AppleMathLib.h>
 #endif
 
+// Delete once implemented!
 #define SwapBytes32(...) 0
 #define IoRead32(...) 0
 
@@ -60,7 +61,10 @@ SmcWriteAttributesMmio (
   IN UINT32  Attributes
   )
 {
-  return MmioWrite8 ((BaseAddress + SMC_MMIO_WRITE_KEY_ATTRIBUTES), (UINT8)Attributes);
+  return MmioWrite8 (
+           (BaseAddress + SMC_MMIO_WRITE_KEY_ATTRIBUTES),
+           (UINT8)Attributes
+           );
 }
 
 // SmcReadDataSizeMmio
@@ -69,7 +73,9 @@ SmcReadDataSizeMmio (
   IN SMC_ADDRESS  BaseAddress
   )
 {
-  return (SMC_DATA_SIZE)MmioRead8 ((UINTN)(BaseAddress + SMC_MMIO_READ_DATA_SIZE));
+  return (SMC_DATA_SIZE)MmioRead8 (
+                          (UINTN)(BaseAddress + SMC_MMIO_READ_DATA_SIZE)
+                          );
 }
 
 // SmcWriteDataSizeMmio
@@ -112,10 +118,25 @@ SmcWriteData32Mmio (
   IN UINT32       Data
   )
 {
-  SmcWriteData8Mmio ((UINTN)(Address + SMC_MMIO_DATA_FIXED), (SMC_DATA)(Data >> 24));
-  SmcWriteData8Mmio ((UINTN)(Address + SMC_MMIO_DATA_FIXED + (1 * sizeof (SMC_DATA))), (SMC_DATA)(Data >> 16));
-  SmcWriteData8Mmio ((UINTN)(Address + SMC_MMIO_DATA_FIXED + (2 * sizeof (SMC_DATA))), (SMC_DATA)(Data >> 8));
-  SmcWriteData8Mmio ((UINTN)(Address + SMC_MMIO_DATA_FIXED + (3 * sizeof (SMC_DATA))), (SMC_DATA)Data);
+  SmcWriteData8Mmio (
+    (UINTN)(Address + SMC_MMIO_DATA_FIXED),
+    (SMC_DATA)(Data >> 24)
+    );
+
+  SmcWriteData8Mmio (
+    (UINTN)(Address + SMC_MMIO_DATA_FIXED + (1 * sizeof (SMC_DATA))),
+    (SMC_DATA)(Data >> 16)
+    );
+
+  SmcWriteData8Mmio (
+    (UINTN)(Address + SMC_MMIO_DATA_FIXED + (2 * sizeof (SMC_DATA))),
+    (SMC_DATA)(Data >> 8)
+    );
+
+  SmcWriteData8Mmio (
+    (UINTN)(Address + SMC_MMIO_DATA_FIXED + (3 * sizeof (SMC_DATA))),
+    (SMC_DATA)Data
+    );
 
   return EFI_SUCCESS;
 }
@@ -129,9 +150,18 @@ SmcReadData32Mmio (
   UINT32 Data;
 
   Data  = (MmioRead8 (Address + SMC_MMIO_DATA_VARIABLE) << 24);
-  Data |= (MmioRead8 (Address + SMC_MMIO_DATA_VARIABLE + 1 * sizeof (UINT8)) << 16);
-  Data |= (MmioRead8 (Address + SMC_MMIO_DATA_VARIABLE + 2 * sizeof (UINT8)) << 8);
-  Data |= (MmioRead8 (Address + SMC_MMIO_DATA_VARIABLE + 3 * sizeof (UINT8)));
+
+  Data |= (MmioRead8 (
+             Address + SMC_MMIO_DATA_VARIABLE + sizeof (UINT8)
+             ) << 16);
+
+  Data |= (MmioRead8 (
+             Address + SMC_MMIO_DATA_VARIABLE + (2 * sizeof (UINT8))
+             ) << 8);
+
+  Data |= (MmioRead8 (
+             Address + SMC_MMIO_DATA_VARIABLE + (3 * sizeof (UINT8))
+             ));
 
   return Data;
 }
@@ -230,7 +260,8 @@ sub_5FB (
     SmcWriteCommandMmio ((UINTN)BaseAddress, SmcCmdUnknown1);
 
     while ((SmcStatus & SMC_STATUS_KEY_DONE) == 0) {
-      StatusMask = ((UINT32)SmcStatus & (SMC_STATUS_UKN_0x40 | SMC_STATUS_UKN_0x80));
+      StatusMask = ((UINT32)SmcStatus
+                     & (SMC_STATUS_UKN_0x40 | SMC_STATUS_UKN_0x80));
 
       while (Ukn == 0) {
         Status = EFI_TIMEOUT;
@@ -268,7 +299,10 @@ ClearArbitration (
 
   Status = TimeoutWaitingForStatusFlagClearMmio (
              BaseAddress,
-             (SMC_STATUS_UKN_0x16 | SMC_STATUS_KEY_DONE | SMC_STATUS_UKN_0x40 | SMC_STATUS_UKN_0x80),
+             (SMC_STATUS_UKN_0x16
+               | SMC_STATUS_KEY_DONE
+               | SMC_STATUS_UKN_0x40
+               | SMC_STATUS_UKN_0x80),
              1000
              );
 
@@ -278,7 +312,10 @@ ClearArbitration (
     if (!EFI_ERROR (Status)) {
       Status = TimeoutWaitingForStatusFlagClearMmio (
                  BaseAddress,
-                 (SMC_STATUS_UKN_0x16 | SMC_STATUS_KEY_DONE | SMC_STATUS_UKN_0x40 | SMC_STATUS_UKN_0x80),
+                 (SMC_STATUS_UKN_0x16
+                   | SMC_STATUS_KEY_DONE
+                   | SMC_STATUS_UKN_0x40
+                   | SMC_STATUS_UKN_0x80),
                  1000
                  );
     }
@@ -293,7 +330,11 @@ WaitForKeyDone (
   IN SMC_ADDRESS  BaseAddress
   )
 {
-  return TimeoutWaitingForStatusFlagSetMmio (BaseAddress, SMC_STATUS_KEY_DONE, 1000);
+  return TimeoutWaitingForStatusFlagSetMmio (
+           BaseAddress,
+           SMC_STATUS_KEY_DONE,
+           1000
+           );
 }
 
 // WaitLongForKeyDone
@@ -302,7 +343,11 @@ WaitLongForKeyDone (
   IN SMC_ADDRESS  BaseAddress
   )
 {
-  return TimeoutWaitingForStatusFlagSetMmio (BaseAddress, SMC_STATUS_KEY_DONE, 100000);
+  return TimeoutWaitingForStatusFlagSetMmio (
+           BaseAddress,
+           SMC_STATUS_KEY_DONE,
+           100000
+           );
 }
 
 // SmcReadValueMmio
@@ -346,7 +391,10 @@ SmcReadValueMmio (
         Index = 0;
 
         do {
-          Value[Index] = SmcReadData8Mmio (BaseAddress + SMC_MMIO_DATA_VARIABLE + Index);
+          Value[Index] = SmcReadData8Mmio (
+                           BaseAddress + SMC_MMIO_DATA_VARIABLE + Index
+                           );
+
           ++Index;
         } while ((UINT32)Index < (UINT32)*Size);
       }
@@ -385,7 +433,9 @@ SmcWriteValueMmio (
 
   Status = EFI_INVALID_PARAMETER;
 
-  if (((SMC_DATA_SIZE)Size > 0) && ((SMC_DATA_SIZE)Size <= SMC_MAX_DATA_SIZE) && (Value != NULL)) {
+  if (((SMC_DATA_SIZE)Size > 0)
+   && ((SMC_DATA_SIZE)Size <= SMC_MAX_DATA_SIZE)
+   && (Value != NULL)) {
     ClearArbitration (BaseAddress);
 
     Index  = 0;
@@ -403,7 +453,9 @@ SmcWriteValueMmio (
 
     Status = WaitForKeyDone (BaseAddress);
     Result = (SMC_RESULT)SmcReadResultMmio ((UINTN)BaseAddress);
-    Status = ((Status == EFI_TIMEOUT) ? EFI_SMC_TIMEOUT_ERROR : EFI_STATUS_FROM_SMC_RESULT (Result));
+    Status = ((Status == EFI_TIMEOUT)
+               ? EFI_SMC_TIMEOUT_ERROR
+               : EFI_STATUS_FROM_SMC_RESULT (Result));
   }
 
   return Status;
@@ -438,7 +490,9 @@ SmcGetKeyFromIndexMmio (
         Result = (SMC_RESULT)SmcReadResultMmio ((UINTN)BaseAddress);
 
         if (!SMCERR (Result)) {
-          *Key = (SMC_KEY)SmcReadData32Mmio ((UINTN)BaseAddress + SMC_MMIO_READ_KEY);
+          *Key = (SMC_KEY)SmcReadData32Mmio (
+                            (UINTN)BaseAddress + SMC_MMIO_READ_KEY
+                            );
         }
 
         goto ReturnResult;
@@ -491,9 +545,17 @@ SmcGetKeyInfoMmio (
         Result = (SMC_RESULT)SmcReadResultMmio (BaseAddress);
 
         if (!SMCERR (Result)) {
-          *Type       = (SMC_KEY_TYPE)SmcReadData32Mmio ((UINTN)(BaseAddress + SMC_MMIO_READ_KEY_TYPE));
-          *Size       = (SMC_DATA_SIZE)SmcReadData8Mmio ((UINTN)(BaseAddress + SMC_MMIO_READ_DATA_SIZE));
-          *Attributes = (SMC_KEY_ATTRIBUTES)SmcReadData8Mmio ((UINTN)(BaseAddress + SMC_MMIO_READ_KEY_ATTRIBUTES));
+          *Type = (SMC_KEY_TYPE)SmcReadData32Mmio (
+                                  (UINTN)(BaseAddress + SMC_MMIO_READ_KEY_TYPE)
+                                  );
+
+          *Size = (SMC_DATA_SIZE)SmcReadData8Mmio (
+                                   (UINTN)(BaseAddress + SMC_MMIO_READ_DATA_SIZE)
+                                   );
+
+          *Attributes = (SMC_KEY_ATTRIBUTES)SmcReadData8Mmio (
+                                              (UINTN)(BaseAddress + SMC_MMIO_READ_KEY_ATTRIBUTES)
+                                              );
         }
 
         goto ReturnResult;
@@ -527,7 +589,11 @@ SmcFlashTypeMmio (
   Status = ClearArbitration (BaseAddress);
 
   if (!EFI_ERROR (Status)) {
-    SmcWriteData8Mmio ((UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE), (SMC_DATA)Type);
+    SmcWriteData8Mmio (
+      (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE),
+      (SMC_DATA)Type
+      );
+
     SmcWriteCommandMmio (BaseAddress, SmcCmdFlashType);
   }
 
@@ -535,7 +601,9 @@ SmcFlashTypeMmio (
 
   Result = (SMC_RESULT)SmcReadResultMmio ((UINTN)BaseAddress);
 
-  return ((Status == EFI_TIMEOUT) ? EFI_SMC_TIMEOUT_ERROR : EFI_STATUS_FROM_SMC_RESULT (Result));
+  return ((Status == EFI_TIMEOUT)
+           ? EFI_SMC_TIMEOUT_ERROR
+           : EFI_STATUS_FROM_SMC_RESULT (Result));
 }
 
 // MmioWriteSwapped32
@@ -573,13 +641,18 @@ SmcFlashWriteMmio (
 
   Status = EFI_INVALID_PARAMETER;
 
-  if (((SMC_FLASH_SIZE)Size > 0) && ((SMC_FLASH_SIZE)Size <= SMC_FLASH_SIZE_MAX) && (Data != NULL)) {
+  if (((SMC_FLASH_SIZE)Size > 0)
+   && ((SMC_FLASH_SIZE)Size <= SMC_FLASH_SIZE_MAX)
+   && (Data != NULL)) {
     Status = ClearArbitration (BaseAddress);
 
     if (!EFI_ERROR (Status)) {
       MmioWriteSwapped32 ((UINTN)BaseAddress, Unknown);
       MmioWrite8 (((UINTN)BaseAddress + sizeof (Unknown)), BYTE (Size, 1));
-      MmioWrite8 (((UINTN)BaseAddress + sizeof (Unknown) + sizeof (SMC_FLASH_SIZE)), BYTE (Size, 0));
+      MmioWrite8 (
+        ((UINTN)BaseAddress + sizeof (Unknown) + sizeof (SMC_FLASH_SIZE)),
+        BYTE (Size, 0)
+        );
 
       Offset       = (sizeof (Unknown) + sizeof (Size));
       TotalSize    = (UINT32)(UINT16)(Size + sizeof (Unknown) + sizeof (Size));
@@ -599,12 +672,18 @@ SmcFlashWriteMmio (
           while (Offset < IterartionDataSize) {
             if (((Offset + sizeof (UINT32)) <= IterartionDataSize)
              && ((UINT32)((UINT16)BytesWritten + sizeof (UINT32)) <= Size)) {
-              MmioWrite32 ((UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset), DWORD_PTR (Data, BytesWritten));
+              MmioWrite32 (
+                (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset),
+                DWORD_PTR (Data, BytesWritten)
+                );
 
               BytesWritten = (UINT32)((UINT16)BytesWritten + sizeof (UINT32));
               Offset      += sizeof (UINT32);
             } else {
-              MmioWrite8 ((UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset), BYTE_PTR (Data, BytesWritten));
+              MmioWrite8 (
+                (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset),
+                BYTE_PTR (Data, BytesWritten)
+                );
 
               BytesWritten += sizeof (UINT8);
               Offset       += sizeof (UINT8);
@@ -616,7 +695,9 @@ SmcFlashWriteMmio (
           SmcWriteDataSizeMmio (BaseAddress, IterartionDataSize);
           SmcWriteCommandMmio (
             (UINTN)BaseAddress,
-            ((BytesWritten <= SMC_MAX_DATA_SIZE) ? SmcCmdFlashWrite : SmcCmdFlashWriteMoreData)
+            ((BytesWritten <= SMC_MAX_DATA_SIZE)
+              ? SmcCmdFlashWrite
+              : SmcCmdFlashWriteMoreData)
             );
 
           Status = WaitLongForKeyDone (BaseAddress);
@@ -673,12 +754,17 @@ SmcFlashAuthMmio (
 
   Status = EFI_INVALID_PARAMETER;
 
-  if (((SMC_FLASH_SIZE)Size > 0) && ((SMC_FLASH_SIZE)Size <= SMC_FLASH_SIZE_MAX) && (Data != NULL)) {
+  if (((SMC_FLASH_SIZE)Size > 0)
+   && ((SMC_FLASH_SIZE)Size <= SMC_FLASH_SIZE_MAX)
+   && (Data != NULL)) {
     Status = ClearArbitration (BaseAddress);
 
     if (!EFI_ERROR (Status)) {
       MmioWrite8 ((UINTN)BaseAddress, BYTE (Size, 1));
-      MmioWrite8 (((UINTN)BaseAddress + sizeof (SMC_FLASH_SIZE)), BYTE (Size, 0));
+      MmioWrite8 (
+        ((UINTN)BaseAddress + sizeof (SMC_FLASH_SIZE)),
+        BYTE (Size, 0)
+        );
 
       Offset           = sizeof (Size);
       TotalSize        = (UINT32)(UINT16)(Size + sizeof (Size));
@@ -698,12 +784,18 @@ SmcFlashAuthMmio (
           while (Offset < IterartionDataSize) {
             if (((Offset + sizeof (UINT32)) <= IterartionDataSize)
              && ((UINT32)((UINT16)BytesWritten + sizeof (UINT32)) <= Size)) {
-              MmioWrite32 ((UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset), DWORD_PTR (Data, BytesWritten));
+              MmioWrite32 (
+                (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset),
+                DWORD_PTR (Data, BytesWritten)
+                );
 
               BytesWritten = (UINT32)((UINT16)BytesWritten + sizeof (UINT32));
               Offset      += sizeof (UINT32);
             } else {
-              MmioWrite8 ((UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset), BYTE_PTR (Data, BytesWritten));
+              MmioWrite8 (
+                (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset),
+                BYTE_PTR (Data, BytesWritten)
+                );
 
               BytesWritten += sizeof (UINT8);
               Offset       += sizeof (UINT8);
@@ -715,7 +807,9 @@ SmcFlashAuthMmio (
           SmcWriteDataSizeMmio (BaseAddress, IterartionDataSize);
           SmcWriteCommandMmio (
             (UINTN)BaseAddress,
-            ((BytesWritten <= SMC_MAX_DATA_SIZE) ? SmcCmdFlashAuth : SmcCmdFlashAuthMoreData)
+            ((BytesWritten <= SMC_MAX_DATA_SIZE)
+              ? SmcCmdFlashAuth
+              : SmcCmdFlashAuthMoreData)
             );
 
           Status = WaitLongForKeyDone (BaseAddress);
@@ -790,7 +884,11 @@ SmcResetMmio (
   Status = ClearArbitration (BaseAddress);
 
   if (!EFI_ERROR (Status)) {
-    SmcWriteData8Mmio ((UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE), (SMC_DATA)Mode);
+    SmcWriteData8Mmio (
+      (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE),
+      (SMC_DATA)Mode
+      );
+
     SmcWriteCommandMmio ((UINTN)BaseAddress, SmcCmdReset);
     WaitForKeyDone (BaseAddress);
   }

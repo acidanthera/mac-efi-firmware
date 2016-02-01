@@ -23,7 +23,7 @@
 #include "UsbKbLib.h"
 
 // APPLE_PLATFORM_INFO_KEYBOARD_GUID
-#define APPLE_PLATFORM_INFO_KEYBOARD_GUID \
+#define APPLE_PLATFORM_INFO_KEYBOARD_GUID  \
   { 0x51871CB9, 0xE25D, 0x44B4, { 0x96, 0x99, 0x0E, 0xE8, 0x64, 0x4C, 0xED, 0x69 } }
 
 // gApplePlatformInfoKeyboardGuid
@@ -121,7 +121,7 @@ UsbKbBindingStart (
   UINT8                           EndpointNumber;
   EFI_USB_ENDPOINT_DESCRIPTOR     EndpointDescriptor;
   UINT8                           Index;
-  UINT8                           EndpointAddr;
+  UINT8                           EndpointAddress;
   UINT8                           PollingInterval;
   UINT8                           PacketSize;
   BOOLEAN                         Found;
@@ -140,9 +140,8 @@ UsbKbBindingStart (
   ASSERT (RemainingDevicePath != NULL);
 
   UsbKbDev = NULL;
-  Found             = FALSE;
+  Found    = FALSE;
 
-  // Open USB_IO Protocol
   Status = gBS->OpenProtocol (
                   Controller,
                   &gEfiUsbIoProtocolGuid,
@@ -153,15 +152,29 @@ UsbKbBindingStart (
                   );
 
   if (!EFI_ERROR (Status)) {
-    Status = gBS->LocateProtocol (&gAppleKeyMapDatabaseProtocolGuid, NULL, (VOID **)&AppleKeyMapDb);
+    Status = gBS->LocateProtocol (
+      &gAppleKeyMapDatabaseProtocolGuid,
+      NULL,
+      (VOID **)&AppleKeyMapDb
+      );
 
     if (EFI_ERROR (Status)) {
-      gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
+      gBS->CloseProtocol (
+             Controller,
+             &gEfiUsbIoProtocolGuid,
+             This->DriverBindingHandle,
+             Controller
+             );
     } else {
       UsbKbDev = EfiLibAllocateZeroPool (sizeof (*UsbKbDev));
       
       if (UsbKbDev == NULL) {
-        gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
+        gBS->CloseProtocol (
+               Controller,
+               &gEfiUsbIoProtocolGuid,
+               This->DriverBindingHandle,
+               Controller
+               );
 
         Status = EFI_OUT_OF_RESOURCES;
       } else {
@@ -177,7 +190,12 @@ UsbKbBindingStart (
 
         if (EFI_ERROR (Status)) {
           gBS->FreePool ((VOID *)UsbKbDev);
-          gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
+          gBS->CloseProtocol (
+                 Controller,
+                 &gEfiUsbIoProtocolGuid,
+                 This->DriverBindingHandle,
+                 Controller
+                 );
         } else {
           // Report that the usb keyboard is being enabled
           KbdReportStatusCode (
@@ -198,23 +216,34 @@ UsbKbBindingStart (
 
           UsbKbDev->UsbIo    = UsbIo;
           UsbKbDev->KeyMapDb = AppleKeyMapDb;
-          Status                      = AppleKeyMapDb->CreateKeyStrokesBuffer (
-            AppleKeyMapDb,
-            6,
-            &UsbKbDev->KeyMapDbIndex
-            );
+          Status             = AppleKeyMapDb->CreateKeyStrokesBuffer (
+                                                AppleKeyMapDb,
+                                                6,
+                                                &UsbKbDev->KeyMapDbIndex
+                                                );
 
           if (EFI_ERROR (Status)) {
             gBS->FreePool ((VOID *)UsbKbDev);
-            gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
+            gBS->CloseProtocol (
+                   Controller,
+                   &gEfiUsbIoProtocolGuid,
+                   This->DriverBindingHandle,
+                   Controller
+                   );
           } else {
-            Status = UsbIo->UsbGetDeviceDescriptor (UsbIo, &UsbKbDev->DeviceDescriptor);
+            Status = UsbIo->UsbGetDeviceDescriptor (
+                              UsbIo,
+                              &UsbKbDev->DeviceDescriptor
+                              );
 
             if (EFI_ERROR (Status)) {
               Status = EFI_UNSUPPORTED;
             } else {
               // Get interface & endpoint descriptor
-              Status = UsbIo->UsbGetInterfaceDescriptor (UsbIo, &UsbKbDev->InterfaceDescriptor);
+              Status = UsbIo->UsbGetInterfaceDescriptor (
+                                UsbIo,
+                                &UsbKbDev->InterfaceDescriptor
+                                );
 
               if (EFI_ERROR (Status)) {
                 Status = EFI_UNSUPPORTED;
@@ -223,19 +252,28 @@ UsbKbBindingStart (
 
                 if (EndpointNumber == 0) {
                   gBS->FreePool ((VOID *)UsbKbDev);
-                  gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
+                  gBS->CloseProtocol (
+                         Controller,
+                         &gEfiUsbIoProtocolGuid,
+                         This->DriverBindingHandle,
+                         Controller
+                         );
 
                   Status = EFI_UNSUPPORTED;
                 } else {
                   InterfaceNum = UsbKbDev->InterfaceDescriptor.InterfaceNumber;
 
                   for (Index = 0; Index < EndpointNumber; ++Index) {
-                    UsbIo->UsbGetEndpointDescriptor (UsbIo, Index, &EndpointDescriptor);
+                    UsbIo->UsbGetEndpointDescriptor (
+                             UsbIo,
+                             Index,
+                             &EndpointDescriptor
+                             );
 
                     if ((EndpointDescriptor.Attributes & 0x03) == 0x03) {
                       // We only care interrupt endpoint here
-                      UsbKbDev->IntEndpointDescriptor = EndpointDescriptor;
-                      Found                                    = TRUE;
+                      UsbKbDev->EndpointDescriptor = EndpointDescriptor;
+                      Found                           = TRUE;
                     }
                   }
 
@@ -266,7 +304,12 @@ UsbKbBindingStart (
 
                     if (EFI_ERROR (Status)) {
                       gBS->FreePool ((VOID *)UsbKbDev);
-                      gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
+                      gBS->CloseProtocol (
+                             Controller,
+                             &gEfiUsbIoProtocolGuid,
+                             This->DriverBindingHandle,
+                             Controller
+                             );
                     } else {
                       DevicePath.DevPath = UsbKbDev->DevicePath;
                       NameGuid           = gApplePlatformInfoKeyboardGuid;
@@ -277,33 +320,58 @@ UsbKbBindingStart (
                       do {
                         if ((DevicePathType (DevicePath.DevPath) == HARDWARE_DEVICE_PATH)
                          && (DevicePathSubType (DevicePath.DevPath) == HW_PCI_DP)) {
-                          Value = (((UINT32)(DevicePath.Pci->Device & 0x1F) | (DevicePath.Pci->Function << 5)) << 24);
+                          Value = ((
+                                    (UINT32)(DevicePath.Pci->Device & 0x1F)
+                                      | (DevicePath.Pci->Function << 5)
+                                    ) << 24);
                         }
 
                         if ((DevicePathType (DevicePath.DevPath) == MESSAGING_DEVICE_PATH)
                          && (DevicePathSubType (DevicePath.DevPath) == MSG_USB_DP)) {
-                          Value |= (((UINT32)DevicePath.Usb->ParentPortNumber + 1) << Shift);
+                          Value |= ((
+                                     (UINT32)DevicePath.Usb->ParentPortNumber + 1
+                                     ) << Shift);
                           Shift -= 4;
                         }
-                      } while (!IsDevicePathEnd (DevicePath.DevPath) && ((Index++) < 20));
+                      } while (!IsDevicePathEnd (DevicePath.DevPath)
+                            && ((Index++) < 20));
 
                       Length = 4;
 
                       if (mPlatformInfo == NULL) {
-                        gBS->LocateProtocol (&gApplePlatformInfoDatabaseProtocolGuid, NULL, (VOID **)&mPlatformInfo);
+                        gBS->LocateProtocol (
+                               &gApplePlatformInfoDatabaseProtocolGuid,
+                               NULL,
+                               (VOID **)&mPlatformInfo
+                               );
 
                         if (mPlatformInfo == NULL) {
                           goto Skip;
                         }
                       }
 
-                      Status = mPlatformInfo->GetFirstDataSize (mPlatformInfo, &NameGuid, &Length);
+                      Status = mPlatformInfo->GetFirstDataSize (
+                                                mPlatformInfo,
+                                                &NameGuid,
+                                                &Length
+                                                );
 
                       if (!EFI_ERROR (Status) && (Length == sizeof (Data))) {
-                        Status = mPlatformInfo->GetFirstData (mPlatformInfo, &NameGuid, &Data, &Length);
+                        Status = mPlatformInfo->GetFirstData (
+                                                  mPlatformInfo,
+                                                  &NameGuid,
+                                                  &Data,
+                                                  &Length
+                                                  );
 
-                        if ((Status == EFI_SUCCESS) && (Value == Data) && !mIdsInitialized) {
-                          Status = UsbGetHidDescriptor (UsbIo, InterfaceNum, &HidDescriptor);
+                        if ((Status == EFI_SUCCESS)
+                         && (Value == Data)
+                         && !mIdsInitialized) {
+                          Status = UsbGetHidDescriptor (
+                                     UsbIo,
+                                     InterfaceNum,
+                                     &HidDescriptor
+                                     );
 
                           if (Status == EFI_SUCCESS) {
                             gKeyboardInfoCountryCode = HidDescriptor.CountryCode;
@@ -325,10 +393,11 @@ UsbKbBindingStart (
                     Skip:
                       // Install simple txt in protocol interface
                       // for the usb keyboard device.
-                      // Usb keyboard is a hot plug device, and expected to work immediately
-                      // when plugging into system, so a HotPlugDeviceGuid is installed onto
-                      // the usb keyboard device handle, to distinguish it from other conventional
-                      // console devices.
+                      // Usb keyboard is a hot plug device, and expected to
+                      // work immediately when plugging into system, so a
+                      // HotPlugDeviceGuid is installed onto the usb keyboard
+                      // device handle, to distinguish it from other
+                      // conventional console devices.
 
                       Status = gBS->InstallMultipleProtocolInterfaces (
                                       &Controller,
@@ -342,10 +411,17 @@ UsbKbBindingStart (
                       if (EFI_ERROR (Status)) {
                         gBS->CloseEvent (UsbKbDev->SimpleInput.WaitForKey);
                         gBS->FreePool ((VOID *)UsbKbDev);
-                        gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
+                        gBS->CloseProtocol (
+                               Controller,
+                               &gEfiUsbIoProtocolGuid,
+                               This->DriverBindingHandle,
+                               Controller
+                               );
                       } else {
-                        // Reset USB Keyboard Device
-                        Status = UsbKbDev->SimpleInput.Reset (&UsbKbDev->SimpleInput, TRUE);
+                        Status = UsbKbDev->SimpleInput.Reset (
+                                                         &UsbKbDev->SimpleInput,
+                                                         TRUE
+                                                         );
 
                         if (EFI_ERROR (Status)) {
                           gBS->UninstallMultipleProtocolInterfaces (
@@ -359,16 +435,21 @@ UsbKbBindingStart (
 
                           gBS->CloseEvent (UsbKbDev->SimpleInput.WaitForKey);
                           gBS->FreePool ((VOID *)UsbKbDev);
-                          gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
+                          gBS->CloseProtocol (
+                                 Controller,
+                                 &gEfiUsbIoProtocolGuid,
+                                 This->DriverBindingHandle,
+                                 Controller
+                                 );
                         } else {
                           // submit async interrupt transfer
 
-                          EndpointAddr    = UsbKbDev->IntEndpointDescriptor.EndpointAddress;
-                          PollingInterval = UsbKbDev->IntEndpointDescriptor.Interval;
-                          PacketSize      = (UINT8)(UsbKbDev->IntEndpointDescriptor.MaxPacketSize);
+                          EndpointAddress = UsbKbDev->EndpointDescriptor.EndpointAddress;
+                          PollingInterval = UsbKbDev->EndpointDescriptor.Interval;
+                          PacketSize      = (UINT8)UsbKbDev->EndpointDescriptor.MaxPacketSize;
                           Status          = UsbIo->UsbAsyncInterruptTransfer (
                                                      UsbIo,
-                                                     EndpointAddr,
+                                                     EndpointAddress,
                                                      TRUE,
                                                      PollingInterval,
                                                      PacketSize,
@@ -388,7 +469,12 @@ UsbKbBindingStart (
 
                             gBS->CloseEvent (UsbKbDev->SimpleInput.WaitForKey);
                             gBS->FreePool ((VOID *)UsbKbDev);
-                            gBS->CloseProtocol (Controller, &gEfiUsbIoProtocolGuid, This->DriverBindingHandle, Controller);
+                            gBS->CloseProtocol (
+                                   Controller,
+                                   &gEfiUsbIoProtocolGuid,
+                                   This->DriverBindingHandle,
+                                   Controller
+                                   );
                           } else {
                             UsbKbDev->ControllerNameTable = NULL;
 
@@ -481,9 +567,9 @@ UsbKbBindingStop (
     // Destroy asynchronous interrupt transfer
     UsbKbDev->UsbIo->UsbAsyncInterruptTransfer (
                                 UsbKbDev->UsbIo,
-                                UsbKbDev->IntEndpointDescriptor.EndpointAddress,
+                                UsbKbDev->EndpointDescriptor.EndpointAddress,
                                 FALSE,
-                                UsbKbDev->IntEndpointDescriptor.Interval,
+                                UsbKbDev->EndpointDescriptor.Interval,
                                 0,
                                 NULL,
                                 NULL
@@ -496,7 +582,10 @@ UsbKbBindingStop (
            Controller
            );
 
-    UsbKbDev->KeyMapDb->RemoveKeyStrokesBuffer (UsbKbDev->KeyMapDb, UsbKbDev->KeyMapDbIndex);
+    UsbKbDev->KeyMapDb->RemoveKeyStrokesBuffer (
+                          UsbKbDev->KeyMapDb,
+                          UsbKbDev->KeyMapDbIndex
+                          );
 
     Status = gBS->UninstallMultipleProtocolInterfaces (
                     Controller,

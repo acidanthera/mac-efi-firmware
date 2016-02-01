@@ -129,13 +129,20 @@ SmcIoSmcWriteValueImpl (
 
   Status = EFI_INVALID_PARAMETER;
 
-  if (((SMC_DATA_SIZE)Size > 0) && ((SMC_DATA_SIZE)Size <= SMC_MAX_DATA_SIZE) && (Value != NULL)) {
+  if (((SMC_DATA_SIZE)Size > 0)
+   && ((SMC_DATA_SIZE)Size <= SMC_MAX_DATA_SIZE)
+   && (Value != NULL)) {
     SmcDev = SMC_DEV_FROM_THIS (This);
     Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
     if (!EFI_ERROR (Status)) {
       if (This->Mmio) {
-        Status = SmcWriteValueMmio (SMC_MMIO_BASE_ADDRESS, Key, (UINT32)(SMC_DATA_SIZE)Size, Value);
+        Status = SmcWriteValueMmio (
+                   SMC_MMIO_BASE_ADDRESS,
+                   Key,
+                   (UINT32)(SMC_DATA_SIZE)Size,
+                   Value
+                   );
       } else {
         Status = SmcIoSmcSmcInABadState (SmcDev);
 
@@ -169,7 +176,9 @@ SmcIoSmcWriteValueImpl (
         }
 
         Result = SmcIoSmcReadResult (SmcDev);
-        Status = ((Status == EFI_TIMEOUT) ? EFI_SMC_TIMEOUT_ERROR : EFI_STATUS_FROM_SMC_RESULT (Result));
+        Status = ((Status == EFI_TIMEOUT)
+                   ? EFI_SMC_TIMEOUT_ERROR
+                   : EFI_STATUS_FROM_SMC_RESULT (Result));
 
         EfiReleaseLock (&SmcDev->Lock);
       }
@@ -293,7 +302,9 @@ SmcIoSmcGetKeyFromIndexImpl (
         }
 
         Result = SmcIoSmcReadResult (SmcDev);
-        Status = ((Status == EFI_TIMEOUT) ? EFI_SMC_TIMEOUT_ERROR : EFI_STATUS_FROM_SMC_RESULT (Result));
+        Status = ((Status == EFI_TIMEOUT)
+                   ? EFI_SMC_TIMEOUT_ERROR
+                   : EFI_STATUS_FROM_SMC_RESULT (Result));
       }
 
       EfiReleaseLock (&SmcDev->Lock);
@@ -334,7 +345,13 @@ SmcIoSmcGetKeyInfoImpl (
 
     if (!EFI_ERROR (Status)) {
       if (This->Mmio) {
-        Status = SmcGetKeyInfoMmio (SMC_MMIO_BASE_ADDRESS, Key, Size, Type, Attributes);
+        Status = SmcGetKeyInfoMmio (
+                   SMC_MMIO_BASE_ADDRESS,
+                   Key,
+                   Size,
+                   Type,
+                   Attributes
+                   );
       } else {
         Status = SmcIoSmcSmcInABadState (SmcDev);
 
@@ -363,7 +380,9 @@ SmcIoSmcGetKeyInfoImpl (
         }
 
         Result = SmcIoSmcReadResult (SmcDev);
-        Status = ((Status == EFI_TIMEOUT) ? EFI_SMC_TIMEOUT_ERROR : EFI_STATUS_FROM_SMC_RESULT (Result));
+        Status = ((Status == EFI_TIMEOUT)
+                   ? EFI_SMC_TIMEOUT_ERROR
+                   : EFI_STATUS_FROM_SMC_RESULT (Result));
       }
 
       EfiReleaseLock (&SmcDev->Lock);
@@ -412,7 +431,9 @@ SmcIoSmcResetImpl (
       }
 
       Result = SmcIoSmcReadResult (SmcDev);
-      Status = ((Status == EFI_TIMEOUT) ? EFI_SMC_TIMEOUT_ERROR : EFI_STATUS_FROM_SMC_RESULT (Result));
+      Status = ((Status == EFI_TIMEOUT)
+                 ? EFI_SMC_TIMEOUT_ERROR
+                 : EFI_STATUS_FROM_SMC_RESULT (Result));
     }
 
     EfiReleaseLock (&SmcDev->Lock);
@@ -460,7 +481,9 @@ SmcIoSmcFlashTypeImpl (
       }
 
       Result = SmcIoSmcReadResult (SmcDev);
-      Status = ((Status == EFI_TIMEOUT) ? EFI_SMC_TIMEOUT_ERROR : EFI_STATUS_FROM_SMC_RESULT (Result));
+      Status = ((Status == EFI_TIMEOUT)
+                 ? EFI_SMC_TIMEOUT_ERROR
+                 : EFI_STATUS_FROM_SMC_RESULT (Result));
     }
 
     EfiReleaseLock (&SmcDev->Lock);
@@ -493,13 +516,20 @@ SmcIoSmcFlashWriteImpl (
 
   Status = EFI_INVALID_PARAMETER;
 
-  if (((SMC_FLASH_SIZE)Size > 0) && ((SMC_FLASH_SIZE)Size <= SMC_FLASH_SIZE_MAX) && (Data != NULL)) {
+  if (((SMC_FLASH_SIZE)Size > 0)
+   && ((SMC_FLASH_SIZE)Size <= SMC_FLASH_SIZE_MAX)
+   && (Data != NULL)) {
     SmcDev = SMC_DEV_FROM_THIS (This);
     Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
     if (!EFI_ERROR (Status)) {
       if (This->Mmio) {
-        Status = SmcFlashWriteMmio (SMC_MMIO_BASE_ADDRESS, Unknown, Size, Data);
+        Status = SmcFlashWriteMmio (
+                   SMC_MMIO_BASE_ADDRESS,
+                   Unknown,
+                   Size,
+                   Data
+                   );
       } else {
         Status = SmcIoSmcSmcInABadState (SmcDev);
 
@@ -533,7 +563,9 @@ SmcIoSmcFlashWriteImpl (
         }
 
         Result = SmcIoSmcReadResult (SmcDev);
-        Status = ((Status == EFI_TIMEOUT) ? EFI_SMC_TIMEOUT_ERROR : EFI_STATUS_FROM_SMC_RESULT (Result));
+        Status = ((Status == EFI_TIMEOUT)
+                   ? EFI_SMC_TIMEOUT_ERROR
+                   : EFI_STATUS_FROM_SMC_RESULT (Result));
       }
 
       EfiReleaseLock (&SmcDev->Lock);
@@ -566,7 +598,9 @@ SmcIoSmcFlashAuthImpl (
 
   Status = EFI_INVALID_PARAMETER;
 
-  if (((SMC_FLASH_SIZE)Size > 0) && ((SMC_FLASH_SIZE)Size <= SMC_FLASH_SIZE_MAX) && (Data != NULL)) {
+  if (((SMC_FLASH_SIZE)Size > 0)
+   && ((SMC_FLASH_SIZE)Size <= SMC_FLASH_SIZE_MAX)
+   && (Data != NULL)) {
     SmcDev = SMC_DEV_FROM_THIS (This);
     Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
@@ -602,7 +636,9 @@ SmcIoSmcFlashAuthImpl (
         }
 
         Result = SmcIoSmcReadResult (SmcDev);
-        Status = ((Status == EFI_TIMEOUT) ? EFI_SMC_TIMEOUT_ERROR : EFI_STATUS_FROM_SMC_RESULT (Result));
+        Status = ((Status == EFI_TIMEOUT)
+                   ? EFI_SMC_TIMEOUT_ERROR
+                   : EFI_STATUS_FROM_SMC_RESULT (Result));
       }
 
       EfiReleaseLock (&SmcDev->Lock);

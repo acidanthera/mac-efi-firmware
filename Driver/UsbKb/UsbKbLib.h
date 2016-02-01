@@ -70,11 +70,13 @@ InitUsbKeyboard (
 // KeyboardHandler
 /** Handler function for USB Keyboard's asynchronous interrupt transfer.
 
-  @param[in] Data        A pointer to a Buffer that is filled with key data which is
-                         retrieved via asynchronous interrupt transfer.
+  @param[in] Data        A pointer to a Buffer that is filled with key data
+                         which is retrieved via asynchronous interrupt
+                         transfer.
   @param[in] DataLength  Indicates the size of the data Buffer.
   @param[in] Context     Pointing to USB_KB_DEV instance.
-  @param[in] Result      Indicates the result of the asynchronous interrupt transfer.
+  @param[in] Result      Indicates the result of the asynchronous interrupt
+                         transfer.
 
   @retval EFI_SUCCESS       Success
   @retval EFI_DEVICE_ERROR  Hardware Error
@@ -121,8 +123,8 @@ UsbParseKey (
 
   @param[in]  UsbKbDev  The USB_KB_DEV instance.
   @param[in]  KeyChar   Indicates the key code that will be interpreted.
-  @param[out] Key       A pointer to a Buffer that is filled in with the keystroke information for the key
-                        that was pressed.
+  @param[out] Key       A pointer to a Buffer that is filled in with the
+                        keystroke information for the key that was pressed.
 
   @retval EFI_NOT_READY  Device is not ready
   @retval EFI_SUCCESS    Success
@@ -190,7 +192,8 @@ InsertKeyCode (
 /** Pops a key code off from keyboard Buffer.
 
   @param[in, out] KeyboardBuffer  Points to the USB Keyboard Buffer.
-  @param[in]      UsbKey          Points to the Buffer that contains a usb key code.
+  @param[in]      UsbKey          Points to the Buffer that contains a usb key
+                                  code.
 
   @retval EFI_SUCCESS       Success
   @retval EFI_DEVICE_ERROR  Hardware Error

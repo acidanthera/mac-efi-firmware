@@ -25,19 +25,19 @@ KeyMapGetKeyStrokesByIndex (
 {
   APPLE_KEY_STROKES_INFO *KeyStrokesInfo;
 
-  BOOLEAN                Result;
+  KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (
+                     GetFirstNode (List)
+                     );
 
-  for (
-    KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (GetFirstNode (List));
-    KeyStrokesInfo->Hdr.Index != Index;
-    KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (GetNextNode (List, &KeyStrokesInfo->Hdr.This))
-    ) {
-    Result = IsNull (List, &KeyStrokesInfo->Hdr.This);
-
-    if (Result) {
+  while (KeyStrokesInfo->Hdr.Index != Index) {
+    if (IsNull (List, &KeyStrokesInfo->Hdr.This)) {
       KeyStrokesInfo = NULL;
       break;
     }
+
+    KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (
+                       GetNextNode (List, &KeyStrokesInfo->Hdr.This)
+                       );
   }
 
   return KeyStrokesInfo;

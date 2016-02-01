@@ -20,17 +20,20 @@
 #include "UsbKbDriverBindingImpl.h"
 
 // gEfiUsbKeyboardDriverGuid
-GLOBAL_REMOVE_IF_UNREFERENCED EFI_GUID gEfiUsbKeyboardDriverGuid = EFI_USB_KEYBOARD_DRIVER_GUID;
+GLOBAL_REMOVE_IF_UNREFERENCED
+EFI_GUID gEfiUsbKeyboardDriverGuid = EFI_USB_KEYBOARD_DRIVER_GUID;
 
 // gUsbKbComponentNameProtocol
-GLOBAL_REMOVE_IF_UNREFERENCED EFI_COMPONENT_NAME_PROTOCOL gUsbKbComponentNameProtocol = {
+GLOBAL_REMOVE_IF_UNREFERENCED
+EFI_COMPONENT_NAME_PROTOCOL gUsbKbComponentNameProtocol = {
   UsbKbComponentNameGetDriverName,
   UsbKbComponentNameGetControllerName,
   LANGUAGE_CODE_ENGLISH
 };
 
 // gUsbKbDriverBindingProtocol
-GLOBAL_REMOVE_IF_UNREFERENCED EFI_DRIVER_BINDING_PROTOCOL gUsbKbDriverBindingProtocol = {
+GLOBAL_REMOVE_IF_UNREFERENCED
+EFI_DRIVER_BINDING_PROTOCOL gUsbKbDriverBindingProtocol = {
   UsbKbBindingSupported,
   UsbKbBindingStart,
   UsbKbBindingStop,

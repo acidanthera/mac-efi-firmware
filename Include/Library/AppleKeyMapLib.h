@@ -21,7 +21,7 @@
 
 // APPLE_KEY_DESCRIPTOR
 typedef struct {
-  APPLE_KEY     AppleKey;         ///< The Apple key identifier identifying the key.
+  APPLE_KEY     AppleKey;         ///< The Apple key identifier for the key.
   EFI_INPUT_KEY InputKey;         ///< 
   EFI_INPUT_KEY ShiftedInputKey;  ///< 
 } APPLE_KEY_DESCRIPTOR;

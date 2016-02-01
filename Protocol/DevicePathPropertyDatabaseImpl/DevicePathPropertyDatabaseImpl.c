@@ -23,17 +23,23 @@
 /** Locates a device property in the database and returns its value into Value.
 
   @param[in]      This        A pointer to the protocol instance.
-  @param[in]      DevicePath  The device path of the device to get the property of.
+  @param[in]      DevicePath  The device path of the device to get the property
+                              of.
   @param[in]      Name        The Name of the requested property.
-  @param[out]     Value       The Buffer allocated by the caller to return the value of the property into.
+  @param[out]     Value       The Buffer allocated by the caller to return the
+                              value of the property into.
   @param[in, out] Size        On input the size of the allocated Value Buffer.
                               On output the size required to fill the Buffer.
 
   @return                       The status of the operation is returned.
-  @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds the size of the allocated Buffer.
-                                The required size to complete the operation has been returned into Size.
-  @retval EFI_NOT_FOUND         The given device path does not have a property with the specified Name.
-  @retval EFI_SUCCESS           The operation completed successfully and the Value Buffer has been filled.
+  @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds
+                                the size of the allocated Buffer.
+                                The required size to complete the operation has
+                                been returned into Size.
+  @retval EFI_NOT_FOUND         The given device path does not have a property
+                                with the specified Name.
+  @retval EFI_SUCCESS           The operation completed successfully and the
+                                Value Buffer has been filled.
 **/
 EFI_STATUS
 EFIAPI
@@ -96,8 +102,10 @@ DevicePathPropertyDbGetPropertyValueImpl (
   @param[in] Size        The size of the Value Buffer.
 
   @return                       The status of the operation is returned.
-  @retval EFI_OUT_OF_RESOURCES  The memory necessary to complete the operation could not be allocated.
-  @retval EFI_SUCCESS           The operation completed successfully and the Value Buffer has been filled.
+  @retval EFI_OUT_OF_RESOURCES  The memory necessary to complete the operation
+                                could not be allocated.
+  @retval EFI_SUCCESS           The operation completed successfully and the
+                                Value Buffer has been filled.
 **/
 EFI_STATUS
 EFIAPI
@@ -140,7 +148,12 @@ DevicePathPropertyDbSetPropertyImpl (
       Node->Hdr.Signature = EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE;
 
       InitializeListHead (&Node->Hdr.Properties);
-      gBS->CopyMem ((VOID *)&Node->DevicePath, (VOID *)DevicePath, DevicePathSize);
+      gBS->CopyMem (
+             (VOID *)&Node->DevicePath,
+             (VOID *)DevicePath,
+             DevicePathSize
+             );
+
       InsertTailList (&Database->Nodes, &Node->Hdr.This);
 
       Database->Modified = TRUE;
@@ -215,7 +228,8 @@ Return:
   @param[in] Name        The Name of the desired property.
 
   @return                The status of the operation is returned.
-  @retval EFI_NOT_FOUND  The given device path does not have a property with the specified Name.
+  @retval EFI_NOT_FOUND  The given device path does not have a property with
+                         the specified Name.
   @retval EFI_SUCCESS    The operation completed successfully.
 **/
 EFI_STATUS
@@ -273,13 +287,16 @@ DevicePathPropertyDbRemovePropertyImpl (
 /** Returns a Buffer of all device properties into Buffer.
 
   @param[in]      This    A pointer to the protocol instance.
-  @param[out]     Buffer  The Buffer allocated by the caller to return the property Buffer into.
+  @param[out]     Buffer  The Buffer allocated by the caller to return the
+                          property Buffer into.
   @param[in, out] Size    On input the size of the allocated Buffer.
                           On output the size required to fill the Buffer.
 
   @return                       The status of the operation is returned.
-  @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds the size of the allocated Buffer.
-                                The required size to complete the operation has been returned into Size.
+  @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds
+                                the size of the allocated Buffer.
+                                The required size to complete the operation has
+                                been returned into Size.
   @retval EFI_SUCCESS           The operation completed successfully.
 **/
 EFI_STATUS
@@ -320,18 +337,27 @@ DevicePathPropertyDbGetPropertyBufferImpl (
     NoNodes    = 0;
 
     while (!Result) {
-      Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetFirstNode (&Node->Hdr.Properties));
-      Result   = IsNull (&Node->Hdr.Properties, &Property->This);
+      Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                   GetFirstNode (&Node->Hdr.Properties)
+                   );
+
+      Result = IsNull (&Node->Hdr.Properties, &Property->This);
 
       while (!Result) {
         BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
-        Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetNextNode (&Node->Hdr.Properties, &Property->This));
-        Result      = IsNull (&Node->Hdr.Properties, &Property->This);
+        Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                        GetNextNode (&Node->Hdr.Properties, &Property->This)
+                        );
+
+        Result = IsNull (&Node->Hdr.Properties, &Property->This);
       }
 
-      Node         = PROPERTY_NODE_FROM_LIST_ENTRY (GetNextNode (Nodes, &Node->Hdr.This));
-      Result       = IsNull (Nodes, &Node->Hdr.This);
-      BufferSize  += EFI_DEVICE_PATH_PROPERTY_NODE_SIZE (Node);
+      Node         = PROPERTY_NODE_FROM_LIST_ENTRY (
+                       GetNextNode (Nodes, &Node->Hdr.This)
+                       );
+
+      Result      = IsNull (Nodes, &Node->Hdr.This);
+      BufferSize += EFI_DEVICE_PATH_PROPERTY_NODE_SIZE (Node);
       ++NoNodes;
     }
 
@@ -343,9 +369,12 @@ DevicePathPropertyDbGetPropertyBufferImpl (
       Buffer->Hdr.Size    = (UINT32)BufferSize;
       Buffer->Hdr.MustBe1 = 1;
       Buffer->Hdr.NoNodes = NoNodes;
-      Node                = PROPERTY_NODE_FROM_LIST_ENTRY (GetFirstNode (Nodes));
-      Result              = IsNull (&Node->Hdr.This, &Node->Hdr.This);
-      Status              = EFI_SUCCESS;
+      Node                = PROPERTY_NODE_FROM_LIST_ENTRY (
+                              GetFirstNode (Nodes)
+                              );
+
+      Result = IsNull (&Node->Hdr.This, &Node->Hdr.This);
+      Status = EFI_SUCCESS;
 
       if (!Result) {
         BufferNode = &Buffer->Node;
@@ -353,31 +382,54 @@ DevicePathPropertyDbGetPropertyBufferImpl (
         do {
           BufferSize = EfiDevicePathSize (&Node->DevicePath);
 
-          gBS->CopyMem ((VOID *)&BufferNode->DevicePath, (VOID *)&Node->DevicePath, BufferSize);
+          gBS->CopyMem (
+                 (VOID *)&BufferNode->DevicePath,
+                 (VOID *)&Node->DevicePath,
+                 BufferSize
+                 );
 
           BufferNode->Hdr.NoProperties = (UINT32)Node->Hdr.NoProperties;
-          Property                     = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetFirstNode (&Node->Hdr.Properties));
-          Result                       = IsNull (&Node->Hdr.Properties, &Property->This);
-          BufferSize                  += sizeof (BufferNode->Hdr);
-          BufferPtr                    = (VOID *)((UINTN)Buffer + BufferSize);
+          Property                     = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                                           GetFirstNode (&Node->Hdr.Properties)
+                                           );
+
+          Result      = IsNull (&Node->Hdr.Properties, &Property->This);
+          BufferSize += sizeof (BufferNode->Hdr);
+          BufferPtr   = (VOID *)((UINTN)Buffer + BufferSize);
 
           while (!Result) {
-            gBS->CopyMem (BufferPtr, (VOID *)Property->Name, (UINTN)Property->Name->Hdr.Size);
+            gBS->CopyMem (
+                   BufferPtr,
+                   (VOID *)Property->Name,
+                   (UINTN)Property->Name->Hdr.Size
+                   );
+
             gBS->CopyMem (
                    (VOID *)((UINTN)BufferPtr + (UINTN)Property->Name->Hdr.Size),
                    Property->Value,
                    (UINTN)Property->Value->Hdr.Size
                    );
 
-            BufferPtr   = (VOID *)((UINTN)BufferPtr + (Property->Name->Hdr.Size + Property->Value->Hdr.Size));
+            BufferPtr = (VOID *)(
+                          (UINTN)BufferPtr + Property->Name->Hdr.Size + Property->Value->Hdr.Size
+                          );
+
             BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
-            Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetNextNode (&Node->Hdr.Properties, &Property->This));
-            Result      = IsNull (&Node->Hdr.Properties, &Property->This);
+            Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                            GetNextNode (&Node->Hdr.Properties, &Property->This)
+                            );
+
+            Result = IsNull (&Node->Hdr.Properties, &Property->This);
           }
 
           BufferNode->Hdr.Size = (UINT32)BufferSize;
-          BufferNode           = (EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *)((UINTN)BufferNode + BufferSize);
-          Node                 = PROPERTY_NODE_FROM_LIST_ENTRY (GetNextNode (Nodes, &Node->Hdr.This));
+          BufferNode           = (EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *)(
+                                    (UINTN)BufferNode + BufferSize
+                                    );
+
+          Node = PROPERTY_NODE_FROM_LIST_ENTRY (
+                   GetNextNode (Nodes, &Node->Hdr.This)
+                   );
         } while (!IsNull (&Node->Hdr.This, &Node->Hdr.This));
       }
     }

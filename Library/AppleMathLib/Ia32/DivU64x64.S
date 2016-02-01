@@ -1,4 +1,6 @@
-#------------------------------------------------------------------------------
+## @file
+# Calculate the quotient of a 64-bit integer by a 64-bit integer and returns
+# both the quotient and the remainder
 #
 # Copyright (C) 2006 - 2008, Intel Corporation. All rights reserved.<BR>
 # This program and the accompanying materials
@@ -8,41 +10,32 @@
 #
 # THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 # WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-#
-# Module Name:
-#
-#   DivU64x64Remainder.S
-#
-# Abstract:
-#
-#   Calculate the quotient of a 64-bit integer by a 64-bit integer and returns
-#   both the quotient and the remainder
-#
-#------------------------------------------------------------------------------
+##
 
 ASM_GLOBAL ASM_PFX(InternalMathDivU64x32), ASM_PFX(InternalMathDivU64x64)
 
-#------------------------------------------------------------------------------
-#/**
-#  Divides a 64-bit unsigned integer by a 32-bit unsigned integer and generates
-#  a 64-bit unsigned result.
+##
+# // InternalMathDivU64x32
+# /** Divides a 64-bit unsigned integer by a 32-bit unsigned integer and
+#     generates a 64-bit unsigned result and an optional 32-bit unsigned
+#     remainder.
 #
-#  This function divides the 64-bit unsigned value Dividend by the 32-bit
-#  unsigned value Divisor and generates a 64-bit unsigned quotient.
-#  This function returns the 64-bit unsigned quotient.
+#   This function divides the 64-bit unsigned value Dividend by the 32-bit
+#   unsigned value Divisor and generates a 64-bit unsigned quotient.
+#   This function returns the 64-bit unsigned quotient.
 #
-#  @param  Dividend  A 64-bit unsigned value.
-#  @param  Divisor   A 32-bit unsigned value.
+#   @param  Dividend  A 64-bit unsigned value.
+#   @param  Divisor   A 32-bit unsigned value.
 #
-#  @return  Dividend / Divisor.
-#**/
+#   @return  Dividend / Divisor.
+# **/
 # UINT64
 # EFIAPI
 # InternalMathDivU64x32 (
 #   IN UINT64  Dividend,
 #   IN UINT32  Divisor
 #   );
-#------------------------------------------------------------------------------
+##
 ASM_PFX(InternalMathDivU64x32):
     movl    8(%esp), %eax
     movl    12(%esp), %ecx
@@ -54,20 +47,21 @@ ASM_PFX(InternalMathDivU64x32):
     pop     %edx                    # restore high-order dword of the quotient
     ret
 
-#------------------------------------------------------------------------------
-#/**
-#  Divides a 64-bit unsigned integer by a 64-bit unsigned integer and generates
-#  a 64-bit unsigned result.
+##
+# // InternalMathDivU64x64
+# /** Divides a 64-bit unsigned integer by a 64-bit unsigned integer and
+#     generates a 64-bit unsigned result and an optional 64-bit unsigned
+#     remainder.
 #
-#  This function divides the 64-bit unsigned value Dividend by the 64-bit
-#  unsigned value Divisor and generates a 64-bit unsigned quotient.
-#  This function returns the 64-bit unsigned quotient.
+#   This function divides the 64-bit unsigned value Dividend by the 64-bit
+#   unsigned value Divisor and generates a 64-bit unsigned quotient.
+#   This function returns the 64-bit unsigned quotient.
 #
-#  @param[in]  Dividend  A 64-bit unsigned value.
-#  @param[out] Divisor   A 64-bit unsigned value.
+#   @param  Dividend  A 64-bit unsigned value.
+#   @param  Divisor   A 64-bit unsigned value.
 #
-#  @return  Dividend / Divisor.
-#**/
+#   @return  Dividend / Divisor
+# **/
 # UINT64
 # EFIAPI
 # InternalMathDivU64x64 (
@@ -75,7 +69,7 @@ ASM_PFX(InternalMathDivU64x32):
 #   IN  UINT64 Divisor,
 #   OUT UINT64 *Remainder OPTIONAL
 #   );
-#------------------------------------------------------------------------------
+##
 ASM_PFX(InternalMathDivU64x64):
     movl    16(%esp), %ecx              # ecx <- divisor[32..63]
     testl   %ecx, %ecx

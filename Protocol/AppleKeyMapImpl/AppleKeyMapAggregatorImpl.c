@@ -25,12 +25,15 @@
   @param[out] Modifiers  The modifiers manipulating the given keys.
   @param[out] NoKeys     On input the number of keys allocated.
                          On output the number of keys returned into Keys.
-  @param[out] Keys       A Pointer to a caller-allocated the pressed keys get returned in.
+  @param[out] Keys       A Pointer to a caller-allocated the pressed keys get
+                         returned in.
 
   @retval EFI_SUCCESS           The pressed keys have been returned into Keys.
-  @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds the size of the allocated Buffer.
-                                The required number of keys to allocate to complete the operation has been returned
-                                into NoKeys.
+  @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds
+                                the size of the allocated Buffer.
+                                The required number of keys to allocate to
+                                complete the operation has been returned into
+                                NoKeys.
   @retval other                 An error returned by a sub-operation.
 **/
 EFI_STATUS
@@ -56,13 +59,14 @@ KeyMapGetKeyStrokesImpl (
   ASSERT (This != NULL);
   ASSERT (Modifiers != NULL);
   ASSERT (NoKeys != NULL);
-  ASSERT ((*NoKeys == 0) || (Keys != NULL));
+  ASSERT (((((*NoKeys == 0) ? 1 : 0)) ^ ((Keys != NULL) ? 0 : 1)) != 0);
 
   Aggregator     = APPLE_KEY_MAP_AGGREGATOR_FROM_AGGREGATOR_PROTOCOL (This);
-  KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (GetFirstNode (&Aggregator->KeyStrokesInfoList));
-  Result         = IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This);
+  KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (
+                     GetFirstNode (&Aggregator->KeyStrokesInfoList)
+                     );
 
-  if (Result) {
+  if (IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This)) {
     *NoKeys        = 0;
     DbNoKeyStrokes = 0;
     DbModifiers    = 0;
@@ -71,7 +75,7 @@ KeyMapGetKeyStrokesImpl (
     DbNoKeyStrokes = 0;
 
     do {
-      DbModifiers = SET_BIT (DbModifiers, KeyStrokesInfo->Hdr.Modifiers);
+      DbModifiers |= KeyStrokesInfo->Hdr.Modifiers;
 
       if (KeyStrokesInfo->Hdr.NoKeys > 0) {
         Index = 0;
@@ -94,10 +98,12 @@ KeyMapGetKeyStrokesImpl (
       }
 
       KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (
-                         GetNextNode (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This)
+                         GetNextNode (
+                           &Aggregator->KeyStrokesInfoList,
+                           &KeyStrokesInfo->Hdr.This
+                           )
                          );
-      Result         = IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This);
-    } while (!Result);
+    } while (!IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This));
 
     Result  = (DbNoKeyStrokes > *NoKeys);
     *NoKeys = DbNoKeyStrokes;
@@ -113,7 +119,11 @@ KeyMapGetKeyStrokesImpl (
   Status     = EFI_SUCCESS;
 
   if (Keys != NULL) {
-    gBS->CopyMem ((VOID *)Keys, (VOID *)Aggregator->KeyBuffer, (DbNoKeyStrokes * sizeof (*Keys)));
+    gBS->CopyMem (
+           (VOID *)Keys,
+           (VOID *)Aggregator->KeyBuffer,
+           (DbNoKeyStrokes * sizeof (*Keys))
+           );
   }
 
 Return:
@@ -123,16 +133,19 @@ Return:
 }
 
 // KeyMapContainsKeyStrokesImpl
-/** Returns whether or not a list of keys and their modifiers are part of the database of pressed keys.
+/** Returns whether or not a list of keys and their modifiers are part of the
+    database of pressed keys.
 
   @param[in]      This        A pointer to the protocol instance.
   @param[in]      Modifiers   The modifiers manipulating the given keys.
   @param[in]      NoKeys      The number of keys present in Keys.
-  @param[in, out] Keys        The list of keys to check for.  The children may be sorted in the process.
-  @param[in]      ExactMatch  Specifies whether Modifiers and Keys should be exact matches or just contained.
+  @param[in, out] Keys        The list of keys to check for.  The children may
+                              be sorted in the process.
+  @param[in]      ExactMatch  Specifies whether Modifiers and Keys should be
+                             exact matches or just contained.
 
-  @return                Returns whether or not a list of keys and their modifiers are part of the database of pressed
-                         keys.
+  @return                Returns whether or not a list of keys and their
+                         modifiers are part of the database of pressed keys.
   @retval EFI_SUCCESS    The queried keys are part of the database.
   @retval EFI_NOT_FOUND  The queried keys could not be found.
 **/
@@ -170,7 +183,11 @@ KeyMapContainsKeyStrokesImpl (
         KeyMapBubbleSort ((UINT16 *)Keys, NoKeys);
         KeyMapBubbleSort ((UINT16 *)DbKeys, DbNoKeys);
 
-        Result = EfiCompareMem ((VOID *)Keys, (VOID *)DbKeys, (NoKeys * sizeof (*Keys)));
+        Result = EfiCompareMem (
+          (VOID *)Keys,
+          (VOID *)DbKeys,
+          (NoKeys * sizeof (*Keys))
+          );
 
         if (Result == 0) {
           Status = EFI_SUCCESS;
@@ -179,7 +196,7 @@ KeyMapContainsKeyStrokesImpl (
     } else {
       Status = EFI_NOT_FOUND;
 
-      if (BITS_SET (DbModifiers, Modifiers)) {
+      if ((DbModifiers & Modifiers) != 0) {
         for (Index = 0; Index < NoKeys; ++Index) {
           for (DbIndex = 0; DbIndex < DbNoKeys; ++DbIndex) {
             if (Keys[Index] == DbKeys[DbIndex]) {

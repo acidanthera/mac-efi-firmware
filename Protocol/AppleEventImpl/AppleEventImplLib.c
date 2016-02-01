@@ -54,7 +54,9 @@ CreateTimerEvent (
 
   if (NotifyTpl < EFI_TPL_CALLBACK) {
     Status = gBS->CreateEvent (
-                    ((NotifyFunction != NULL) ? (EFI_EVENT_TIMER | EFI_EVENT_NOTIFY_SIGNAL) : EFI_EVENT_TIMER),
+                    ((NotifyFunction != NULL)
+                      ? (EFI_EVENT_TIMER | EFI_EVENT_NOTIFY_SIGNAL)
+                      : EFI_EVENT_TIMER),
                     NotifyTpl,
                     NotifyFunction,
                     NotifyContext,
@@ -64,7 +66,11 @@ CreateTimerEvent (
     ASSERT_EFI_ERROR (Status);
 
     if (!EFI_ERROR (Status)) {
-      Status = gBS->SetTimer (Event, (SignalPeriodic ? TimerPeriodic : TimerRelative), TriggerTime);
+      Status = gBS->SetTimer (
+                      Event,
+                      (SignalPeriodic ? TimerPeriodic : TimerRelative),
+                      TriggerTime
+                      );
 
       ASSERT_EFI_ERROR (Status);
 
@@ -88,7 +94,13 @@ CreateNotifyEvent (
   IN BOOLEAN           SignalPeriodic
   )
 {
-  return CreateTimerEvent (NotifyFunction, NotifyContext, TriggerTime, SignalPeriodic, EFI_TPL_NOTIFY);
+  return CreateTimerEvent (
+           NotifyFunction,
+           NotifyContext,
+           TriggerTime,
+           SignalPeriodic,
+           EFI_TPL_NOTIFY
+           );
 }
 
 // CancelEvent 
@@ -127,7 +139,11 @@ UnloadAppleEvent (
   EventUnregisterHandlers ();
   EventCancelPollEvents ();
 
-  Status = gBS->UninstallProtocolInterface (ImageHandle, &gAppleEventProtocolGuid, (VOID *)&mAppleEventProtocol);
+  Status = gBS->UninstallProtocolInterface (
+                  ImageHandle,
+                  &gAppleEventProtocolGuid,
+                  (VOID *)&mAppleEventProtocol
+                  );
 
   ASSERT_EFI_ERROR (Status);
 
@@ -144,26 +160,30 @@ EventImplInitialize (
 {
   EFI_STATUS                Status;
 
-  EFI_LOADED_IMAGE_PROTOCOL *Interface;
+  EFI_LOADED_IMAGE_PROTOCOL *LoadedImage;
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
   DxeInitializeDriverLib (ImageHandle, SystemTable);
 
   ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gAppleEventProtocolGuid);
 
-  Interface = NULL;
-  Status    = gBS->InstallProtocolInterface (
-                     &ImageHandle,
-                     &gAppleEventProtocolGuid,
-                     EFI_NATIVE_INTERFACE,
-                     (VOID *)&mAppleEventProtocol
-                     );
+  LoadedImage = NULL;
+  Status      = gBS->InstallProtocolInterface (
+                       &ImageHandle,
+                       &gAppleEventProtocolGuid,
+                       EFI_NATIVE_INTERFACE,
+                       (VOID *)&mAppleEventProtocol
+                       );
 
   if (!EFI_ERROR (Status)) {
-    Status = gBS->HandleProtocol (ImageHandle, &gEfiLoadedImageProtocolGuid, (VOID **)&Interface);
+    Status = gBS->HandleProtocol (
+                    ImageHandle,
+                    &gEfiLoadedImageProtocolGuid,
+                    (VOID **)&LoadedImage
+                    );
 
     if (!EFI_ERROR (Status)) {
-      Interface->Unload = UnloadAppleEvent;
+      LoadedImage->Unload = UnloadAppleEvent;
 
       EventCreateQueryEvent ();
 
@@ -192,11 +212,15 @@ EventRemoveUnregisteredEvents (
   APPLE_EVENT_HANDLE *CurrentEvent;
   APPLE_EVENT_HANDLE *NextEvent;
 
-  CurrentEvent = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (mEventHandleList.ForwardLink);
+  CurrentEvent = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
+                   mEventHandleList.ForwardLink
+                   );
 
   if (!IsListEmpty (&mEventHandleList)) {
     do {
-      NextEvent = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (GetNextNode (&mEventHandleList, &CurrentEvent->This));
+      NextEvent = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
+                    GetNextNode (&mEventHandleList, &CurrentEvent->This)
+                    );
 
       if (!CurrentEvent->Registered) {
         if (CurrentEvent->Name != NULL) {
@@ -295,7 +319,11 @@ EventCreateAppleEventQueryInfo (
     QueryInfo->CreationTime.Pad1   = CreationTime.Pad1;
 
     if (PointerPosition != NULL) {
-      EfiCommonLibCopyMem ((VOID *)&QueryInfo->PointerPosition, (VOID *)PointerPosition, sizeof (*PointerPosition));
+      EfiCommonLibCopyMem (
+        (VOID *)&QueryInfo->PointerPosition,
+        (VOID *)PointerPosition,
+        sizeof (*PointerPosition)
+        );
     }
   }
 
@@ -313,14 +341,18 @@ FlagAllEventsReady (
   APPLE_EVENT_HANDLE *EventHandle;
 
   if (!IsListEmpty (&mEventHandleList)) {
-    for (
-      EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (mEventHandleList.ForwardLink);
-      !IsNull (&mEventHandleList, &EventHandle->This);
-      EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandle->This.ForwardLink)
-      ) {
+    EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
+                    mEventHandleList.ForwardLink
+                    );
+
+    while (!IsNull (&mEventHandleList, &EventHandle->This)) {
       if (!EventHandle->Ready) {
         EventHandle->Ready = TRUE;
       }
+
+      EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
+                      EventHandle->This.ForwardLink
+                      );
     }
   }
 }
@@ -348,25 +380,36 @@ QueryEventNotifyFunction (
     FlagAllEventsReady ();
 
     if (!IsListEmpty (&mEventQueryList))  {
-      EventQuery = APPLE_EVENT_QUERY_FROM_LIST_ENTRY (mEventQueryList.ForwardLink);
+      EventQuery = APPLE_EVENT_QUERY_FROM_LIST_ENTRY (
+                     mEventQueryList.ForwardLink
+                     );
 
       do {
-        for (
-          EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (mEventHandleList.ForwardLink);
-          !IsNull (&mEventHandleList, &EventHandle->This);
-          EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandle->This.ForwardLink)
-          ) {
+        EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
+                        mEventHandleList.ForwardLink
+                        );
+
+        while (!IsNull (&mEventHandleList, &EventHandle->This)) {
           if ((EventHandle->Registered)
-           && (EventHandle->Ready)
+           && EventHandle->Ready
            && ((EventQuery->Information->EventType & EventHandle->EventType) != 0)
            && (EventHandle->NotifyFunction != NULL)) {
-            EventHandle->NotifyFunction (EventQuery->Information, EventHandle->NotifyContext);
+            EventHandle->NotifyFunction (
+                           EventQuery->Information,
+                           EventHandle->NotifyContext
+                           );
           }
+
+          EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
+                          EventHandle->This.ForwardLink
+                          );
         }
 
         if (((EventQuery->Information->EventType & APPLE_ALL_KEYBOARD_EVENTS) != 0)
          && (EventQuery->Information->EventData.AppleKeyEventData != NULL)) {
-          gBS->FreePool ((VOID *)EventQuery->Information->EventData.AppleKeyEventData);
+          gBS->FreePool (
+                 (VOID *)EventQuery->Information->EventData.AppleKeyEventData
+                 );
         }
 
         RemoveEntryList (EventQuery->This.ForwardLink->BackLink);
@@ -390,7 +433,13 @@ EventCreateQueryEvent (
 
   EfiInitializeLock (&mEfiLock, EFI_TPL_NOTIFY);
 
-  Status = gBS->CreateEvent (EFI_EVENT_NOTIFY_SIGNAL, EFI_TPL_NOTIFY, QueryEventNotifyFunction, NULL, &mQueryEvent);
+  Status = gBS->CreateEvent (
+                  EFI_EVENT_NOTIFY_SIGNAL,
+                  EFI_TPL_NOTIFY,
+                  QueryEventNotifyFunction,
+                  NULL,
+                  &mQueryEvent
+                  );
 
   if (!EFI_ERROR (Status)) {
     mQueryEventCreated = TRUE;
@@ -463,7 +512,13 @@ EventCreateEventQuery (
   Status = EFI_INVALID_PARAMETER;
 
   if (EventData.Raw != 0) {
-    Information = EventCreateAppleEventQueryInfo (EventData, EventType, NULL, Modifiers);
+    Information = EventCreateAppleEventQueryInfo (
+                    EventData,
+                    EventType,
+                    NULL,
+                    Modifiers
+                    );
+
     Status      = EFI_OUT_OF_RESOURCES;
 
     if (Information != NULL) {

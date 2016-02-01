@@ -25,7 +25,7 @@
 #include <Library/AppleDriverLib.h>
 
 // EFI_USB_KEYBOARD_DRIVER_GUID
-#define EFI_USB_KEYBOARD_DRIVER_GUID \
+#define EFI_USB_KEYBOARD_DRIVER_GUID  \
   { 0xA05F5F78, 0x0FB3, 0x4D10, { 0x90, 0x90, 0xAC, 0x04, 0x6E, 0xEB, 0x7C, 0x3C } }
 
 // MAX_KEY_ALLOWED
@@ -76,36 +76,37 @@ typedef struct {
 } LED_MAP;
 
 /// @{
+// USB_KB_DEV_SIGNATURE
 #define USB_KB_DEV_SIGNATURE  EFI_SIGNATURE_32 ('u', 'k', 'b', 'd')
 
 // USB_KB_DEV_FROM_THIS
-#define USB_KB_DEV_FROM_THIS(This) \
-    CR((This), USB_KB_DEV, SimpleInput, USB_KB_DEV_SIGNATURE)
+#define USB_KB_DEV_FROM_THIS(This)  \
+  CR((This), USB_KB_DEV, SimpleInput, USB_KB_DEV_SIGNATURE)
 /// @}
 
 // USB_KB_DEV
 typedef struct {
-  UINTN                           Signature;              ///<
-  EFI_DEVICE_PATH_PROTOCOL        *DevicePath;            ///<
-  EFI_EVENT                       DelayedRecoveryEvent;   ///<
-  EFI_SIMPLE_TEXT_IN_PROTOCOL     SimpleInput;            ///<
-  APPLE_KEY_MAP_DATABASE_PROTOCOL *KeyMapDb;              ///<
-  UINTN                           KeyMapDbIndex;          ///<
-  EFI_USB_IO_PROTOCOL             *UsbIo;                 ///<
-  EFI_USB_DEVICE_DESCRIPTOR       DeviceDescriptor;       ///<
-  EFI_USB_INTERFACE_DESCRIPTOR    InterfaceDescriptor;    ///<
-  EFI_USB_ENDPOINT_DESCRIPTOR     IntEndpointDescriptor;  ///<
-  USB_KB_BUFFER                   KeyboardBuffer;         ///<
-  UINT8                           CtrlOn;                 ///<
-  UINT8                           AltOn;                  ///<
-  UINT8                           ShiftOn;                ///<
-  UINT8                           NumLockOn;              ///<
-  UINT8                           CapsOn;                 ///<
-  UINT8                           LastKeyCodeArray[8];    ///<
-  UINT8                           CurKeyChar;             ///<
-  UINT8                           RepeatKey;              ///<
-  EFI_EVENT                       RepeatTimer;            ///<
-  EFI_UNICODE_STRING_TABLE        *ControllerNameTable;   ///<
+  UINTN                           Signature;             ///<
+  EFI_DEVICE_PATH_PROTOCOL        *DevicePath;           ///<
+  EFI_EVENT                       DelayedRecoveryEvent;  ///<
+  EFI_SIMPLE_TEXT_IN_PROTOCOL     SimpleInput;           ///<
+  APPLE_KEY_MAP_DATABASE_PROTOCOL *KeyMapDb;             ///<
+  UINTN                           KeyMapDbIndex;         ///<
+  EFI_USB_IO_PROTOCOL             *UsbIo;                ///<
+  EFI_USB_DEVICE_DESCRIPTOR       DeviceDescriptor;      ///<
+  EFI_USB_INTERFACE_DESCRIPTOR    InterfaceDescriptor;   ///<
+  EFI_USB_ENDPOINT_DESCRIPTOR     EndpointDescriptor;    ///<
+  USB_KB_BUFFER                   KeyboardBuffer;        ///<
+  UINT8                           CtrlOn;                ///<
+  UINT8                           AltOn;                 ///<
+  UINT8                           ShiftOn;               ///<
+  UINT8                           NumLockOn;             ///<
+  UINT8                           CapsOn;                ///<
+  UINT8                           LastKeyCodeArray[8];   ///<
+  UINT8                           CurKeyChar;            ///<
+  UINT8                           RepeatKey;             ///<
+  EFI_EVENT                       RepeatTimer;           ///<
+  EFI_UNICODE_STRING_TABLE        *ControllerNameTable;  ///<
 } USB_KB_DEV;
 
 // gEfiUsbKeyboardDriverGuid

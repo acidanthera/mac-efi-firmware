@@ -66,24 +66,24 @@ STATIC KB_KEY mKeyConvertionTable[USB_KEYCODE_MAX_MAKE] = {
   { SCAN_NULL,      '8',                 '*'                   },  // 0x25
   { SCAN_NULL,      '9',                 '('                   },  // 0x26
   { SCAN_NULL,      '0',                 ')'                   },  // 0x27
-  { SCAN_NULL,      CHAR_CARRIAGE_RETURN, CHAR_CARRIAGE_RETURN },  // 0x28   Enter
-  { SCAN_ESC,       CHAR_NULL,            CHAR_NULL            },  // 0x29   Esc
-  { SCAN_NULL,      CHAR_BACKSPACE,       CHAR_BACKSPACE       },  // 0x2A   Backspace
-  { SCAN_NULL,      CHAR_TAB,             CHAR_TAB             },  // 0x2B   Tab
-  { SCAN_NULL,      ' ',                  ' '                  },  // 0x2C   Spacebar
+  { SCAN_NULL,      CHAR_CARRIAGE_RETURN, CHAR_CARRIAGE_RETURN },  // 0x28
+  { SCAN_ESC,       CHAR_NULL,            CHAR_NULL            },  // 0x29
+  { SCAN_NULL,      CHAR_BACKSPACE,       CHAR_BACKSPACE       },  // 0x2A
+  { SCAN_NULL,      CHAR_TAB,             CHAR_TAB             },  // 0x2B
+  { SCAN_NULL,      ' ',                  ' '                  },  // 0x2C
   { SCAN_NULL,      '-',                  '_'                  },  // 0x2D
   { SCAN_NULL,      '=',                  '+'                  },  // 0x2E
   { SCAN_NULL,      '[',                  '{'                  },  // 0x2F
   { SCAN_NULL,      ']',                  '}'                  },  // 0x30
   { SCAN_NULL,      '\\',                 '|'                  },  // 0x31
-  { SCAN_NULL,      '\\',                 '|'                  },  // 0x32  Keyboard US \ and |
+  { SCAN_NULL,      '\\',                 '|'                  },  // 0x32
   { SCAN_NULL,      ';',                  ':'                  },  // 0x33
   { SCAN_NULL,      '\'',                 '"'                  },  // 0x34
-  { SCAN_NULL,      '`',                  '~'                  },  // 0x35  Keyboard Grave Accent and Tlide
+  { SCAN_NULL,      '`',                  '~'                  },  // 0x35
   { SCAN_NULL,      ',',                  '<'                  },  // 0x36
   { SCAN_NULL,      '.',                  '>'                  },  // 0x37
   { SCAN_NULL,      '/',                  '?'                  },  // 0x38
-  { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x39   CapsLock
+  { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x39  CapsLock
   { SCAN_F1,        CHAR_NULL,            CHAR_NULL            },  // 0x3A
   { SCAN_F2,        CHAR_NULL,            CHAR_NULL            },  // 0x3B
   { SCAN_F3,        CHAR_NULL,            CHAR_NULL            },  // 0x3C
@@ -94,11 +94,11 @@ STATIC KB_KEY mKeyConvertionTable[USB_KEYCODE_MAX_MAKE] = {
   { SCAN_F8,        CHAR_NULL,            CHAR_NULL            },  // 0x41
   { SCAN_F9,        CHAR_NULL,            CHAR_NULL            },  // 0x42
   { SCAN_F10,       CHAR_NULL,            CHAR_NULL            },  // 0x43
-  { SCAN_F11,       CHAR_NULL,            CHAR_NULL            },  // 0x44   F11
-  { SCAN_F12,       CHAR_NULL,            CHAR_NULL            },  // 0x45   F12
-  { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x46   PrintScreen
-  { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x47   Scroll Lock
-  { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x48   Pause
+  { SCAN_F11,       CHAR_NULL,            CHAR_NULL            },  // 0x44
+  { SCAN_F12,       CHAR_NULL,            CHAR_NULL            },  // 0x45
+  { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x46  PrintScreen
+  { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x47  Scroll Lock
+  { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x48  Pause
   { SCAN_INSERT,    CHAR_NULL,            CHAR_NULL            },  // 0x49
   { SCAN_HOME,      CHAR_NULL,            CHAR_NULL            },  // 0x4A
   { SCAN_PAGE_UP,   CHAR_NULL,            CHAR_NULL            },  // 0x4B
@@ -126,7 +126,7 @@ STATIC KB_KEY mKeyConvertionTable[USB_KEYCODE_MAX_MAKE] = {
   { SCAN_PAGE_UP,   '9',                  '9'                  },  // 0x61
   { SCAN_INSERT,    '0',                  '0'                  },  // 0x62
   { SCAN_DELETE,    '.',                  '.'                  },  // 0x63
-  { SCAN_NULL,      '\\',                 '|'                  },  // 0x64 Keyboard Non-US \ and |
+  { SCAN_NULL,      '\\',                 '|'                  },  // 0x64
   { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x65 Keyboard Application
   { SCAN_NULL,      CHAR_NULL,            CHAR_NULL            },  // 0x66 Keyboard Power
   { SCAN_NULL,      '=' ,                 '='                  }   // 0x67 Keypad =
@@ -348,8 +348,9 @@ InitUsbKeyboard (
         );
     }
 
-    // the duration is indefinite, so the endpoint will inhibit reporting forever,
-    // and only reporting when a change is detected in the report data.
+    // the duration is indefinite, so the endpoint will inhibit reporting
+    // forever, and only reporting when a change is detected in the report
+    // data.
 
     // idle value for all report ID
     ReportId = 0;
@@ -372,7 +373,10 @@ InitUsbKeyboard (
 
     // Sync the initial state of lights
     SetKeyLed (UsbKbDev);
-    EfiZeroMem ((VOID *)UsbKbDev->LastKeyCodeArray, (sizeof (UsbKbDev->LastKeyCodeArray) * 8));
+    EfiZeroMem (
+      (VOID *)UsbKbDev->LastKeyCodeArray,
+      sizeof (UsbKbDev->LastKeyCodeArray)
+      );
 
     // Set a timer for repeat keys' generation.
 
@@ -421,11 +425,13 @@ InitUsbKeyboard (
 // KeyboardHandler
 /** Handler function for USB Keyboard's asynchronous interrupt transfer.
 
-  @param[in] Data        A pointer to a Buffer that is filled with key data which is
-                         retrieved via asynchronous interrupt transfer.
+  @param[in] Data        A pointer to a Buffer that is filled with key data
+                         which is retrieved via asynchronous interrupt
+                         transfer.
   @param[in] DataLength  Indicates the size of the data Buffer.
   @param[in] Context     Pointing to USB_KB_DEV instance.
-  @param[in] Result      Indicates the result of the asynchronous interrupt transfer.
+  @param[in] Result      Indicates the result of the asynchronous interrupt
+                         transfer.
 
   @retval EFI_SUCCESS       Success
   @retval EFI_DEVICE_ERROR  Hardware Error
@@ -487,7 +493,7 @@ KeyboardHandler (
     if ((Result & EFI_USB_ERR_STALL) == EFI_USB_ERR_STALL) {
       UsbClearEndpointHalt (
         UsbIo,
-        UsbKbDev->IntEndpointDescriptor.EndpointAddress,
+        UsbKbDev->EndpointDescriptor.EndpointAddress,
         &UsbStatus
         );
     }
@@ -496,7 +502,7 @@ KeyboardHandler (
 
     Status = UsbIo->UsbAsyncInterruptTransfer (
                       UsbIo,
-                      UsbKbDev->IntEndpointDescriptor.EndpointAddress,
+                      UsbKbDev->EndpointDescriptor.EndpointAddress,
                       FALSE,
                       0,
                       0,
@@ -556,14 +562,19 @@ KeyboardHandler (
 
       // handle modifier key's pressing or releasing situation.
       for (Index = 0; Index < 8; ++Index) {
-        if ((CurModifierMap & mKeyboardModifierMap[Index].Mask) != (OldModifierMap & mKeyboardModifierMap[Index].Mask)) {
+        if ((CurModifierMap & mKeyboardModifierMap[Index].Mask)
+         != (OldModifierMap & mKeyboardModifierMap[Index].Mask)) {
           // if current modifier key is up, then
           // CurModifierMap & mKeyboardModifierMap[Index].Mask = 0;
           // otherwize it is a non-zero value.
           // Inserts the pressed modifier key into key Buffer.
           Down = (UINT8)(CurModifierMap & mKeyboardModifierMap[Index].Mask);
 
-          InsertKeyCode (&(UsbKbDev->KeyboardBuffer), mKeyboardModifierMap[Index].Key, Down);
+          InsertKeyCode (
+            &(UsbKbDev->KeyboardBuffer),
+            mKeyboardModifierMap[Index].Key,
+            Down
+            );
         }
       }
 
@@ -571,7 +582,7 @@ KeyboardHandler (
 
       for (Index = 2; Index < 8; Index++) {
         if (USB_HID_KB_KP_VALID_KEYCODE (OldKeyCodeBuffer[Index])) {
-          for (Index2 = 2; Index2 < 8; Index2++) {
+          for (Index2 = 2; Index2 < 8; ++Index2) {
             if (USB_HID_KB_KP_VALID_KEYCODE (CurKeyCodeBuffer[Index2])
              && (OldKeyCodeBuffer[Index] == CurKeyCodeBuffer[Index2])) {
               break;
@@ -615,7 +626,11 @@ KeyboardHandler (
             }
           }
 
-          InsertKeyCode (&(UsbKbDev->KeyboardBuffer), CurKeyCodeBuffer[Index], 1);
+          InsertKeyCode (
+            &(UsbKbDev->KeyboardBuffer),
+            CurKeyCodeBuffer[Index],
+            1
+            );
 
           // NumLock pressed or CapsLock pressed
 
@@ -623,7 +638,7 @@ KeyboardHandler (
            || (CurKeyCodeBuffer[Index] == UsbHidUsageIdKbKpLockKeyCLock)) {
             UsbKbDev->RepeatKey = 0;
           } else {
-            NewRepeatKey                 = CurKeyCodeBuffer[Index];
+            NewRepeatKey = CurKeyCodeBuffer[Index];
 
             // do not repeat the original repeated key
             UsbKbDev->RepeatKey = 0;
@@ -864,8 +879,8 @@ UsbParseKey (
 
   @param[in]  UsbKbDev  The USB_KB_DEV instance.
   @param[in]  KeyChar   Indicates the key code that will be interpreted.
-  @param[out] Key       A pointer to a Buffer that is filled in with the keystroke information for the key
-                        that was pressed.
+  @param[out] Key       A pointer to a Buffer that is filled in with the
+                        keystroke information for the key that was pressed.
 
   @retval EFI_NOT_READY  Device is not ready
   @retval EFI_SUCCESS    Success
@@ -911,7 +926,8 @@ UsbKeyCodeToEfiScanCode (
         }
       }
 
-      // Translate the CTRL-Alpha characters to their corresponding control value  (ctrl-a = 0x0001 through ctrl-Z = 0x001A)
+      // Translate the CTRL-Alpha characters to their corresponding control
+      // value  (ctrl-a = 0x0001 through ctrl-Z = 0x001A)
       if (UsbKbDev->CtrlOn != 0) {
         if ((Key->UnicodeChar >= 'a') && (Key->UnicodeChar <= 'z')) {
           Key->UnicodeChar = (Key->UnicodeChar - 'a' + 1);
@@ -920,7 +936,8 @@ UsbKeyCodeToEfiScanCode (
         }
       }
 
-      if ((KeyChar >= UsbHidUsageIdKbKpPadKeyOne) && (KeyChar <= UsbHidUsageIdKbKpPadKeyDel)) {
+      if ((KeyChar >= UsbHidUsageIdKbKpPadKeyOne)
+       && (KeyChar <= UsbHidUsageIdKbKpPadKeyDel)) {
         if ((UsbKbDev->NumLockOn != 0) && (UsbKbDev->ShiftOn == 0)) {
           Key->ScanCode = SCAN_NULL;
         } else {
@@ -988,7 +1005,8 @@ IsUsbKbBufferFull (
   IN USB_KB_BUFFER  KeyboardBuffer
   )
 {
-  return (BOOLEAN)(((KeyboardBuffer.Tail + 1) % (MAX_KEY_ALLOWED + 1)) == KeyboardBuffer.Head);
+  return (((KeyboardBuffer.Tail + 1) % (MAX_KEY_ALLOWED + 1))
+           == KeyboardBuffer.Head);
 }
 
 // InsertKeyCode
@@ -1021,7 +1039,8 @@ InsertKeyCode (
   KeyboardBuffer->Buffer[KeyboardBuffer->Tail].Down    = Down;
 
   // adjust the tail pointer of the FIFO keyboard Buffer.
-  KeyboardBuffer->Tail = (UINT8)((KeyboardBuffer->Tail + 1) % (MAX_KEY_ALLOWED + 1));
+  KeyboardBuffer->Tail = (UINT8)((KeyboardBuffer->Tail + 1)
+                           % (MAX_KEY_ALLOWED + 1));
 
   return EFI_SUCCESS;
 }
@@ -1030,7 +1049,8 @@ InsertKeyCode (
 /** Pops a key code off from keyboard Buffer.
 
   @param[in, out] KeyboardBuffer  Points to the USB Keyboard Buffer.
-  @param[in]      UsbKey          Points to the Buffer that contains a usb key code.
+  @param[in]      UsbKey          Points to the Buffer that contains a usb key
+                                  code.
 
   @retval EFI_SUCCESS       Success
   @retval EFI_DEVICE_ERROR  Hardware Error
@@ -1050,11 +1070,12 @@ RemoveKeyCode (
   Status = EFI_DEVICE_ERROR;
 
   if (!IsUsbKbBufferEmpty (*KeyboardBuffer)) {
-    UsbKey->KeyCode      = KeyboardBuffer->Buffer[KeyboardBuffer->Head].KeyCode;
-    UsbKey->Down         = KeyboardBuffer->Buffer[KeyboardBuffer->Head].Down;
+    UsbKey->KeyCode = KeyboardBuffer->Buffer[KeyboardBuffer->Head].KeyCode;
+    UsbKey->Down    = KeyboardBuffer->Buffer[KeyboardBuffer->Head].Down;
 
     // adjust the head pointer of the FIFO keyboard Buffer.
-    KeyboardBuffer->Head = (UINT8)((KeyboardBuffer->Head + 1) % (MAX_KEY_ALLOWED + 1));
+    KeyboardBuffer->Head = (UINT8)((KeyboardBuffer->Head + 1)
+                             % (MAX_KEY_ALLOWED + 1));
 
     Status = EFI_SUCCESS;
   }
@@ -1169,12 +1190,12 @@ UsbKbRecoveryHandler (
 
   UsbKbDev = (USB_KB_DEV *)Context;
   UsbIo             = UsbKbDev->UsbIo;
-  PacketSize        = (UINT8)(UsbKbDev->IntEndpointDescriptor.MaxPacketSize);
+  PacketSize        = (UINT8)(UsbKbDev->EndpointDescriptor.MaxPacketSize);
   Status            = UsbIo->UsbAsyncInterruptTransfer (
                                UsbIo,
-                               UsbKbDev->IntEndpointDescriptor.EndpointAddress,
+                               UsbKbDev->EndpointDescriptor.EndpointAddress,
                                TRUE,
-                               UsbKbDev->IntEndpointDescriptor.Interval,
+                               UsbKbDev->EndpointDescriptor.Interval,
                                PacketSize,
                                KeyboardHandler,
                                UsbKbDev

@@ -23,23 +23,23 @@
 
 /// @{
 #define USB_DEV_GET_STATUS             0x00
-#define USB_DEV_GET_STATUS_REQ_TYPE_D  0x80 // Receiver : Device
-#define USB_DEV_GET_STATUS_REQ_TYPE_I  0x81 // Receiver : Interface
-#define USB_DEV_GET_STATUS_REQ_TYPE_E  0x82 // Receiver : Endpoint
+#define USB_DEV_GET_STATUS_REQ_TYPE_D  0x80  // Receiver : Device
+#define USB_DEV_GET_STATUS_REQ_TYPE_I  0x81  // Receiver : Interface
+#define USB_DEV_GET_STATUS_REQ_TYPE_E  0x82  // Receiver : Endpoint
 /// @}
 
 /// @{
 #define USB_DEV_CLEAR_FEATURE             0x01
-#define USB_DEV_CLEAR_FEATURE_REQ_TYPE_D  0x00 // Receiver : Device
-#define USB_DEV_CLEAR_FEATURE_REQ_TYPE_I  0x01 // Receiver : Interface
-#define USB_DEV_CLEAR_FEATURE_REQ_TYPE_E  0x02 // Receiver : Endpoint
-/// @}
+#define USB_DEV_CLEAR_FEATURE_REQ_TYPE_D  0x00  // Receiver : Device
+#define USB_DEV_CLEAR_FEATURE_REQ_TYPE_I  0x01  // Receiver : Interface
+#define USB_DEV_CLEAR_FEATURE_REQ_TYPE_E  0x02  // Receiver : Endpoint
+/// @} 
 
 /// @{
 #define USB_DEV_SET_FEATURE             0x03
-#define USB_DEV_SET_FEATURE_REQ_TYPE_D  0x00 // Receiver : Device
-#define USB_DEV_SET_FEATURE_REQ_TYPE_I  0x01 // Receiver : Interface
-#define USB_DEV_SET_FEATURE_REQ_TYPE_E  0x02 // Receiver : Endpoint
+#define USB_DEV_SET_FEATURE_REQ_TYPE_D  0x00  // Receiver : Device
+#define USB_DEV_SET_FEATURE_REQ_TYPE_I  0x01  // Receiver : Interface
+#define USB_DEV_SET_FEATURE_REQ_TYPE_E  0x02  // Receiver : Endpoint
 /// @}
 
 /// @{
@@ -442,7 +442,8 @@ UsbClearEndpointHalt (
 
   @param[in]  UsbIo          EFI_USB_IO_PROTOCOL
   @param[in]  InterfaceNum   Hid interface number
-  @param[out] HidDescriptor  Caller allocated Buffer to store Usb hid descriptor
+  @param[out] HidDescriptor  Caller allocated Buffer to store Usb hid
+                             descriptor
                              if successfully returned.
 
   @retval EFI_SUCCESS       Success
@@ -462,8 +463,8 @@ UsbGetHidDescriptor (
   @param[in]  UsbIo             EFI_USB_IO_PROTOCOL.
   @param[in]  InterfaceNum      Report interface number.
   @param[in]  DescriptorSize    Length of DescriptorBuffer.
-  @param[out] DescriptorBuffer  Caller allocated Buffer to store Usb report descriptor
-                                if successfully returned.
+  @param[out] DescriptorBuffer  Caller allocated Buffer to store Usb report
+                                descriptor if successfully returned.
 
   @retval EFI_SUCCESS       Success
   @retval EFI_DEVICE_ERROR  Hardware error

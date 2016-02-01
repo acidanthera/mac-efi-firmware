@@ -20,7 +20,8 @@
 /** Implements EFI_SIMPLE_TEXT_IN_PROTOCOL.Reset () function.
 
   @param[in] This                  The EFI_SIMPLE_TEXT_IN_PROTOCOL instance.
-  @param[in] ExtendedVerification  Indicates that the driver may perform a more exhaustive verification operation of
+  @param[in] ExtendedVerification  Indicates that the driver may perform a more
+                                   exhaustive verification operation of
 
   @retval EFI_SUCCESS       Success
   @retval EFI_DEVICE_ERROR  Hardware Error
@@ -64,6 +65,7 @@ UsbKbReset (
     Status               = EFI_SUCCESS;
   } else {
     // Exhaustive reset
+
     Status               = InitUsbKeyboard (UsbKbDev);
     UsbKbDev->CurKeyChar = 0;
 
@@ -78,16 +80,18 @@ UsbKbReset (
 }
 
 // UsbKbReadKeyStrokeWorker
-/** Reads the next keystroke from the input device.The WaitForKey Event can be used to test for existance of a
-    keystroke via WaitForEvent () call.
+/** Reads the next keystroke from the input device.The WaitForKey Event can be
+    used to test for existance of a keystroke via WaitForEvent () call.
 
   @param[in]  UsbKbDev  Usb keyboard private structure.
-  @param[out] KeyData            A pointer to a Buffer that is filled in with the keystroke state data for the key
-                                 that was pressed.
+  @param[out] KeyData            A pointer to a Buffer that is filled in with
+                                 the keystroke state data for the key that was
+                                 pressed.
 
   @retval EFI_SUCCESS            The keystroke information was returned.
   @retval EFI_NOT_READY          There was no keystroke data availiable.
-  @retval EFI_DEVICE_ERROR       The keystroke information was not returned due to hardware errors.
+  @retval EFI_DEVICE_ERROR       The keystroke information was not returned due
+                                 to hardware errors.
   @retval EFI_INVALID_PARAMETER  KeyData is NULL.
 **/
 EFI_STATUS

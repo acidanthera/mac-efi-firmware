@@ -19,15 +19,18 @@
 /// @{
 #define EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  EFI_SIGNATURE_32 ('D', 'p', 'n', 0x00)
 
-#define PROPERTY_NODE_FROM_LIST_ENTRY(Entry)                                    \
-  ((EFI_DEVICE_PATH_PROPERTY_NODE *)(CR (                                       \
-                                       Entry,                                   \
-                                       EFI_DEVICE_PATH_PROPERTY_NODE_HDR,       \
-                                       This,                                    \
-                                       EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  \
-                                       )))
+#define PROPERTY_NODE_FROM_LIST_ENTRY(Entry)   \
+  ((EFI_DEVICE_PATH_PROPERTY_NODE *)(          \
+    CR (                                       \
+      Entry,                                   \
+      EFI_DEVICE_PATH_PROPERTY_NODE_HDR,       \
+      This,                                    \
+      EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  \
+      )                                        \
+    ))
 
-#define EFI_DEVICE_PATH_PROPERTY_NODE_SIZE(Node) (sizeof ((Node)->Hdr) + EfiDevicePathSize (&(Node)->DevicePath))
+#define EFI_DEVICE_PATH_PROPERTY_NODE_SIZE(Node)                            \
+          (sizeof ((Node)->Hdr) + EfiDevicePathSize (&(Node)->DevicePath))
 /// @}
 
 // EFI_DEVICE_PATH_PROPERTY_NODE_HDR
@@ -45,16 +48,27 @@ typedef struct {
 } EFI_DEVICE_PATH_PROPERTY_NODE;
 
 /// @{
-#define EFI_DEVICE_PATH_PROPERTY_SIGNATURE  EFI_SIGNATURE_32 ('D', 'p', 'p', 0x00)
+#define EFI_DEVICE_PATH_PROPERTY_SIGNATURE        \
+          EFI_SIGNATURE_32 ('D', 'p', 'p', 0x00)
 
-#define EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY(Entry) \
-  CR (Entry, EFI_DEVICE_PATH_PROPERTY, This, EFI_DEVICE_PATH_PROPERTY_SIGNATURE)
+#define EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY(Entry)  \
+  CR (                                                   \
+    (Entry),                                             \
+    EFI_DEVICE_PATH_PROPERTY,                            \
+    This,                                                \
+    EFI_DEVICE_PATH_PROPERTY_SIGNATURE                   \
+    )
 
-#define NEXT_EFI_DEVICE_PATH_PROPERTY(Property) \
-  (EFI_DEVICE_PATH_PROPERTY *)((UINTN)(Property) + EFI_DEVICE_PATH_PROPERTY_SIZE (Property))
+#define EFI_DEVICE_PATH_PROPERTY_SIZE(Property)               \
+  ((Property)->Name->Hdr.Size + (Property)->Value->Hdr.Size)
 
-#define EFI_DEVICE_PATH_PROPERTY_SIZE(Property)       ((Property)->Name->Hdr.Size + (Property)->Value->Hdr.Size)
-#define EFI_DEVICE_PATH_PROPERTY_VALUE_SIZE(Property) ((Property)->Value->Hdr.Size - sizeof ((Property)->Value->Hdr))
+#define EFI_DEVICE_PATH_PROPERTY_VALUE_SIZE(Property)              \
+  ((Property)->Value->Hdr.Size - sizeof ((Property)->Value->Hdr))
+
+#define NEXT_EFI_DEVICE_PATH_PROPERTY(Property)                   \
+  (EFI_DEVICE_PATH_PROPERTY *)(                                   \
+    (UINTN)(Property) + EFI_DEVICE_PATH_PROPERTY_SIZE (Property)  \
+    )
 /// @}
 
 // EFI_DEVICE_PATH_PROPERTY

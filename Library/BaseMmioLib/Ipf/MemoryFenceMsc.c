@@ -24,7 +24,6 @@
   globally visible when this function returns.
 **/
 VOID
-EFIAPI
 MemoryFence (
   VOID
   )

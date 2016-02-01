@@ -68,12 +68,24 @@ GetNvramProperties (
   BufferSize  = 0;
 
   do {
-    EfiValueToHexStr (IndexBuffer, NoVariables, PREFIX_ZERO, ARRAY_LENGTH (IndexBuffer));
+    EfiValueToHexStr (
+      IndexBuffer,
+      NoVariables,
+      PREFIX_ZERO,
+      ARRAY_LENGTH (IndexBuffer)
+      );
+
     EfiStrCpy (VariableName, APPLE_PATH_PROPERTIES_VARIABLE_NAME);
     EfiStrCat (VariableName, IndexBuffer);
 
     DataSize = 0;
-    Status   = gRT->GetVariable (VariableName, VendorGuid, NULL, &DataSize, NULL);
+    Status   = gRT->GetVariable (
+                      VariableName,
+                      VendorGuid,
+                      NULL,
+                      &DataSize,
+                      NULL
+                      );
 
     ++NoVariables;
     BufferSize += DataSize;
@@ -89,12 +101,24 @@ GetNvramProperties (
       BufferPtr = Buffer;
 
       for (Value = 0; Value >= NoVariables; ++Value) {
-        EfiValueToHexStr (IndexBuffer, Value, PREFIX_ZERO, ARRAY_LENGTH (IndexBuffer));
+        EfiValueToHexStr (
+          IndexBuffer,
+          Value,
+          PREFIX_ZERO,
+          ARRAY_LENGTH (IndexBuffer)
+          );
+
         EfiStrCpy (VariableName, APPLE_PATH_PROPERTIES_VARIABLE_NAME);
         EfiStrCat (VariableName, IndexBuffer);
 
         DataSize = BufferSize;
-        Status   = gRT->GetVariable (VariableName, VendorGuid, NULL, &DataSize, BufferPtr);
+        Status   = gRT->GetVariable (
+                          VariableName,
+                          VendorGuid,
+                          NULL,
+                          &DataSize,
+                          BufferPtr
+                          );
 
         if (EFI_ERROR (Status)) {
           break;
@@ -125,8 +149,14 @@ GetNvramProperties (
             DataSize = EfiDevicePathSize (&BufferNode->DevicePath);
 
             if (BufferNode->Hdr.NoProperties > 0) {
-              NameData     = (EFI_DEVICE_PATH_PROPERTY_DATA *)((UINTN)BufferNode + DataSize + sizeof (Buffer->Hdr));
-              ValueData    = (EFI_DEVICE_PATH_PROPERTY_DATA *)((UINTN)NameData + (UINTN)NameData->Hdr.Size);
+              NameData = (EFI_DEVICE_PATH_PROPERTY_DATA *)(
+                           (UINTN)BufferNode + DataSize + sizeof (Buffer->Hdr)
+                           );
+
+              ValueData = (EFI_DEVICE_PATH_PROPERTY_DATA *)(
+                            (UINTN)NameData + (UINTN)NameData->Hdr.Size
+                            );
+
               NoProperties = 0;
 
               do {
@@ -135,21 +165,29 @@ GetNvramProperties (
                                               &BufferNode->DevicePath,
                                               (CHAR16 *)&NameData->Data,
                                               (VOID *)&ValueData->Data,
-                                              (UINTN)(ValueData->Hdr.Size - sizeof (ValueData->Hdr.Size))
+                                              (UINTN)(ValueData->Hdr.Size
+                                                - sizeof (ValueData->Hdr.Size))
                                               );
 
                 ++NoProperties;
 
-                NameData  = (EFI_DEVICE_PATH_PROPERTY_DATA *)((UINTN)ValueData + (UINTN)ValueData->Hdr.Size);
+                NameData = (EFI_DEVICE_PATH_PROPERTY_DATA *)(
+                             (UINTN)ValueData
+                               + (UINTN)ValueData->Hdr.Size
+                             );
+
                 ValueData =
                   (EFI_DEVICE_PATH_PROPERTY_DATA *)(
-                    (UINTN)ValueData + (UINTN)(ValueData->Hdr.Size + NameData->Hdr.Size)
+                    (UINTN)ValueData
+                      + (UINTN)(ValueData->Hdr.Size + NameData->Hdr.Size)
                     );
               } while (NoProperties < BufferNode->Hdr.NoProperties);
             }
 
             ++NoNodes;
-            BufferNode = (EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *)((UINTN)BufferNode + (UINTN)BufferNode->Hdr.Size);
+            BufferNode = (EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *)(
+                           (UINTN)BufferNode + (UINTN)BufferNode->Hdr.Size
+                           );
           } while (NoNodes < Buffer->Hdr.NoNodes);
         }
 
@@ -199,7 +237,10 @@ EfiDevicePathPropertyDatabaseMain (
   EFI_HANDLE                        Handle;
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
-  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gEfiDevicePathPropertyDatabaseProtocolGuid);
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (
+    NULL,
+    &gEfiDevicePathPropertyDatabaseProtocolGuid
+    );
 
   Status = gBS->LocateHandleBuffer (
                   ByProtocol,
@@ -233,12 +274,19 @@ EfiDevicePathPropertyDatabaseMain (
       gBS->FreePool ((VOID *)Database);
     } else {
       Database->Modified = FALSE;
-      Status             = GetNvramProperties (&gAppleBootVariableGuid, TRUE, Database);
+      Status             = GetNvramProperties (
+                             &gAppleBootVariableGuid,
+                             TRUE,
+                             Database);
 
       if (!EFI_ERROR (Status)) {
         if (Database->Modified) {
           DataSize = 0;
-          Status   = DevicePathPropertyDbGetPropertyBufferImpl (&Database->Protocol, NULL, &DataSize);
+          Status   = DevicePathPropertyDbGetPropertyBufferImpl (
+                       &Database->Protocol,
+                       NULL,
+                       &DataSize
+                       );
 
           if (Status != EFI_BUFFER_TOO_SMALL) {
             Buffer = EfiLibAllocatePool (DataSize);
@@ -247,23 +295,40 @@ EfiDevicePathPropertyDatabaseMain (
               Status = EFI_OUT_OF_RESOURCES;
               goto FreePoolReturn;
             } else {
-              Status     = DevicePathPropertyDbGetPropertyBufferImpl (&Database->Protocol, Buffer, &DataSize);
-              Attributes = (EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS);
+              Status = DevicePathPropertyDbGetPropertyBufferImpl (
+                         &Database->Protocol,
+                         Buffer,
+                         &DataSize
+                         );
+
+              Attributes = (EFI_VARIABLE_NON_VOLATILE
+                          | EFI_VARIABLE_BOOTSERVICE_ACCESS
+                          | EFI_VARIABLE_RUNTIME_ACCESS);
 
               if (!EFI_ERROR (Status)) {
                 for (Index = 0; DataSize > 0; ++Index) {
-                  EfiValueToHexStr (IndexBuffer, Index, PREFIX_ZERO, ARRAY_LENGTH (IndexBuffer));
+                  EfiValueToHexStr (
+                    IndexBuffer,
+                    Index,
+                    PREFIX_ZERO,
+                    ARRAY_LENGTH (IndexBuffer)
+                    );
+
                   EfiStrCpy (VariableName, APPLE_PATH_PROPERTIES_VARIABLE_NAME);
                   EfiStrCat (VariableName, IndexBuffer);
 
-                  VariableSize = EFI_MIN (DataSize, APPLE_PATH_PROPERTY_VARIABLE_MAX_SIZE);
-                  Status       = gRT->SetVariable (
-                                        VariableName,
-                                        &gAppleVendorVariableGuid,
-                                        Attributes,
-                                        VariableSize,
-                                        (VOID *)Buffer
-                                        );
+                  VariableSize = EFI_MIN (
+                                   DataSize,
+                                   APPLE_PATH_PROPERTY_VARIABLE_MAX_SIZE
+                                   );
+
+                  Status = gRT->SetVariable (
+                                  VariableName,
+                                  &gAppleVendorVariableGuid,
+                                  Attributes,
+                                  VariableSize,
+                                  (VOID *)Buffer
+                                  );
 
                   if (EFI_ERROR (Status)) {
                     gBS->FreePool ((VOID *)Buffer);
@@ -275,7 +340,13 @@ EfiDevicePathPropertyDatabaseMain (
                 }
 
                 do {
-                  EfiValueToHexStr (IndexBuffer, Index, PREFIX_ZERO, ARRAY_LENGTH (IndexBuffer));
+                  EfiValueToHexStr (
+                    IndexBuffer,
+                    Index,
+                    PREFIX_ZERO,
+                    ARRAY_LENGTH (IndexBuffer)
+                    );
+
                   EfiStrCpy (VariableName, APPLE_PATH_PROPERTIES_VARIABLE_NAME);
                   EfiStrCat (VariableName, IndexBuffer);
 
@@ -294,7 +365,14 @@ EfiDevicePathPropertyDatabaseMain (
                   }
 
                   VariableSize = 0;
-                  Status       = gRT->SetVariable (VariableName, &gAppleVendorVariableGuid, Attributes, 0, NULL);
+                  Status       = gRT->SetVariable (
+                                        VariableName,
+                                        &gAppleVendorVariableGuid,
+                                        Attributes,
+                                        0,
+                                        NULL
+                                        );
+
                   ++Index;
                 } while (!EFI_ERROR (Status));
               }

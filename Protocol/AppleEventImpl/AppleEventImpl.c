@@ -43,7 +43,9 @@ EventRegisterHandlerImpl (
 
   Status = EFI_INVALID_PARAMETER;
 
-  if ((EventHandle != NULL) && (NotifyFunction != NULL) && (EventType != APPLE_EVENT_TYPE_NONE)) {
+  if ((EventHandle != NULL)
+   && (NotifyFunction != NULL)
+   && (EventType != APPLE_EVENT_TYPE_NONE)) {
     *EventHandle = NULL;
 
     EventRemoveUnregisteredEvents ();
@@ -101,7 +103,8 @@ EventUnregisterHandlerImpl (
   Event  = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (&mEventHandleList);
 
   do {
-    if ((Event == EventHandle) || ((UINTN)EventHandle == EFI_MAX_ADDRESS)) {
+    if ((Event == EventHandle)
+     || ((UINTN)EventHandle == EFI_MAX_ADDRESS)) {
       Event->Registered = FALSE;
       --mNoEventHandles;
       Status            = EFI_SUCCESS;
@@ -111,7 +114,9 @@ EventUnregisterHandlerImpl (
       }
     }
 
-    Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (GetNextNode (&mEventHandleList, &Event->This));
+    Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
+              GetNextNode (&mEventHandleList, &Event->This)
+              );
   } while (!IsNull (&mEventHandleList, &Event->This));
 
   if (mNoEventHandles == 0) {

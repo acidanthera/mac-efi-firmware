@@ -20,8 +20,13 @@
 
 #include <Driver/AppleSmcIo.h>
 
-// gAppleSmcIoProtocolTemplate
-STATIC APPLE_SMC_IO_PROTOCOL gAppleSmcIoProtocolTemplate = {
+// NEXT_SMC_ADDRESS
+#define NEXT_SMC_ADDRESS(Address)                         \
+  ((((Address) & 0xFF0000) | (((Address) >> 16) >> 8))    \
+    | (((Address) & 0xFF00) | (((Address) << 16) << 8)))
+
+// mAppleSmcIoProtocolTemplate
+STATIC APPLE_SMC_IO_PROTOCOL mAppleSmcIoProtocolTemplate = {
   APPLE_SMC_IO_PROTOCOL_REVISION,
   SmcIoSmcReadValueImpl,
   SmcIoSmcWriteValueImpl,
@@ -83,8 +88,8 @@ AppleSmcIoMain (
 
       gBS->CopyMem (
              (VOID *)&SmcDev->SmcIo,
-             (VOID *)&gAppleSmcIoProtocolTemplate,
-             sizeof (gAppleSmcIoProtocolTemplate)
+             (VOID *)&mAppleSmcIoProtocolTemplate,
+             sizeof (mAppleSmcIoProtocolTemplate)
              );
 
       Status = gBS->InstallProtocolInterface (
@@ -99,7 +104,12 @@ AppleSmcIoMain (
       } else {
         NoSmc = 1;
 
-        SmcIoSmcReadValueImpl (&SmcDev->SmcIo, SMC_KEY_NUM, sizeof (NoSmc), (VOID *)&NoSmc);
+        SmcIoSmcReadValueImpl (
+          &SmcDev->SmcIo,
+          SMC_KEY_NUM,
+          sizeof (NoSmc),
+          (VOID *)&NoSmc
+          );
 
         Index    = 1;
         SmcIndex = Index;
@@ -108,10 +118,20 @@ AppleSmcIoMain (
           Status = EFI_SUCCESS;
         } else {
           do {
-            Status = SmcIoSmcWriteValueImpl (&SmcDev->SmcIo, SMC_KEY_NUM, sizeof (SmcIndex), (VOID *)&SmcIndex);
+            Status = SmcIoSmcWriteValueImpl (
+                       &SmcDev->SmcIo,
+                       SMC_KEY_NUM,
+                       sizeof (SmcIndex),
+                       (VOID *)&SmcIndex
+                       );
 
             if (!EFI_ERROR (Status)) {
-              Status = SmcIoSmcReadValueImpl (&SmcDev->SmcIo, SMC_KEY_ADR, sizeof (SmcAddress), (VOID *)&SmcAddress);
+              Status = SmcIoSmcReadValueImpl (
+                         &SmcDev->SmcIo,
+                         SMC_KEY_ADR,
+                         sizeof (SmcAddress),
+                         (VOID *)&SmcAddress
+                         );
 
               if (!EFI_ERROR (Status)) {
                 SmcDevChild = EfiLibAllocateZeroPool (sizeof (*SmcDevChild));
@@ -124,13 +144,12 @@ AppleSmcIoMain (
 
                   gBS->CopyMem (
                          (VOID *)&SmcDevChild->SmcIo,
-                         (VOID *)&gAppleSmcIoProtocolTemplate,
-                         sizeof (gAppleSmcIoProtocolTemplate)
+                         (VOID *)&mAppleSmcIoProtocolTemplate,
+                         sizeof (mAppleSmcIoProtocolTemplate)
                          );
 
                   SmcDevChild->SmcIo.Index   = Index;
-                  SmcDevChild->SmcIo.Address = ((((SmcAddress & 0xFF0000) | (SmcAddress >> 16)) >> 8)
-                                                | (((SmcAddress & 0xFF00) | (SmcAddress << 16)) << 8));
+                  SmcDevChild->SmcIo.Address = NEXT_SMC_ADDRESS (SmcAddress);
 
                   Status = gBS->InstallProtocolInterface (
                                   &SmcDevChild->Handle,

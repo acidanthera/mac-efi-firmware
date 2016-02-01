@@ -66,16 +66,18 @@ AppleKeyMapAggregatorMain (
       gBS->FreePool ((VOID *)Buffer);
     }
   } else {
-    Aggregator                                          = EfiLibAllocateZeroPool (sizeof (*Aggregator));
-    Aggregator->Signature                               = APPLE_KEY_MAP_AGGREGATOR_SIGNATURE;
-    Aggregator->NextKeyStrokeIndex                      = 3000;
+    Aggregator                     = EfiLibAllocateZeroPool (sizeof (*Aggregator));
+    Aggregator->Signature          = APPLE_KEY_MAP_AGGREGATOR_SIGNATURE;
+    Aggregator->NextKeyStrokeIndex = 3000;
+
     Aggregator->DatabaseProtocol.Revision               = APPLE_KEY_MAP_DATABASE_PROTOCOL_REVISION;
     Aggregator->DatabaseProtocol.CreateKeyStrokesBuffer = KeyMapCreateKeyStrokesBufferImpl;
     Aggregator->DatabaseProtocol.RemoveKeyStrokesBuffer = KeyMapRemoveKeyStrokesBufferImpl;
     Aggregator->DatabaseProtocol.SetKeyStrokeBufferKeys = KeyMapSetKeyStrokeBufferKeysImpl;
-    Aggregator->AggregatorProtocol.Revision             = APPLE_KEY_MAP_AGGREGATOR_PROTOCOL_REVISION;
-    Aggregator->AggregatorProtocol.GetKeyStrokes        = KeyMapGetKeyStrokesImpl;
-    Aggregator->AggregatorProtocol.ContainsKeyStrokes   = KeyMapContainsKeyStrokesImpl;
+
+    Aggregator->AggregatorProtocol.Revision           = APPLE_KEY_MAP_AGGREGATOR_PROTOCOL_REVISION;
+    Aggregator->AggregatorProtocol.GetKeyStrokes      = KeyMapGetKeyStrokesImpl;
+    Aggregator->AggregatorProtocol.ContainsKeyStrokes = KeyMapContainsKeyStrokesImpl;
 
     InitializeListHead (&Aggregator->KeyStrokesInfoList);
 

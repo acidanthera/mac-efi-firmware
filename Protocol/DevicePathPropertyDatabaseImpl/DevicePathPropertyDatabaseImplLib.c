@@ -38,7 +38,10 @@ DevicePathPropertyDbGetPropertyNode (
   UINTN                         DevicePathSize2;
   INTN                          Result;
 
-  Node           = PROPERTY_NODE_FROM_LIST_ENTRY (GetFirstNode (&Database->Nodes));
+  Node = PROPERTY_NODE_FROM_LIST_ENTRY (
+           GetFirstNode (&Database->Nodes)
+           );
+
   DevicePathSize = EfiDevicePathSize (DevicePath);
 
   do {
@@ -60,7 +63,9 @@ DevicePathPropertyDbGetPropertyNode (
       }
     }
 
-    Node = PROPERTY_NODE_FROM_LIST_ENTRY (GetNextNode (&Database->Nodes, &Node->Hdr.This));
+    Node = PROPERTY_NODE_FROM_LIST_ENTRY (
+             GetNextNode (&Database->Nodes, &Node->Hdr.This)
+             );
   } while (TRUE);
 
   return Node;
@@ -78,7 +83,9 @@ DevicePathPropertyDbGetProperty (
   BOOLEAN                  IsPropertyNull;
   INTN                     Result;
 
-  Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetFirstNode (&Node->Hdr.Properties));
+  Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+               GetFirstNode (&Node->Hdr.Properties)
+               );
 
   do {
     IsPropertyNull = IsNull (&Node->Hdr.Properties, &Property->This);
@@ -95,7 +102,9 @@ DevicePathPropertyDbGetProperty (
       break;
     }
 
-    Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (GetNextNode (&Node->Hdr.Properties, &Property->This));
+    Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                 GetNextNode (&Node->Hdr.Properties, &Property->This)
+                 );
   } while (TRUE);
 
   return Property;
@@ -114,11 +123,21 @@ DevicePathPropertyDbCallProtocol (
   VOID       *Interface;
 
   Buffer = NULL;
-  Status = gBS->LocateHandleBuffer (ByProtocol, &mUnknownProtocolGuid, NULL, &NoHandles, &Buffer);
+  Status = gBS->LocateHandleBuffer (
+                  ByProtocol,
+                  &mUnknownProtocolGuid,
+                  NULL,
+                  &NoHandles,
+                  &Buffer
+                  );
 
   if (Status == EFI_SUCCESS) {
     for (Index = 0; Index < NoHandles; ++Index) {
-      Status = gBS->HandleProtocol (Buffer[Index], &mUnknownProtocolGuid, &Interface);
+      Status = gBS->HandleProtocol (
+                      Buffer[Index],
+                      &mUnknownProtocolGuid,
+                      &Interface
+                      );
 
       if (Status == EFI_SUCCESS) {
         if (*(UINT32 *)((UINTN)Interface + sizeof (UINT32)) == 0) {

@@ -21,17 +21,24 @@
 #define APPLE_PLATFORM_INFO_DATABASE_PROTOCOL_REVISION  0x01
 
 /// @{
-#define APPLE_PLATFORM_INFO_DATABASE_SIGNATURE  EFI_SIGNATURE_32 ('P', 'I', 'D', 'B')
-#define PLATFORM_INFO_PROTOCOL_FROM_DATABASE(Database) \
-  CR (Database, APPLE_PLATFORM_INFO_DATABASE, Protocol, APPLE_PLATFORM_INFO_DATABASE_SIGNATURE)
+#define APPLE_PLATFORM_INFO_DATABASE_SIGNATURE  \
+  EFI_SIGNATURE_32 ('P', 'I', 'D', 'B')
+
+#define PLATFORM_INFO_PROTOCOL_FROM_DATABASE(Database)  \
+  CR (                                                  \
+    Database,                                           \
+    APPLE_PLATFORM_INFO_DATABASE,                       \
+    Protocol,                                           \
+    APPLE_PLATFORM_INFO_DATABASE_SIGNATURE              \
+    )
 /// @}
 
 // APPLE_PLATFORM_INFO_DATABASE
 typedef struct {
-  UINT32                                Signature;                ///< 
-  EFI_HANDLE                            FirmwareVolumeHandle;     ///< 
-  EFI_FIRMWARE_VOLUME_PROTOCOL          *FirmwareVolumeProtocol;  ///< 
-  APPLE_PLATFORM_INFO_DATABASE_PROTOCOL Protocol;                 ///< 
+  UINT32                                Signature;             ///< 
+  EFI_HANDLE                            FirmwareVolumeHandle;  ///< 
+  EFI_FIRMWARE_VOLUME_PROTOCOL          *FirmwareVolume;       ///< 
+  APPLE_PLATFORM_INFO_DATABASE_PROTOCOL Protocol;              ///< 
 } APPLE_PLATFORM_INFO_DATABASE;
 
 // PlatformInfoDbGetFirstDataSizeImpl

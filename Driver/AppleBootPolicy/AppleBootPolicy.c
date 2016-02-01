@@ -54,7 +54,11 @@ AppleBootPolicyMain (
   AppleInitializeDriverLib (ImageHandle, SystemTable);
   ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gAppleBootPolicyProtocolGuid);
 
-  Status = gBS->LocateProtocol (&gAppleBootPolicyProtocolGuid, NULL, &Interface);
+  Status = gBS->LocateProtocol (
+                  &gAppleBootPolicyProtocolGuid,
+                  NULL,
+                  &Interface
+                  );
 
   if (EFI_ERROR (Status)) {
     gBS->InstallProtocolInterface (

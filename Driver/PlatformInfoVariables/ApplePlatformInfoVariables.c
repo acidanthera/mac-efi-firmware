@@ -18,7 +18,7 @@
 #include EFI_ARCH_PROTOCOL_DEFINITION (VariableWrite)
 
 //
-#define UNKNOWN_PROTOCOL_GUID \
+#define UNKNOWN_PROTOCOL_GUID  \
   { 0xBD7B48F2, 0x15EE, 0x48F4, { 0x8F, 0xCD, 0x0A, 0x9B, 0xF0, 0x2D, 0x4D, 0x92 } }
 
 EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
@@ -75,13 +75,28 @@ PlatformInfoVariableMain (
 
   ProtocolInstallEvent = NULL;
 
-  Status = gBS->LocateProtocol (&mUnknownProtocolGuid, NULL, (VOID **)&mProtocol);
+  Status = gBS->LocateProtocol (
+                  &mUnknownProtocolGuid,
+                  NULL,
+                  (VOID **)&mProtocol
+                  );
 
   if (EFI_ERROR (Status)) {
-    Status = gBS->CreateEvent (EFI_EVENT_NOTIFY_SIGNAL, EFI_TPL_CALLBACK, NotifyFunction, NULL, &ProtocolInstallEvent);
+    Status = gBS->CreateEvent (
+                    EFI_EVENT_NOTIFY_SIGNAL,
+                    EFI_TPL_CALLBACK,
+                    NotifyFunction,
+                    NULL,
+                    &ProtocolInstallEvent
+                    );
 
     if (!EFI_ERROR (Status)) {
-      Status               = gBS->RegisterProtocolNotify (&mUnknownProtocolGuid, ProtocolInstallEvent, &mRegistration);
+      Status = gBS->RegisterProtocolNotify (
+                      &mUnknownProtocolGuid,
+                      ProtocolInstallEvent,
+                      &mRegistration
+                      );
+
       ProtocolInstallEvent = NULL;
 
       if (EFI_ERROR (Status)) {
@@ -92,17 +107,28 @@ PlatformInfoVariableMain (
     NotifyFunction (NULL, NULL);
   }
 
-  Status = gBS->LocateProtocol (&gEfiVariableWriteArchProtocolGuid, NULL, &VariableWriteArchProtocol);
+  Status = gBS->LocateProtocol (
+                  &gEfiVariableWriteArchProtocolGuid,
+                  NULL,
+                  &VariableWriteArchProtocol
+                  );
 
   if (EFI_ERROR (Status)) {
-    Status = gBS->CreateEvent (EFI_EVENT_NOTIFY_SIGNAL, EFI_TPL_CALLBACK, VariableWriteNotifyFunction, NULL, &VariableWriteInstallEvent);
+    Status = gBS->CreateEvent (
+                    EFI_EVENT_NOTIFY_SIGNAL,
+                    EFI_TPL_CALLBACK,
+                    VariableWriteNotifyFunction,
+                    NULL,
+                    &VariableWriteInstallEvent
+                    );
 
     if (!EFI_ERROR (Status)) {
-      Status                    = gBS->RegisterProtocolNotify (
-                                         &gEfiVariableWriteArchProtocolGuid,
-                                         VariableWriteInstallEvent,
-                                         &mRegistration
-                                         );
+      Status = gBS->RegisterProtocolNotify (
+                      &gEfiVariableWriteArchProtocolGuid,
+                      VariableWriteInstallEvent,
+                      &mRegistration
+                      );
+
       VariableWriteInstallEvent = NULL;
 
       // RETURN

@@ -97,7 +97,7 @@ PlatformInfoDbGetDataImpl (
   ASSERT ((*Size == 0) || (Data != NULL));
 
   if ((This != NULL) && (NameGuid != NULL) && (Size != NULL)) {
-    FirmwareVolume = (PLATFORM_INFO_PROTOCOL_FROM_DATABASE (This))->FirmwareVolumeProtocol;
+    FirmwareVolume = (PLATFORM_INFO_PROTOCOL_FROM_DATABASE (This))->FirmwareVolume;
     Buffer         = NULL;
 
     do {
@@ -117,20 +117,29 @@ PlatformInfoDbGetDataImpl (
       }
 
       ShiftedValue = RShiftU64 (BufferPtr->int_8, 32);
-      XoredValue   = DIFF_BITS (BufferPtr->int_8, Index);
+      XoredValue   = (BufferPtr->int_8 ^ Index);
 
       ++SectionInstance;
 
       if ((ShiftedValue & XoredValue) == 0) {
-        Result = EfiCompareMem ((VOID *)&BufferPtr->Hdr, (VOID *)&mD20Data, sizeof (mD20Data));
+        Result = EfiCompareMem (
+                   (VOID *)&BufferPtr->Hdr,
+                   (VOID *)&mD20Data,
+                   sizeof (mD20Data)
+                   );
 
         if (Result != 0) {
-          if ((BufferPtr->Hdr.Hdr.CommonHeader.Size == 0) && (Buffer == NULL)) {
+          if ((BufferPtr->Hdr.Hdr.CommonHeader.Size == 0)
+           && (Buffer == NULL)) {
             Buffer = BufferPtr;
 
             continue;
           } else {
-            Result = EfiCompareMem ((VOID *)&BufferPtr->Hdr, (VOID *)&mD30Data, sizeof (mD30Data));
+            Result = EfiCompareMem (
+                       (VOID *)&BufferPtr->Hdr,
+                       (VOID *)&mD30Data,
+                       sizeof (mD30Data)
+                       );
 
             if (Result == 0) {
               if (Buffer != NULL) {

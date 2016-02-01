@@ -59,12 +59,17 @@ AppleInitializeDriverLib (
       GetHob (EFI_HOB_TYPE_GUID_EXTENSION, (VOID *)TableWalker.Raw);
 
       if (GET_HOB_TYPE (TableWalker) == EFI_HOB_TYPE_GUID_EXTENSION) {
-        Match = EfiCompareGuid (&gAppleDriverInitHobGuid, &TableWalker.Guid->Name);
+        Match = EfiCompareGuid (
+                  &gAppleDriverInitHobGuid,
+                  &TableWalker.Guid->Name
+                  );
 
         if (Match) {
           Table = (VOID *)GET_NEXT_HOB (TableWalker);
 
-          SaveAppleDriverInitHobData ((VOID *)((UINTN)TableWalker.Raw + sizeof (*TableWalker.Guid)));
+          SaveAppleDriverInitHobData (
+            (VOID *)((UINTN)TableWalker.Raw + sizeof (*TableWalker.Guid))
+            );
           break;
         }
       }

@@ -24,8 +24,8 @@
 
 #include <Driver/ApplePlatformInfoDB.h>
 
-// mApplePlatformInfoDbProtocol
-STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDbProtocol = {
+// mApplePlatformInfoDb
+STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDb = {
   APPLE_PLATFORM_INFO_DATABASE_PROTOCOL_REVISION,
   PlatformInfoDbGetFirstDataImpl,
   PlatformInfoDbGetFirstDataSizeImpl,
@@ -59,7 +59,7 @@ ApplePlatformInfoDBMain (
   UINTN                        BufferSize;
   UINTN                        NumberHandles;
   EFI_HANDLE                   *HandleBuffer;
-  EFI_FIRMWARE_VOLUME_PROTOCOL *FirmwareVolumeProtocol;
+  EFI_FIRMWARE_VOLUME_PROTOCOL *FirmwareVolume;
   EFI_DEVICE_PATH_PROTOCOL     *DevicePath;
   UINTN                        Index;
   BOOLEAN                      FirmwareVolumeFound;
@@ -71,13 +71,19 @@ ApplePlatformInfoDBMain (
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
 
-  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gApplePlatformInfoDatabaseProtocolGuid);
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (
+    NULL,
+    &gApplePlatformInfoDatabaseProtocolGuid
+    );
 
-  FirmwareVolumeProtocol = NULL; /////
-  HobListTable2          = NULL; /////////
-  HobListTable           = NULL;
-  Buffer                 = NULL;
-  Status                 = EfiLibGetSystemConfigurationTable (&gEfiHobListGuid, &HobListTable);
+  FirmwareVolume = NULL; /////
+  HobListTable2  = NULL; /////////
+  HobListTable   = NULL;
+  Buffer         = NULL;
+  Status         = EfiLibGetSystemConfigurationTable (
+                     &gEfiHobListGuid,
+                     &HobListTable
+                     );
 
   if (!EFI_ERROR (Status)) {
     Status = GetNextGuidHob (&HobListTable, &gAppleHob1Guid, &Buffer, &BufferSize);
@@ -87,11 +93,17 @@ ApplePlatformInfoDBMain (
     }
   }
 
-  Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiFirmwareVolumeProtocolGuid, NULL, &NumberHandles, &HandleBuffer);
+  Status = gBS->LocateHandleBuffer (
+                  ByProtocol,
+                  &gEfiFirmwareVolumeProtocolGuid,
+                  NULL,
+                  &NumberHandles,
+                  &HandleBuffer
+                  );
 
   if (!EFI_ERROR (Status)) {
-    FirmwareVolumeProtocol = NULL;
-    DevicePath             = NULL;
+    FirmwareVolume = NULL;
+    DevicePath     = NULL;
 
     if (Buffer != NULL) {
       FirmwareVolumeFound = TRUE;
@@ -101,7 +113,11 @@ ApplePlatformInfoDBMain (
 
         }
 
-        Status = gBS->HandleProtocol (HandleBuffer[Index], &gEfiDevicePathProtocolGuid, (VOID **)&DevicePath);
+        Status = gBS->HandleProtocol (
+                        HandleBuffer[Index],
+                        &gEfiDevicePathProtocolGuid,
+                        (VOID **)&DevicePath
+                        );
 
         if (!EFI_ERROR (Status)) {
           while (!IsDevicePathEnd (DevicePath)) {
@@ -111,7 +127,7 @@ ApplePlatformInfoDBMain (
               Status = gBS->HandleProtocol (
                               HandleBuffer[Index],
                               &gEfiFirmwareVolumeProtocolGuid,
-                              (VOID **)&FirmwareVolumeProtocol
+                              (VOID **)&FirmwareVolume
                               );
 
               if (EFI_ERROR (Status)) {
@@ -123,7 +139,7 @@ ApplePlatformInfoDBMain (
           }
         }
 
-        FirmwareVolumeFound = (FirmwareVolumeProtocol == NULL);
+        FirmwareVolumeFound = (FirmwareVolume == NULL);
       }
     }
 
@@ -132,19 +148,19 @@ ApplePlatformInfoDBMain (
       Status = gBS->HandleProtocol (
                       HandleBuffer[Index],
                       &gEfiFirmwareVolumeProtocolGuid,
-                      (VOID **)&FirmwareVolumeProtocol
+                      (VOID **)&FirmwareVolume
                       );
 
       if (!EFI_ERROR (Status)) {
-        Status = FirmwareVolumeProtocol->ReadFile (
-                                           FirmwareVolumeProtocol,
-                                           &gAppleFile1Guid,
-                                           NULL,
-                                           &FileBufferSize,
-                                           &FoundType,
-                                           &FileAttributes,
-                                           &AuthenticationStatus
-                                           );
+        Status = FirmwareVolume->ReadFile (
+                                   FirmwareVolume,
+                                   &gAppleFile1Guid,
+                                   NULL,
+                                   &FileBufferSize,
+                                   &FoundType,
+                                   &FileAttributes,
+                                   &AuthenticationStatus
+                                   );
 
         if (!EFI_ERROR (Status)) {
           break;
@@ -166,7 +182,10 @@ ApplePlatformInfoDBMain (
   gBS->FreePool ((VOID *)HandleBuffer);
 
   if (!EFI_ERROR (Status)) {
-    Status = EfiLibGetSystemConfigurationTable (&gEfiHobListGuid, HobListTable2);
+    Status = EfiLibGetSystemConfigurationTable (
+               &gEfiHobListGuid,
+               HobListTable2
+               );
 
     if (!EFI_ERROR (Status)) {
 
@@ -177,14 +196,14 @@ ApplePlatformInfoDBMain (
   Status               = EFI_OUT_OF_RESOURCES;
 
   if (PlatformInfoDatabase != NULL) {
-    PlatformInfoDatabase->Signature              = APPLE_PLATFORM_INFO_DATABASE_SIGNATURE;
-    PlatformInfoDatabase->FirmwareVolumeHandle   = NULL; ////
-    PlatformInfoDatabase->FirmwareVolumeProtocol = FirmwareVolumeProtocol;
+    PlatformInfoDatabase->Signature            = APPLE_PLATFORM_INFO_DATABASE_SIGNATURE;
+    PlatformInfoDatabase->FirmwareVolumeHandle = NULL; ////
+    PlatformInfoDatabase->FirmwareVolume       = FirmwareVolume;
 
     EfiCopyMem (
       (VOID *)&PlatformInfoDatabase->Protocol,
-      (VOID *)&mApplePlatformInfoDbProtocol,
-      sizeof (mApplePlatformInfoDbProtocol)
+      (VOID *)&mApplePlatformInfoDb,
+      sizeof (mApplePlatformInfoDb)
       );
     
     Status = gBS->InstallProtocolInterface (

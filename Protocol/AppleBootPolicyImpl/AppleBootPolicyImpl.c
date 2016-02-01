@@ -34,20 +34,27 @@ STATIC CHAR16 *mBootFilePaths[4] = {
 };
 
 // BootPolicyGetBootFileImpl
-/** Locates the bootable file of the given volume.  Prefered are the values blessed,
-    though if unavailable, hard-coded names are being verified and used if existing.
+/** Locates the bootable file of the given volume.  Prefered are the values
+    blessed, though if unavailable, hard-coded names are being verified and
+    used if existing.
 
-  The blessed paths are to be determined by the HFS Driver via EFI_FILE_PROTOCOL.GetInfo().
-  The related identifier definitions are to be found in AppleBless.h.
+  The blessed paths are to be determined by the HFS Driver via
+  EFI_FILE_PROTOCOL.GetInfo().  The related identifier definitions are to be
+  found in AppleBless.h.
 
   @param[in]  Device        The Device's Handle to perform the search on.
-  @param[out] BootFilePath  A pointer to the device path pointer to set to the file path of the boot file.
+  @param[out] BootFilePath  A pointer to the device path pointer to set to the
+                            file path of the boot file.
 
   @return                       The status of the operation is returned.
-  @retval EFI_NOT_FOUND         A bootable file could not be found on the given volume.
-  @retval EFI_OUT_OF_RESOURCES  The memory necessary to complete the operation could not be allocated.
-  @retval EFI_SUCCESS           The operation completed successfully and the BootFilePath Buffer has been filled.
-  @retval other                 The status of an operation used to complete this operation is returned.
+  @retval EFI_NOT_FOUND         A bootable file could not be found on the given
+                                volume.
+  @retval EFI_OUT_OF_RESOURCES  The memory necessary to complete the operation
+                                could not be allocated.
+  @retval EFI_SUCCESS           The operation completed successfully and the
+                                BootFilePath Buffer has been filled.
+  @retval other                 The status of an operation used to complete
+                                this operation is returned.
 **/
 EFI_STATUS
 EFIAPI
@@ -69,8 +76,13 @@ BootPolicyGetBootFileImpl (
   ASSERT (Device != NULL);
   ASSERT (BootFilePath != NULL);
 
-  Status = gBS->HandleProtocol (Device, &gEfiSimpleFileSystemProtocolGuid, (VOID **)&FileSystem);
-  Root   = NULL;
+  Status = gBS->HandleProtocol (
+                  Device,
+                  &gEfiSimpleFileSystemProtocolGuid,
+                  (VOID **)&FileSystem
+                  );
+
+  Root = NULL;
 
   if (!EFI_ERROR (Status)) {
     Status = FileSystem->OpenVolume (FileSystem, &Root);
@@ -83,10 +95,17 @@ BootPolicyGetBootFileImpl (
         FilePath.DevPath = EfiLibAllocateZeroPool (Size);
 
         if (FilePath.DevPath != NULL) {
-          Status = Root->GetInfo (Root, &gAppleBlessedFileInfoId, &Size, FilePath.DevPath);
+          Status = Root->GetInfo (
+                           Root,
+                           &gAppleBlessedFileInfoId,
+                           &Size,
+                           FilePath.DevPath
+                           );
 
           if (!EFI_ERROR (Status)) {
-            *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiDuplicateDevicePath (FilePath.DevPath);
+            *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiDuplicateDevicePath (
+                                                      FilePath.DevPath
+                                                      );
 
             gBS->FreePool ((VOID *)FilePath.DevPath);
             goto Done;
@@ -103,8 +122,14 @@ BootPolicyGetBootFileImpl (
         FilePath.DevPath = EfiLibAllocateZeroPool (Size);
 
         if (FilePath.DevPath != NULL) {
-          Status = Root->GetInfo (Root, &gAppleBlessedFolderInfoId, &Size, FilePath.DevPath);
-          Path   = NULL;
+          Status = Root->GetInfo (
+                           Root,
+                           &gAppleBlessedFolderInfoId,
+                           &Size,
+                           FilePath.DevPath
+                           );
+
+          Path = NULL;
 
           if (!EFI_ERROR (Status)) {
             while (!IsDevicePathEnd (FilePath.DevPath)) {
@@ -129,7 +154,10 @@ BootPolicyGetBootFileImpl (
           gBS->FreePool ((VOID *)FilePath.DevPath);
 
           if (!EFI_ERROR (Status)) {
-            Size     = (EfiStrSize (Path) + EfiStrSize (APPLE_BOOTER_FILE_NAME) - sizeof (*Path));
+            Size     = (EfiStrSize (Path)
+                         + EfiStrSize (APPLE_BOOTER_FILE_NAME)
+                         - sizeof (*Path));
+
             FullPath = EfiLibAllocateZeroPool (Size);
 
             if (FullPath != NULL) {
@@ -137,7 +165,10 @@ BootPolicyGetBootFileImpl (
               EfiStrCat (FullPath, APPLE_BOOTER_FILE_NAME);
 
               if (BootPolicyFileExists (Root, FullPath)) {
-                *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (Device, FullPath);
+                *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (
+                                                          Device,
+                                                          FullPath
+                                                          );
 
                 gBS->FreePool ((VOID *)FullPath);
                 gBS->FreePool ((VOID *)Path);
@@ -160,8 +191,12 @@ BootPolicyGetBootFileImpl (
         Path = mBootFilePaths[Index];
 
         if (BootPolicyFileExists (Root, Path)) {
-          *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (Device, Path);
-          Status        = EFI_SUCCESS;
+          *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (
+                                                    Device,
+                                                    Path
+                                                    );
+
+          Status = EFI_SUCCESS;
 
           break;
         }
