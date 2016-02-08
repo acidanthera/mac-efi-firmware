@@ -22,7 +22,6 @@
 [Packages]
   ApplePkg/ApplePkg.dec
   AppleModulePkg/AppleModulePkg.dec
-  EfiMiscPkg/EfiMiscPkg.dec
   EdkBridgePkg/EdkBridgePkg.dec
 
 [LibraryClasses]

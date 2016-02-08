@@ -1,5 +1,5 @@
 ## @file
-# Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+# Copyright (C) 2005 - 2016 Apple Inc.  All rights reserved.<BR>
 #
 # This program and the accompanying materials have not been licensed.
 # Neither is its usage, its redistribution, in source or binary form,
@@ -16,11 +16,10 @@
 [Defines]
   PLATFORM_NAME             = AppleModule
   PLATFORM_GUID             = 0ADCC78E-2FDC-4491-998D-8684A7B602E9
-  PLATFORM_VERSION          = 2015-001
+  PLATFORM_VERSION          = 2015.001
   DSC_SPECIFICATION         = 0x00010006
-  OUTPUT_DIRECTORY          = Build/$(PLATFORM_NAME)
   SUPPORTED_ARCHITECTURES   = IA32|IPF|X64|EBC|ARM|AARCH64
-  BUILD_TARGETS             = RELEASE|DEBUG
+  BUILD_TARGETS             = DEBUG|RELEASE
   SKUID_IDENTIFIER          = DEFAULT
   EFI_SPECIFICATION_VERSION = 0x0001000A
   PI_SPECIFICATION_VERSION  = 0x00000009
@@ -36,11 +35,11 @@
   EfiProtocolLib|EdkCompatibilityPkg/Foundation/Efi/Protocol/EfiProtocolLib.inf
   EdkGuidLib|EdkBridgePkg/Guid/EdkGuidLib/EdkGuidLib.inf 
   EdkFrameworkProtocolLib|EdkCompatibilityPkg/Foundation/Framework/Protocol/EdkFrameworkProtocolLib.inf
-  UefiEfiIfrSupportLib|EdkCompatibilityPkg/Foundation/Library/Dxe/UefiEfiIfrSupportLib/UefiEfiIfrSupportLib.inf
 
   # Apple
 
   AppleDriverLib|AppleModulePkg/Library/AppleDriverLib/AppleDriverLib.inf
+  AppleEventLib|AppleModulePkg/Library/AppleEventLib/AppleEventLib.inf
   AppleKeyMapAggregatorLib|AppleModulePkg/Library/AppleKeyMapAggregatorLib/AppleKeyMapAggregatorLib.inf
   AppleKeyMapLib|AppleModulePkg/Library/AppleKeyMapLib/AppleKeyMapLib.inf
   AppleMathLib|AppleModulePkg/Library/AppleMathLib/AppleMathLib.inf
@@ -72,6 +71,7 @@
 [Components]
   AppleModulePkg/Library/AppleDriverLib/AppleDriverLib.inf
   AppleModulePkg/Library/BaseMmioLib/BaseMmioLib.inf
+  AppleModulePkg/Library/AppleEventLib/AppleEventLib.inf
   AppleModulePkg/Library/AppleKeyMapLib/AppleKeyMapLib.inf
   AppleModulePkg/Library/AppleKeyMapAggregatorLib/AppleKeyMapAggregatorLib.inf
   AppleModulePkg/Library/AppleMathLib/AppleMathLib.inf
@@ -98,8 +98,7 @@
   AppleModulePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
 
 [BuildOptions]
-
-# General build options
+  # General build options
 
 DEFINE SLASH_MACRO = /D EFI_SPECIFICATION_VERSION=$(EFI_SPECIFICATION_VERSION) /D PI_SPECIFICATION_VERSION=$(PI_SPECIFICATION_VERSION) /D TIANO_RELEASE_VERSION=$(TIANO_RELEASE_VERSION)
 DEFINE DASH_MACRO  = -DEFI_SPECIFICATION_VERSION=$(EFI_SPECIFICATION_VERSION) -DPI_SPECIFICATION_VERSION=$(PI_SPECIFICATION_VERSION) -DTIANO_RELEASE_VERSION=$(TIANO_RELEASE_VERSION)

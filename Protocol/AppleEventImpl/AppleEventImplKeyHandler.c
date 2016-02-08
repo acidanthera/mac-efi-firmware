@@ -20,7 +20,7 @@
 #include APPLE_PROTOCOL_CONSUMER (AppleKeyMapAggregator)
 
 #include <Library/AppleDriverLib.h>
-#include <Library/EfiEventLib.h>
+#include <Library/AppleEventLib.h>
 #include <Library/AppleKeyMapLib.h>
 #include <Library/AppleKeyMapAggregatorLib.h>
 

@@ -18,8 +18,9 @@
 #include EFI_ARCH_PROTOCOL_DEFINITION (VariableWrite)
 
 //
-#define UNKNOWN_PROTOCOL_GUID  \
-  { 0xBD7B48F2, 0x15EE, 0x48F4, { 0x8F, 0xCD, 0x0A, 0x9B, 0xF0, 0x2D, 0x4D, 0x92 } }
+#define UNKNOWN_PROTOCOL_GUID                             \
+  { 0xBD7B48F2, 0x15EE, 0x48F4,                           \
+    { 0x8F, 0xCD, 0x0A, 0x9B, 0xF0, 0x2D, 0x4D, 0x92 } }  \
 
 EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
 //
@@ -29,7 +30,7 @@ STATIC VOID *mRegistration;
 
 // mProtocol
 struct {
-
+  UINT8 Dummy;
 } mProtocol;
 
 // mVariableWritePresent
@@ -69,17 +70,16 @@ PlatformInfoVariableMain (
 {
   EFI_STATUS Status;
 
-  EFI_EVENT ProtocolInstallEvent;
-  VOID      *VariableWriteArchProtocol;
-  EFI_EVENT VariableWriteInstallEvent;
+  EFI_EVENT  ProtocolInstallEvent;
+  VOID       *VariableWriteArchProtocol;
+  EFI_EVENT  VariableWriteInstallEvent;
 
   ProtocolInstallEvent = NULL;
-
-  Status = gBS->LocateProtocol (
-                  &mUnknownProtocolGuid,
-                  NULL,
-                  (VOID **)&mProtocol
-                  );
+  Status               = gBS->LocateProtocol (
+                                &mUnknownProtocolGuid,
+                                NULL,
+                                (VOID **)&mProtocol
+                                );
 
   if (EFI_ERROR (Status)) {
     Status = gBS->CreateEvent (

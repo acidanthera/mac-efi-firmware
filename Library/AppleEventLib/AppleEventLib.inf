@@ -1,5 +1,5 @@
 ## @file
-# Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+# Copyright (C) 2005 - 2016, Apple Inc.  All rights reserved.<BR>
 #
 # This program and the accompanying materials have not been licensed.
 # Neither is its usage, its redistribution, in source or binary form,
@@ -14,23 +14,15 @@
 ##
 
 [Defines]
-  BASE_NAME   = AppleEvent
-  FILE_GUID   = E364A338-2842-4F57-A7C7-CDC8CFDF6CD7
-  MODULE_TYPE = UEFI_DRIVER
-  ENTRY_POINT = AppleEventMain
-  INF_VERSION = 0x00010005
+  BASE_NAME     = AppleEventLib
+  MODULE_TYPE   = BASE
+  INF_VERSION   = 0x00010005
+  LIBRARY_CLASS = AppleEventLib
 
 [Packages]
   ApplePkg/ApplePkg.dec
   AppleModulePkg/AppleModulePkg.dec
   EdkBridgePkg/EdkBridgePkg.dec
 
-[Protocols]
-  gAppleEventProtocolGuid  ## PRODUCES
-
-[LibraryClasses]
-  AppleDriverLib
-  AppleEventImpl
-
 [Sources]
-  AppleEvent.c
+  AppleEventLib.c

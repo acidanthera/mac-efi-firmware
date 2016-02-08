@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2004 - 2007, Intel Corporation<BR>
+  Copyright (C) 2004 - 2016, Intel Corporation<BR>
   All rights reserved. This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
   which accompanies this distribution.  The full text of the license may be found at
@@ -21,13 +21,6 @@
 
 #include <Library/UsbDxeLib.h>
 #include "UsbKbLib.h"
-
-// APPLE_PLATFORM_INFO_KEYBOARD_GUID
-#define APPLE_PLATFORM_INFO_KEYBOARD_GUID  \
-  { 0x51871CB9, 0xE25D, 0x44B4, { 0x96, 0x99, 0x0E, 0xE8, 0x64, 0x4C, 0xED, 0x69 } }
-
-// gApplePlatformInfoKeyboardGuid
-STATIC EFI_GUID gApplePlatformInfoKeyboardGuid = APPLE_PLATFORM_INFO_KEYBOARD_GUID;
 
 // mPlatformInfo
 STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL *mPlatformInfo = NULL;
@@ -546,7 +539,6 @@ UsbKbBindingStop (
   Status = EFI_UNSUPPORTED;
 
   if (!EFI_ERROR (Status)) {
-    // Get USB_KB_DEV instance.
     UsbKbDev = USB_KB_DEV_FROM_THIS (SimpleInput);
 
     gBS->CloseProtocol (
@@ -566,14 +558,14 @@ UsbKbBindingStop (
 
     // Destroy asynchronous interrupt transfer
     UsbKbDev->UsbIo->UsbAsyncInterruptTransfer (
-                                UsbKbDev->UsbIo,
-                                UsbKbDev->EndpointDescriptor.EndpointAddress,
-                                FALSE,
-                                UsbKbDev->EndpointDescriptor.Interval,
-                                0,
-                                NULL,
-                                NULL
-                                );
+                       UsbKbDev->UsbIo,
+                       UsbKbDev->EndpointDescriptor.EndpointAddress,
+                       FALSE,
+                       UsbKbDev->EndpointDescriptor.Interval,
+                       0,
+                       NULL,
+                       NULL
+                       );
 
     gBS->CloseProtocol (
            Controller,

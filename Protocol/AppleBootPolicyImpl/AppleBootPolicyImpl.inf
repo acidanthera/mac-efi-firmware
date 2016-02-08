@@ -25,8 +25,8 @@
   EdkBridgePkg/EdkBridgePkg.dec
 
 [Guids]
-  gAppleBlessedFileInfoId    ## CONSUMES
-  gAppleBlessedFolderInfoId  ## CONSUMES
+  gAppleBlessedSystemFileInfoGuid    ## CONSUMES
+  gAppleBlessedSystemFolderInfoGuid  ## CONSUMES
 
 [LibraryClasses]
   AppleDriverLib

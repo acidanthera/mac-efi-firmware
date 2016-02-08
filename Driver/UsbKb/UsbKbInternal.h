@@ -25,15 +25,16 @@
 #include <Library/AppleDriverLib.h>
 
 // EFI_USB_KEYBOARD_DRIVER_GUID
-#define EFI_USB_KEYBOARD_DRIVER_GUID  \
-  { 0xA05F5F78, 0x0FB3, 0x4D10, { 0x90, 0x90, 0xAC, 0x04, 0x6E, 0xEB, 0x7C, 0x3C } }
+#define EFI_USB_KEYBOARD_DRIVER_GUID                      \
+  { 0xA05F5F78, 0x0FB3, 0x4D10,                           \
+    { 0x90, 0x90, 0xAC, 0x04, 0x6E, 0xEB, 0x7C, 0x3C } }
 
 // MAX_KEY_ALLOWED
 #define MAX_KEY_ALLOWED  32
 
 /// @{
-#define USBKBD_REPEAT_DELAY ((HZ) / 2)
-#define USBKBD_REPEAT_RATE  ((HZ) / 50)
+#define USBKBD_REPEAT_DELAY  ((HZ) / 2)
+#define USBKBD_REPEAT_RATE   ((HZ) / 50)
 /// @}
 
 #define CLASS_HID          3

@@ -23,8 +23,10 @@
 [Packages]
   ApplePkg/ApplePkg.dec
   AppleModulePkg/AppleModulePkg.dec
-  EfiMiscPkg/EfiMiscPkg.dec
   EdkBridgePkg/EdkBridgePkg.dec
+
+[Guids]
+  gApplePlatformInfoKeyboardGuid  ## CONSUMES
 
 [Protocols]
   gAppleKeyMapDatabaseProtocolGuid        ## CONSUMES
@@ -33,7 +35,6 @@
 
 [LibraryClasses]
   AppleDriverLib
-  UefiEfiIfrSupportLib
   UsbDxeLib
   EfiKeyboardInformationImpl
 

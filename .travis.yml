@@ -31,7 +31,6 @@ install:
   - . .travis/install.sh
   - cd $TRAVIS_BUILD_DIR/../
   - export PACKAGES_PATH=$PWD
-  - git clone --branch=development https://github.com/CupertinoNet/EfiMiscPkg.git
   - git clone --branch=development https://github.com/CupertinoNet/EdkBridgePkg.git
   - git clone --branch=development https://github.com/CupertinoNet/ApplePkg.git
   - git clone https://github.com/tianocore/edk2.git

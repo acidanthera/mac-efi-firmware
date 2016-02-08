@@ -12,6 +12,7 @@
 **/
 
 #include <AppleEfi.h>
+#include <LinkedList.h>
 
 #include EFI_PROTOCOL_CONSUMER (LoadedImage)
 #include APPLE_PROTOCOL_PRODUCER (AppleEventImpl)

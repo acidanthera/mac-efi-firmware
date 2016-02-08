@@ -24,7 +24,7 @@
 #include EFI_PROTOCOL_CONSUMER (SimplePointer)
 
 #include <Library/AppleDriverLib.h>
-#include <Library/EfiEventLib.h>
+#include <Library/AppleEventLib.h>
 #include <Library/AppleKeyMapAggregatorLib.h>
 #ifdef CPU_IA32
 #include <Library/AppleMathLib.h>
