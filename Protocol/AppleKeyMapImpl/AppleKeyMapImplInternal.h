@@ -36,7 +36,7 @@ typedef struct {
   EFI_LIST_ENTRY     This;           ///< 
   UINTN              Index;          ///< 
   UINTN              KeyBufferSize;  ///< 
-  UINTN              NoKeys;         ///< 
+  UINTN              NumberOfKeys;         ///< 
   APPLE_MODIFIER_MAP Modifiers;      ///<
 } APPLE_KEY_STROKES_INFO_HDR;
 

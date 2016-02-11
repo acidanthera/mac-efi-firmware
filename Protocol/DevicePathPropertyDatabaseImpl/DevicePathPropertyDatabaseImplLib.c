@@ -118,7 +118,7 @@ DevicePathPropertyDbCallProtocol (
   ) // sub_BB0
 {
   EFI_STATUS Status;
-  UINTN      NoHandles;
+  UINTN      NumberHandles;
   EFI_HANDLE *Buffer;
   UINTN      Index;
   VOID       *Interface;
@@ -128,12 +128,12 @@ DevicePathPropertyDbCallProtocol (
                   ByProtocol,
                   &mUnknownProtocolGuid,
                   NULL,
-                  &NoHandles,
+                  &NumberHandles,
                   &Buffer
                   );
 
   if (Status == EFI_SUCCESS) {
-    for (Index = 0; Index < NoHandles; ++Index) {
+    for (Index = 0; Index < NumberHandles; ++Index) {
       Status = gBS->HandleProtocol (
                       Buffer[Index],
                       &mUnknownProtocolGuid,

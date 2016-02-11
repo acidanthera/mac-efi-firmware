@@ -20,7 +20,7 @@
 EFI_STATUS
 GetAppleKeyStrokes (
   OUT APPLE_MODIFIER_MAP  *Modifiers,
-  OUT UINTN               *NoKeys,
+  OUT UINTN               *NumberOfKeys,
   OUT APPLE_KEY           **Keys
   );
 

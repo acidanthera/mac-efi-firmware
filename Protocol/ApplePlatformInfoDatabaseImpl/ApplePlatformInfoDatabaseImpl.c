@@ -179,7 +179,7 @@ PlatformInfoDbGetDataImpl (
         if (TempLength < (UINTN)Buffer->Size) {
           Status = EFI_BUFFER_TOO_SMALL;
         } else {
-          gBS->CopyMem (Data, (VOID *)&Buffer->Data, (UINTN)Buffer->Size);
+          EfiCopyMem (Data, (VOID *)&Buffer->Data, (UINTN)Buffer->Size);
         }
       }
 

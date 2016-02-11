@@ -17,7 +17,8 @@
 #include APPLE_PROTOCOL_PRODUCER (DevicePathPropertyDatabaseImpl)
 
 /// @{
-#define EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  EFI_SIGNATURE_32 ('D', 'p', 'n', 0x00)
+#define EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  \
+  EFI_SIGNATURE_32 ('D', 'p', 'n', 0x00)
 
 #define PROPERTY_NODE_FROM_LIST_ENTRY(Entry)   \
   ((EFI_DEVICE_PATH_PROPERTY_NODE *)(          \
@@ -35,10 +36,10 @@
 
 // EFI_DEVICE_PATH_PROPERTY_NODE_HDR
 typedef struct {
-  UINTN          Signature;     ///< 
-  EFI_LIST_ENTRY This;          ///< 
-  UINTN          NoProperties;  ///< 
-  EFI_LIST       Properties;    ///< 
+  UINTN          Signature;           ///< 
+  EFI_LIST_ENTRY This;                ///< 
+  UINTN          NumberOfProperties;  ///< 
+  EFI_LIST       Properties;          ///< 
 } EFI_DEVICE_PATH_PROPERTY_NODE_HDR;
 
 // DEVICE_PATH_PROPERTY_NODE

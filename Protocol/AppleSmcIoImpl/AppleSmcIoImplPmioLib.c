@@ -183,7 +183,7 @@ SmcIoSmcReadData16 (
     Status = SmcIoSmcReadData8 (SmcDev, OFFSET (Value, 0, UINT8));
 
     if (!EFI_ERROR (Status)) {
-      gBS->CopyMem ((VOID *)Data, (VOID *)&Value, sizeof (Value));
+      EfiCopyMem ((VOID *)Data, (VOID *)&Value, sizeof (Value));
     }
   }
 
@@ -207,7 +207,7 @@ SmcIoSmcReadData32 (
     Status = SmcIoSmcReadData16 (SmcDev, OFFSET (Value, 1, UINT16));
 
     if (!EFI_ERROR (Status)) {
-      gBS->CopyMem ((VOID *)Data, (VOID *)&Value, sizeof (Value));
+      EfiCopyMem ((VOID *)Data, (VOID *)&Value, sizeof (Value));
     }
   }
 

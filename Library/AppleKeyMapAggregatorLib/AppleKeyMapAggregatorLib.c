@@ -28,7 +28,7 @@ APPLE_KEY_MAP_AGGREGATOR_PROTOCOL *mAppleKeyMapAggregator = NULL;
 EFI_STATUS
 GetAppleKeyStrokes (
   OUT APPLE_MODIFIER_MAP  *Modifiers,
-  OUT UINTN               *NoKeys,
+  OUT UINTN               *NumberOfKeys,
   OUT APPLE_KEY           **Keys
   ) // sub_1015
 {
@@ -36,7 +36,7 @@ GetAppleKeyStrokes (
 
   ASSERT (mAppleKeyMapAggregator != NULL);
   ASSERT (Modifiers != NULL);
-  ASSERT (NoKeys != NULL);
+  ASSERT (NumberOfKeys != NULL);
   ASSERT (Keys != NULL);
 
   Status = EFI_UNSUPPORTED;
@@ -44,40 +44,40 @@ GetAppleKeyStrokes (
   if (mAppleKeyMapAggregator != NULL) {
     Status = EFI_INVALID_PARAMETER;
 
-    if ((Modifiers != NULL) && (NoKeys != NULL) && (Keys != NULL)) {
-      *NoKeys = 0;
-      *Keys   = NULL;
-      Status  = mAppleKeyMapAggregator->GetKeyStrokes (
-                                          mAppleKeyMapAggregator,
-                                          Modifiers,
-                                          NoKeys,
-                                          NULL
-                                          );
+    if ((Modifiers != NULL) && (NumberOfKeys != NULL) && (Keys != NULL)) {
+      *NumberOfKeys = 0;
+      *Keys         = NULL;
+      Status        = mAppleKeyMapAggregator->GetKeyStrokes (
+                                                mAppleKeyMapAggregator,
+                                                Modifiers,
+                                                NumberOfKeys,
+                                                NULL
+                                                );
 
       ASSERT (Status == EFI_BUFFER_TOO_SMALL);
 
       if (Status == EFI_BUFFER_TOO_SMALL) {
-        if (*NoKeys == 0) {
+        if (*NumberOfKeys == 0) {
           *Keys = NULL;
         } else {
-          *Keys = EfiLibAllocatePool (*NoKeys * sizeof (**Keys));
+          *Keys = EfiLibAllocatePool (*NumberOfKeys * sizeof (**Keys));
 
           if (*Keys == NULL) {
-            *NoKeys = 0;
-            Status  = EFI_OUT_OF_RESOURCES;
+            *NumberOfKeys = 0;
+            Status        = EFI_OUT_OF_RESOURCES;
           } else {
             Status = mAppleKeyMapAggregator->GetKeyStrokes (
                                                mAppleKeyMapAggregator,
                                                Modifiers,
-                                               NoKeys,
+                                               NumberOfKeys,
                                                *Keys
                                                );
 
             if (EFI_ERROR (Status)) {
               gBS->FreePool ((VOID *)*Keys);
 
-              *Keys   = NULL;
-              *NoKeys = 0;
+              *Keys         = NULL;
+              *NumberOfKeys = 0;
             }
           }
         }
@@ -97,10 +97,10 @@ GetModifierStrokes (
   APPLE_MODIFIER_MAP Modifiers;
 
   EFI_STATUS         Status;
-  UINTN              NoKeys;
+  UINTN              NumberOfKeys;
   APPLE_KEY          *Keys;
 
-  Status = GetAppleKeyStrokes (&Modifiers, &NoKeys, &Keys);
+  Status = GetAppleKeyStrokes (&Modifiers, &NumberOfKeys, &Keys);
 
   if (!EFI_ERROR (Status)) {
     gBS->FreePool ((VOID *)Keys);

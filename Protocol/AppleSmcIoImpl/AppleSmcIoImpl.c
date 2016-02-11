@@ -19,8 +19,8 @@
 
 #include "AppleSmcIoImplInternal.h"
 
-// mNoKeysName
-STATIC CHAR8 *mNoKeysName = "#Key";
+// mNumberOfKeysName
+STATIC CHAR8 *mNumberOfKeysName = "#Key";
 
 // SmcIoSmcReadValueImpl
 EFI_STATUS
@@ -247,7 +247,7 @@ SmcIoSmcGetKeyCountImpl (
   ASSERT (This != NULL);
   ASSERT (Count != NULL);
 
-  Status = SmcIoSmcMakeKeyImpl (mNoKeysName, &Key);
+  Status = SmcIoSmcMakeKeyImpl (mNumberOfKeysName, &Key);
 
   if (!EFI_ERROR (Status)) {
     Status = SmcIoSmcReadValueImpl (This, Key, sizeof (*Count), (VOID *)Count);

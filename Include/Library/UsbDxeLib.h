@@ -300,10 +300,10 @@ UsbGetInterface (
 // UsbSetInterface
 /** Usb Set Device Interface
 
-  @param[in]  UsbIo        EFI_USB_IO_PROTOCOL
-  @param[in]  InterfaceNo  Interface Number
-  @param[in]  AltSetting   Alternate setting
-  @param[out] Status       Trasnsfer status
+  @param[in]  UsbIo           EFI_USB_IO_PROTOCOL
+  @param[in]  InterfaceIndex  Interface Number
+  @param[in]  AltSetting      Alternate setting
+  @param[out] Status          Trasnsfer status
 
   @retval EFI_INVALID_PARAMETER  Parameter is error
   @retval EFI_SUCCESS            Success
@@ -312,7 +312,7 @@ UsbGetInterface (
 EFI_STATUS
 UsbSetInterface (
   IN  EFI_USB_IO_PROTOCOL  *UsbIo,
-  IN  UINT16               InterfaceNo,
+  IN  UINT16               InterfaceIndex,
   IN  UINT16               AltSetting,
   OUT UINT32               *Status
   );
@@ -400,11 +400,11 @@ UsbClearFeature (
 // UsbGetStatus
 /** Usb Get Device Status
 
-  @param[in]  UsbIo      EFI_USB_IO_PROTOCOL
-  @param[in]  Recipient  Interface/Device/Endpoint
-  @param[in]  Target     Request index
-  @param[out] DevStatus  Device status
-  @param[out] Status     Transfer status
+  @param[in]  UsbIo         EFI_USB_IO_PROTOCOL
+  @param[in]  Recipient     Interface/Device/Endpoint
+  @param[in]  Target        Request index
+  @param[out] DeviceStatus  Device status
+  @param[out] Status        Transfer status
 
   @retval EFI_INVALID_PARAMETER  Parameter is error
   @retval EFI_SUCCESS            Success
@@ -415,7 +415,7 @@ UsbGetStatus (
   IN  EFI_USB_IO_PROTOCOL  *UsbIo,
   IN  UINTN                Recipient,
   IN  UINT16               Target,
-  OUT UINT16               *DevStatus,
+  OUT UINT16               *DeviceStatus,
   OUT UINT32               *Status
   );
 

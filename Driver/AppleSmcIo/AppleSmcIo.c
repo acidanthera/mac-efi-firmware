@@ -63,7 +63,7 @@ AppleSmcIoMain (
 
   EFI_CPU_IO_PROTOCOL *CpuIo;
   SMC_DEV             *SmcDev;
-  UINT8               NoSmc;
+  UINT8               NumberOfSmcDevices;
   UINT8               Index;
   SMC_INDEX           SmcIndex;
   SMC_ADDRESS         SmcAddress;
@@ -86,11 +86,11 @@ AppleSmcIoMain (
 
       EfiInitializeLock (&SmcDev->Lock, EFI_TPL_NOTIFY);
 
-      gBS->CopyMem (
-             (VOID *)&SmcDev->SmcIo,
-             (VOID *)&mAppleSmcIoProtocolTemplate,
-             sizeof (mAppleSmcIoProtocolTemplate)
-             );
+      EfiCopyMem (
+        (VOID *)&SmcDev->SmcIo,
+        (VOID *)&mAppleSmcIoProtocolTemplate,
+        sizeof (mAppleSmcIoProtocolTemplate)
+        );
 
       Status = gBS->InstallProtocolInterface (
                       &SmcDev->Handle,
@@ -102,19 +102,19 @@ AppleSmcIoMain (
       if (EFI_ERROR (Status)) {
         gBS->FreePool ((VOID *)SmcDev);
       } else {
-        NoSmc = 1;
+        NumberOfSmcDevices = 1;
 
         SmcIoSmcReadValueImpl (
           &SmcDev->SmcIo,
           SMC_KEY_NUM,
-          sizeof (NoSmc),
-          (VOID *)&NoSmc
+          sizeof (NumberOfSmcDevices),
+          (VOID *)&NumberOfSmcDevices
           );
 
         Index    = 1;
         SmcIndex = Index;
 
-        if (NoSmc <= Index) {
+        if (NumberOfSmcDevices <= Index) {
           Status = EFI_SUCCESS;
         } else {
           do {
@@ -142,11 +142,11 @@ AppleSmcIoMain (
 
                   EfiInitializeLock (&SmcDevChild->Lock, EFI_TPL_NOTIFY);
 
-                  gBS->CopyMem (
-                         (VOID *)&SmcDevChild->SmcIo,
-                         (VOID *)&mAppleSmcIoProtocolTemplate,
-                         sizeof (mAppleSmcIoProtocolTemplate)
-                         );
+                  EfiCopyMem (
+                    (VOID *)&SmcDevChild->SmcIo,
+                    (VOID *)&mAppleSmcIoProtocolTemplate,
+                    sizeof (mAppleSmcIoProtocolTemplate)
+                    );
 
                   SmcDevChild->SmcIo.Index   = Index;
                   SmcDevChild->SmcIo.Address = NEXT_SMC_ADDRESS (SmcAddress);
@@ -167,7 +167,7 @@ AppleSmcIoMain (
 
             ++Index;
             SmcIndex = Index;
-          } while (Index < NoSmc);
+          } while (Index < NumberOfSmcDevices);
         }
       }
     }

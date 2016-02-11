@@ -80,7 +80,7 @@ DevicePathPropertyDbGetPropertyValueImpl (
       Status         = EFI_BUFFER_TOO_SMALL;
 
       if (!BufferTooSmall) {
-        gBS->CopyMem (Value, (VOID *)&Property->Value->Data, PropertySize);
+        EfiCopyMem (Value, (VOID *)&Property->Value->Data, PropertySize);
 
         Status = EFI_SUCCESS;
       }
@@ -148,11 +148,11 @@ DevicePathPropertyDbSetPropertyImpl (
       Node->Hdr.Signature = EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE;
 
       InitializeListHead (&Node->Hdr.Properties);
-      gBS->CopyMem (
-             (VOID *)&Node->DevicePath,
-             (VOID *)DevicePath,
-             DevicePathSize
-             );
+      EfiCopyMem (
+        (VOID *)&Node->DevicePath,
+        (VOID *)DevicePath,
+        DevicePathSize
+        );
 
       InsertTailList (&Database->Nodes, &Node->Hdr.This);
 
@@ -174,7 +174,7 @@ DevicePathPropertyDbSetPropertyImpl (
 
     RemoveEntryList (&Property->This);
 
-    --Node->Hdr.NoProperties;
+    --Node->Hdr.NumberOfProperties;
 
     gBS->FreePool ((VOID *)Property->Name);
     gBS->FreePool ((VOID *)Property->Value);
@@ -202,14 +202,14 @@ DevicePathPropertyDbSetPropertyImpl (
 
         Property->Name->Hdr.Size = (UINT32)PropertyNameSize;
 
-        gBS->CopyMem ((VOID *)&Property->Value->Data, (VOID *)Value, Size);
+        EfiCopyMem ((VOID *)&Property->Value->Data, (VOID *)Value, Size);
 
         Property->Value->Hdr.Size = (UINT32)PropertyDataSize;
 
         InsertTailList (&Node->Hdr.Properties, &Property->This);
 
         Status = EFI_SUCCESS;
-        ++Node->Hdr.NoProperties;
+        ++Node->Hdr.NumberOfProperties;
       }
     }
   }
@@ -264,13 +264,13 @@ DevicePathPropertyDbRemovePropertyImpl (
 
       RemoveEntryList (&Property->This);
 
-      --Node->Hdr.NoProperties;
+      --Node->Hdr.NumberOfProperties;
 
       gBS->FreePool ((VOID *)Property);
 
       Status = EFI_SUCCESS;
 
-      if (Node->Hdr.NoProperties == 0) {
+      if (Node->Hdr.NumberOfProperties == 0) {
         RemoveEntryList (&Node->Hdr.This);
 
         gBS->FreePool ((VOID *)Node);
@@ -314,7 +314,7 @@ DevicePathPropertyDbGetPropertyBufferImpl (
   EFI_DEVICE_PATH_PROPERTY_NODE        *Node;
   UINTN                                BufferSize;
   EFI_DEVICE_PATH_PROPERTY             *Property;
-  UINT32                               NoNodes;
+  UINT32                               NumberOfNodes;
   EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *BufferNode;
   VOID                                 *BufferPtr;
 
@@ -331,10 +331,10 @@ DevicePathPropertyDbGetPropertyBufferImpl (
   } else {
     DevicePathPropertyDbCallProtocol ();
 
-    Node       = PROPERTY_NODE_FROM_LIST_ENTRY (GetFirstNode (Nodes));
-    Result     = IsNull (Nodes, &Node->Hdr.This);
-    BufferSize = sizeof (Buffer->Hdr);
-    NoNodes    = 0;
+    Node          = PROPERTY_NODE_FROM_LIST_ENTRY (GetFirstNode (Nodes));
+    Result        = IsNull (Nodes, &Node->Hdr.This);
+    BufferSize    = sizeof (Buffer->Hdr);
+    NumberOfNodes = 0;
 
     while (!Result) {
       Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
@@ -352,13 +352,13 @@ DevicePathPropertyDbGetPropertyBufferImpl (
         Result = IsNull (&Node->Hdr.Properties, &Property->This);
       }
 
-      Node         = PROPERTY_NODE_FROM_LIST_ENTRY (
-                       GetNextNode (Nodes, &Node->Hdr.This)
-                       );
+      Node = PROPERTY_NODE_FROM_LIST_ENTRY (
+               GetNextNode (Nodes, &Node->Hdr.This)
+               );
 
       Result      = IsNull (Nodes, &Node->Hdr.This);
       BufferSize += EFI_DEVICE_PATH_PROPERTY_NODE_SIZE (Node);
-      ++NoNodes;
+      ++NumberOfNodes;
     }
 
     Result = (*Size < BufferSize);
@@ -366,12 +366,12 @@ DevicePathPropertyDbGetPropertyBufferImpl (
     Status = EFI_BUFFER_TOO_SMALL;
 
     if (!Result) {
-      Buffer->Hdr.Size    = (UINT32)BufferSize;
-      Buffer->Hdr.MustBe1 = 1;
-      Buffer->Hdr.NoNodes = NoNodes;
-      Node                = PROPERTY_NODE_FROM_LIST_ENTRY (
-                              GetFirstNode (Nodes)
-                              );
+      Buffer->Hdr.Size          = (UINT32)BufferSize;
+      Buffer->Hdr.MustBe1       = 1;
+      Buffer->Hdr.NumberOfNodes = NumberOfNodes;
+      Node                      = PROPERTY_NODE_FROM_LIST_ENTRY (
+                                    GetFirstNode (Nodes)
+                                    );
 
       Result = IsNull (&Node->Hdr.This, &Node->Hdr.This);
       Status = EFI_SUCCESS;
@@ -382,36 +382,39 @@ DevicePathPropertyDbGetPropertyBufferImpl (
         do {
           BufferSize = EfiDevicePathSize (&Node->DevicePath);
 
-          gBS->CopyMem (
-                 (VOID *)&BufferNode->DevicePath,
-                 (VOID *)&Node->DevicePath,
-                 BufferSize
-                 );
+          EfiCopyMem (
+            (VOID *)&BufferNode->DevicePath,
+            (VOID *)&Node->DevicePath,
+            BufferSize
+            );
 
-          BufferNode->Hdr.NoProperties = (UINT32)Node->Hdr.NoProperties;
-          Property                     = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
-                                           GetFirstNode (&Node->Hdr.Properties)
-                                           );
+          BufferNode->Hdr.NumberOfProperties = (UINT32)Node->Hdr.NumberOfProperties;
+
+          Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                       GetFirstNode (&Node->Hdr.Properties)
+                       );
 
           Result      = IsNull (&Node->Hdr.Properties, &Property->This);
           BufferSize += sizeof (BufferNode->Hdr);
           BufferPtr   = (VOID *)((UINTN)Buffer + BufferSize);
 
           while (!Result) {
-            gBS->CopyMem (
-                   BufferPtr,
-                   (VOID *)Property->Name,
-                   (UINTN)Property->Name->Hdr.Size
-                   );
+            EfiCopyMem (
+              BufferPtr,
+              (VOID *)Property->Name,
+              (UINTN)Property->Name->Hdr.Size
+              );
 
-            gBS->CopyMem (
-                   (VOID *)((UINTN)BufferPtr + (UINTN)Property->Name->Hdr.Size),
-                   Property->Value,
-                   (UINTN)Property->Value->Hdr.Size
-                   );
+            EfiCopyMem (
+              (VOID *)((UINTN)BufferPtr + (UINTN)Property->Name->Hdr.Size),
+              Property->Value,
+              (UINTN)Property->Value->Hdr.Size
+              );
 
             BufferPtr = (VOID *)(
-                          (UINTN)BufferPtr + Property->Name->Hdr.Size + Property->Value->Hdr.Size
+                          (UINTN)BufferPtr
+                            + Property->Name->Hdr.Size
+                              + Property->Value->Hdr.Size
                           );
 
             BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);

@@ -48,7 +48,7 @@ GetNvramProperties (
   EFI_STATUS                           Status;
 
   CHAR16                               IndexBuffer[4];
-  UINT64                               NoVariables;
+  UINT64                               NumberOfVariables;
   CHAR16                               VariableName[64];
   UINTN                                DataSize;
   UINTN                                BufferSize;
@@ -56,21 +56,21 @@ GetNvramProperties (
   UINT64                               Value;
   VOID                                 *BufferPtr;
   EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *BufferNode;
-  UINTN                                NoNodes;
-  UINTN                                NoProperties;
+  UINTN                                NumberOfNodes;
+  UINTN                                NumberOfProperties;
   EFI_DEVICE_PATH_PROPERTY_DATA        *NameData;
   EFI_DEVICE_PATH_PROPERTY_DATA        *ValueData;
 
   ASSERT (VendorGuid != NULL);
   ASSERT (Database != NULL);
 
-  NoVariables = 0;
-  BufferSize  = 0;
+  NumberOfVariables = 0;
+  BufferSize        = 0;
 
   do {
     EfiValueToHexStr (
       IndexBuffer,
-      NoVariables,
+      NumberOfVariables,
       PREFIX_ZERO,
       ARRAY_LENGTH (IndexBuffer)
       );
@@ -87,7 +87,7 @@ GetNvramProperties (
                       NULL
                       );
 
-    ++NoVariables;
+    ++NumberOfVariables;
     BufferSize += DataSize;
   } while (Status == EFI_BUFFER_TOO_SMALL);
 
@@ -100,7 +100,7 @@ GetNvramProperties (
     if (Buffer != NULL) {
       BufferPtr = Buffer;
 
-      for (Value = 0; Value >= NoVariables; ++Value) {
+      for (Value = 0; Value >= NumberOfVariables; ++Value) {
         EfiValueToHexStr (
           IndexBuffer,
           Value,
@@ -141,14 +141,14 @@ GetNvramProperties (
 
         Status = EFI_NOT_FOUND;
       } else if (EFI_ERROR (Status)) {
-        if ((Buffer->Hdr.MustBe1 == 1) && (Buffer->Hdr.NoNodes > 0)) {
-          BufferNode = &Buffer->Node;
-          NoNodes    = 0;
+        if ((Buffer->Hdr.MustBe1 == 1) && (Buffer->Hdr.NumberOfNodes > 0)) {
+          BufferNode    = &Buffer->Node;
+          NumberOfNodes = 0;
 
           do {
             DataSize = EfiDevicePathSize (&BufferNode->DevicePath);
 
-            if (BufferNode->Hdr.NoProperties > 0) {
+            if (BufferNode->Hdr.NumberOfProperties > 0) {
               NameData = (EFI_DEVICE_PATH_PROPERTY_DATA *)(
                            (UINTN)BufferNode + DataSize + sizeof (Buffer->Hdr)
                            );
@@ -157,7 +157,7 @@ GetNvramProperties (
                             (UINTN)NameData + (UINTN)NameData->Hdr.Size
                             );
 
-              NoProperties = 0;
+              NumberOfProperties = 0;
 
               do {
                 Status = Database->Protocol.SetProperty (
@@ -169,7 +169,7 @@ GetNvramProperties (
                                                 - sizeof (ValueData->Hdr.Size))
                                               );
 
-                ++NoProperties;
+                ++NumberOfProperties;
 
                 NameData = (EFI_DEVICE_PATH_PROPERTY_DATA *)(
                              (UINTN)ValueData
@@ -181,14 +181,15 @@ GetNvramProperties (
                     (UINTN)ValueData
                       + (UINTN)(ValueData->Hdr.Size + NameData->Hdr.Size)
                     );
-              } while (NoProperties < BufferNode->Hdr.NoProperties);
+              } while (NumberOfProperties < BufferNode->Hdr.NumberOfProperties);
             }
 
-            ++NoNodes;
+            ++NumberOfNodes;
+
             BufferNode = (EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *)(
                            (UINTN)BufferNode + (UINTN)BufferNode->Hdr.Size
                            );
-          } while (NoNodes < Buffer->Hdr.NoNodes);
+          } while (NumberOfNodes < Buffer->Hdr.NumberOfNodes);
         }
 
         gBS->FreePool ((VOID *)Buffer);
@@ -237,6 +238,7 @@ EfiDevicePathPropertyDatabaseMain (
   EFI_HANDLE                        Handle;
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
+
   ASSERT_PROTOCOL_ALREADY_INSTALLED (
     NULL,
     &gEfiDevicePathPropertyDatabaseProtocolGuid
@@ -260,11 +262,11 @@ EfiDevicePathPropertyDatabaseMain (
     Database            = EfiLibAllocatePool (sizeof (*Database));
     Database->Signature = EFI_DEVICE_PATH_PROPERTY_DATABASE_SIGNATURE;
 
-    gBS->CopyMem (
-           (VOID *)&Database->Protocol,
-           (VOID *)&mDevicePathPropertyDatabase,
-           sizeof (mDevicePathPropertyDatabase)
-           );
+    EfiCopyMem (
+      (VOID *)&Database->Protocol,
+      (VOID *)&mDevicePathPropertyDatabase,
+      sizeof (mDevicePathPropertyDatabase)
+      );
 
     InitializeListHead (&Database->Nodes);
 

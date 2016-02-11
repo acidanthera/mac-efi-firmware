@@ -45,7 +45,7 @@ UsbGetDescriptor (
 {
   EFI_STATUS             EfiStatus;
 
-  EFI_USB_DEVICE_REQUEST DevReq;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (DescriptorLength > 0);
@@ -54,22 +54,22 @@ UsbGetDescriptor (
   EfiStatus = EFI_INVALID_PARAMETER;
 
   if (UsbIo != NULL) {
-    EfiZeroMem (&DevReq, sizeof (DevReq));
+    EfiZeroMem (&DeviceRequest, sizeof (DeviceRequest));
 
-    DevReq.RequestType = USB_DEV_GET_DESCRIPTOR_REQ_TYPE;
-    DevReq.Request     = USB_REQ_GET_DESCRIPTOR;
-    DevReq.Value       = Value;
-    DevReq.Index       = Index;
-    DevReq.Length      = DescriptorLength;
-    EfiStatus          = UsbIo->UsbControlTransfer (
-                                  UsbIo,
-                                  &DevReq,
-                                  EfiUsbDataIn,
-                                  TIMEOUT_VALUE,
-                                  Descriptor,
-                                  DescriptorLength,
-                                  Status
-                                  );
+    DeviceRequest.RequestType = USB_DEV_GET_DESCRIPTOR_REQ_TYPE;
+    DeviceRequest.Request     = USB_REQ_GET_DESCRIPTOR;
+    DeviceRequest.Value       = Value;
+    DeviceRequest.Index       = Index;
+    DeviceRequest.Length      = DescriptorLength;
+    EfiStatus                 = UsbIo->UsbControlTransfer (
+                                         UsbIo,
+                                         &DeviceRequest,
+                                         EfiUsbDataIn,
+                                         TIMEOUT_VALUE,
+                                         Descriptor,
+                                         DescriptorLength,
+                                         Status
+                                         );
   }
 
   return EfiStatus;
@@ -101,7 +101,7 @@ UsbSetDescriptor (
 {
   EFI_STATUS             EfiStatus;
 
-  EFI_USB_DEVICE_REQUEST DevReq;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (DescriptorLength > 0);
@@ -111,22 +111,22 @@ UsbSetDescriptor (
   EfiStatus = EFI_INVALID_PARAMETER;
 
   if (UsbIo != NULL) {
-    EfiZeroMem (&DevReq, sizeof (DevReq));
+    EfiZeroMem (&DeviceRequest, sizeof (DeviceRequest));
 
-    DevReq.RequestType = USB_DEV_SET_DESCRIPTOR_REQ_TYPE;
-    DevReq.Request     = USB_REQ_SET_DESCRIPTOR;
-    DevReq.Value       = Value;
-    DevReq.Index       = Index;
-    DevReq.Length      = DescriptorLength;
-    EfiStatus          = UsbIo->UsbControlTransfer (
-                                  UsbIo,
-                                  &DevReq,
-                                  EfiUsbDataOut,
-                                  TIMEOUT_VALUE,
-                                  Descriptor,
-                                  DescriptorLength,
-                                  Status
-                                  );
+    DeviceRequest.RequestType = USB_DEV_SET_DESCRIPTOR_REQ_TYPE;
+    DeviceRequest.Request     = USB_REQ_SET_DESCRIPTOR;
+    DeviceRequest.Value       = Value;
+    DeviceRequest.Index       = Index;
+    DeviceRequest.Length      = DescriptorLength;
+    EfiStatus                 = UsbIo->UsbControlTransfer (
+                                         UsbIo,
+                                         &DeviceRequest,
+                                         EfiUsbDataOut,
+                                         TIMEOUT_VALUE,
+                                         Descriptor,
+                                         DescriptorLength,
+                                         Status
+                                         );
   }
 
   return EfiStatus;
@@ -154,7 +154,7 @@ UsbGetInterface (
 {
   EFI_STATUS             EfiStatus;
 
-  EFI_USB_DEVICE_REQUEST DevReq;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (AltSetting != NULL);
@@ -163,21 +163,21 @@ UsbGetInterface (
   EfiStatus = EFI_INVALID_PARAMETER;
 
   if (UsbIo != NULL) {
-    EfiZeroMem (&DevReq, sizeof (DevReq));
+    EfiZeroMem (&DeviceRequest, sizeof (DeviceRequest));
 
-    DevReq.RequestType = USB_DEV_GET_INTERFACE_REQ_TYPE;
-    DevReq.Request     = USB_REQ_GET_INTERFACE;
-    DevReq.Index       = Index;
-    DevReq.Length      = sizeof (*AltSetting);
-    EfiStatus          = UsbIo->UsbControlTransfer (
-                                  UsbIo,
-                                  &DevReq,
-                                  EfiUsbDataIn,
-                                  TIMEOUT_VALUE,
-                                  AltSetting,
-                                  sizeof (*AltSetting),
-                                  Status
-                                  );
+    DeviceRequest.RequestType = USB_DEV_GET_INTERFACE_REQ_TYPE;
+    DeviceRequest.Request     = USB_REQ_GET_INTERFACE;
+    DeviceRequest.Index       = Index;
+    DeviceRequest.Length      = sizeof (*AltSetting);
+    EfiStatus                 = UsbIo->UsbControlTransfer (
+                                         UsbIo,
+                                         &DeviceRequest,
+                                         EfiUsbDataIn,
+                                         TIMEOUT_VALUE,
+                                         AltSetting,
+                                         sizeof (*AltSetting),
+                                         Status
+                                         );
   }
 
   return EfiStatus;
@@ -186,10 +186,10 @@ UsbGetInterface (
 // UsbSetInterface
 /** Usb Set Device Interface
 
-  @param[in]  UsbIo        EFI_USB_IO_PROTOCOL
-  @param[in]  InterfaceNo  Interface Number
-  @param[in]  AltSetting   Alternate setting
-  @param[out] Status       Trasnsfer status
+  @param[in]  UsbIo           EFI_USB_IO_PROTOCOL
+  @param[in]  InterfaceIndex  Interface Number
+  @param[in]  AltSetting      Alternate setting
+  @param[out] Status          Trasnsfer status
 
   @retval EFI_INVALID_PARAMETER  Parameter is error
   @retval EFI_SUCCESS            Success
@@ -198,14 +198,14 @@ UsbGetInterface (
 EFI_STATUS
 UsbSetInterface (
   IN  EFI_USB_IO_PROTOCOL  *UsbIo,
-  IN  UINT16               InterfaceNo,
+  IN  UINT16               InterfaceIndex,
   IN  UINT16               AltSetting,
   OUT UINT32               *Status
   )
 {
   EFI_STATUS             EfiStatus;
 
-  EFI_USB_DEVICE_REQUEST DevReq;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (Status != NULL);
@@ -213,21 +213,21 @@ UsbSetInterface (
   EfiStatus = EFI_INVALID_PARAMETER;
 
   if (UsbIo != NULL) {
-    EfiZeroMem (&DevReq, sizeof (DevReq));
+    EfiZeroMem (&DeviceRequest, sizeof (DeviceRequest));
 
-    DevReq.RequestType = USB_DEV_SET_INTERFACE_REQ_TYPE;
-    DevReq.Request     = USB_REQ_SET_INTERFACE;
-    DevReq.Value       = AltSetting;
-    DevReq.Index       = InterfaceNo;
-    EfiStatus          = UsbIo->UsbControlTransfer (
-                                  UsbIo,
-                                  &DevReq,
-                                  EfiUsbNoData,
-                                  TIMEOUT_VALUE,
-                                  NULL,
-                                  0,
-                                  Status
-                                  );
+    DeviceRequest.RequestType = USB_DEV_SET_INTERFACE_REQ_TYPE;
+    DeviceRequest.Request     = USB_REQ_SET_INTERFACE;
+    DeviceRequest.Value       = AltSetting;
+    DeviceRequest.Index       = InterfaceIndex;
+    EfiStatus                 = UsbIo->UsbControlTransfer (
+                                         UsbIo,
+                                         &DeviceRequest,
+                                         EfiUsbNoData,
+                                         TIMEOUT_VALUE,
+                                         NULL,
+                                         0,
+                                         Status
+                                         );
   }
 
   return EfiStatus;
@@ -253,7 +253,7 @@ UsbGetConfiguration (
 {
   EFI_STATUS             EfiStatus;
 
-  EFI_USB_DEVICE_REQUEST DevReq;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (ConfigValue != NULL);
@@ -262,20 +262,20 @@ UsbGetConfiguration (
   EfiStatus = EFI_INVALID_PARAMETER;
 
   if (UsbIo != NULL) {
-    EfiZeroMem (&DevReq, sizeof (DevReq));
+    EfiZeroMem (&DeviceRequest, sizeof (DeviceRequest));
 
-    DevReq.RequestType = USB_DEV_GET_CONFIGURATION_REQ_TYPE;
-    DevReq.Request     = USB_REQ_GET_CONFIG;
-    DevReq.Length      = sizeof (*ConfigValue);
-    EfiStatus          = UsbIo->UsbControlTransfer (
-                                  UsbIo,
-                                  &DevReq,
-                                  EfiUsbDataIn,
-                                  TIMEOUT_VALUE,
-                                  ConfigValue,
-                                  sizeof (*ConfigValue),
-                                  Status
-                                  );
+    DeviceRequest.RequestType = USB_DEV_GET_CONFIGURATION_REQ_TYPE;
+    DeviceRequest.Request     = USB_REQ_GET_CONFIG;
+    DeviceRequest.Length      = sizeof (*ConfigValue);
+    EfiStatus                 = UsbIo->UsbControlTransfer (
+                                         UsbIo,
+                                         &DeviceRequest,
+                                         EfiUsbDataIn,
+                                         TIMEOUT_VALUE,
+                                         ConfigValue,
+                                         sizeof (*ConfigValue),
+                                         Status
+                                         );
   }
 
   return EfiStatus;
@@ -301,7 +301,7 @@ UsbSetConfiguration (
 {
   EFI_STATUS             EfiStatus;
 
-  EFI_USB_DEVICE_REQUEST DevReq;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (Status != NULL);
@@ -309,20 +309,20 @@ UsbSetConfiguration (
   EfiStatus = EFI_INVALID_PARAMETER;
 
   if (UsbIo != NULL) {
-    EfiZeroMem (&DevReq, sizeof (DevReq));
+    EfiZeroMem (&DeviceRequest, sizeof (DeviceRequest));
 
-    DevReq.RequestType = USB_DEV_SET_CONFIGURATION_REQ_TYPE;
-    DevReq.Request     = USB_REQ_SET_CONFIG;
-    DevReq.Value       = Value;
-    EfiStatus          = UsbIo->UsbControlTransfer (
-                                  UsbIo,
-                                  &DevReq,
-                                  EfiUsbNoData,
-                                  TIMEOUT_VALUE,
-                                  NULL,
-                                  0,
-                                  Status
-                                  );
+    DeviceRequest.RequestType = USB_DEV_SET_CONFIGURATION_REQ_TYPE;
+    DeviceRequest.Request     = USB_REQ_SET_CONFIG;
+    DeviceRequest.Value       = Value;
+    EfiStatus                 = UsbIo->UsbControlTransfer (
+                                         UsbIo,
+                                         &DeviceRequest,
+                                         EfiUsbNoData,
+                                         TIMEOUT_VALUE,
+                                         NULL,
+                                         0,
+                                         Status
+                                         );
 
     ASSERT_EFI_ERROR (EfiStatus);
   }
@@ -354,7 +354,7 @@ UsbSetFeature (
 {
   EFI_STATUS             EfiStatus;
 
-  EFI_USB_DEVICE_REQUEST DevReq;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (Status != NULL);
@@ -362,42 +362,42 @@ UsbSetFeature (
   EfiStatus = EFI_INVALID_PARAMETER;
 
   if (UsbIo != NULL) {
-    EfiZeroMem (&DevReq, sizeof (DevReq));
+    EfiZeroMem (&DeviceRequest, sizeof (DeviceRequest));
 
     switch (Recipient) {
     case USB_TARGET_DEVICE:
     {
-      DevReq.RequestType = USB_DEV_SET_FEATURE_REQ_TYPE_D;
+      DeviceRequest.RequestType = USB_DEV_SET_FEATURE_REQ_TYPE_D;
       break;
     }
 
     case USB_TARGET_INTERFACE:
     {
-      DevReq.RequestType = USB_DEV_SET_FEATURE_REQ_TYPE_I;
+      DeviceRequest.RequestType = USB_DEV_SET_FEATURE_REQ_TYPE_I;
       break;
     }
 
     case USB_TARGET_ENDPOINT:
     {
-      DevReq.RequestType = USB_DEV_SET_FEATURE_REQ_TYPE_E;
+      DeviceRequest.RequestType = USB_DEV_SET_FEATURE_REQ_TYPE_E;
       break;
     }
     }
 
     // Fill device request, see USB1.1 spec
 
-    DevReq.Request = USB_REQ_SET_FEATURE;
-    DevReq.Value   = Value;
-    DevReq.Index   = Target;
-    EfiStatus      = UsbIo->UsbControlTransfer (
-                              UsbIo,
-                              &DevReq,
-                              EfiUsbNoData,
-                              TIMEOUT_VALUE,
-                              NULL,
-                              0,
-                              Status
-                              );
+    DeviceRequest.Request = USB_REQ_SET_FEATURE;
+    DeviceRequest.Value   = Value;
+    DeviceRequest.Index   = Target;
+    EfiStatus             = UsbIo->UsbControlTransfer (
+                                     UsbIo,
+                                     &DeviceRequest,
+                                     EfiUsbNoData,
+                                     TIMEOUT_VALUE,
+                                     NULL,
+                                     0,
+                                     Status
+                                     );
   }
 
   return EfiStatus;
@@ -427,7 +427,7 @@ UsbClearFeature (
 {
   EFI_STATUS             EfiStatus;
 
-  EFI_USB_DEVICE_REQUEST DevReq;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (Status != NULL);
@@ -435,42 +435,42 @@ UsbClearFeature (
   EfiStatus = EFI_INVALID_PARAMETER;
 
   if (UsbIo != NULL) {
-    EfiZeroMem (&DevReq, sizeof (DevReq));
+    EfiZeroMem (&DeviceRequest, sizeof (DeviceRequest));
 
     switch (Recipient) {
     case USB_TARGET_DEVICE:
     {
-      DevReq.RequestType = USB_DEV_CLEAR_FEATURE_REQ_TYPE_D;
+      DeviceRequest.RequestType = USB_DEV_CLEAR_FEATURE_REQ_TYPE_D;
       break;
     }
 
     case USB_TARGET_INTERFACE:
     {
-      DevReq.RequestType = USB_DEV_CLEAR_FEATURE_REQ_TYPE_I;
+      DeviceRequest.RequestType = USB_DEV_CLEAR_FEATURE_REQ_TYPE_I;
       break;
     }
 
     case USB_TARGET_ENDPOINT:
     {
-      DevReq.RequestType = USB_DEV_CLEAR_FEATURE_REQ_TYPE_E;
+      DeviceRequest.RequestType = USB_DEV_CLEAR_FEATURE_REQ_TYPE_E;
       break;
     }
     }
 
     // Fill device request, see USB1.1 spec
 
-    DevReq.Request = USB_REQ_CLEAR_FEATURE;
-    DevReq.Value   = Value;
-    DevReq.Index   = Target;
-    EfiStatus      = UsbIo->UsbControlTransfer (
-                              UsbIo,
-                              &DevReq,
-                              EfiUsbNoData,
-                              TIMEOUT_VALUE,
-                              NULL,
-                              0,
-                              Status
-                              );
+    DeviceRequest.Request = USB_REQ_CLEAR_FEATURE;
+    DeviceRequest.Value   = Value;
+    DeviceRequest.Index   = Target;
+    EfiStatus             = UsbIo->UsbControlTransfer (
+                                     UsbIo,
+                                     &DeviceRequest,
+                                     EfiUsbNoData,
+                                     TIMEOUT_VALUE,
+                                     NULL,
+                                     0,
+                                     Status
+                                     );
   }
 
   return EfiStatus;
@@ -479,11 +479,11 @@ UsbClearFeature (
 // UsbGetStatus
 /** Usb Get Device Status
 
-  @param[in]  UsbIo      EFI_USB_IO_PROTOCOL
-  @param[in]  Recipient  Interface/Device/Endpoint
-  @param[in]  Target     Request index
-  @param[out] DevStatus  Device status
-  @param[out] Status     Transfer status
+  @param[in]  UsbIo         EFI_USB_IO_PROTOCOL
+  @param[in]  Recipient     Interface/Device/Endpoint
+  @param[in]  Target        Request index
+  @param[out] DeviceStatus  Device status
+  @param[out] Status        Transfer status
 
   @retval EFI_INVALID_PARAMETER  Parameter is error
   @retval EFI_SUCCESS            Success
@@ -494,58 +494,58 @@ UsbGetStatus (
   IN  EFI_USB_IO_PROTOCOL  *UsbIo,
   IN  UINTN                Recipient,
   IN  UINT16               Target,
-  OUT UINT16               *DevStatus,
+  OUT UINT16               *DeviceStatus,
   OUT UINT32               *Status
   )
 {
   EFI_STATUS             EfiStatus;
 
-  EFI_USB_DEVICE_REQUEST DevReq;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
-  ASSERT (DevStatus != NULL);
+  ASSERT (DeviceStatus != NULL);
   ASSERT (Status != NULL);
 
   EfiStatus = EFI_INVALID_PARAMETER;
 
   if (UsbIo != NULL) {
-    EfiZeroMem (&DevReq, sizeof (DevReq));
+    EfiZeroMem (&DeviceRequest, sizeof (DeviceRequest));
 
     switch (Recipient) {
     case USB_TARGET_DEVICE:
     {
-      DevReq.RequestType = USB_DEV_GET_STATUS_REQ_TYPE_D;
+      DeviceRequest.RequestType = USB_DEV_GET_STATUS_REQ_TYPE_D;
       break;
     }
 
     case USB_TARGET_INTERFACE:
     {
-      DevReq.RequestType = USB_DEV_GET_STATUS_REQ_TYPE_I;
+      DeviceRequest.RequestType = USB_DEV_GET_STATUS_REQ_TYPE_I;
       break;
     }
 
     case USB_TARGET_ENDPOINT:
     {
-      DevReq.RequestType = USB_DEV_GET_STATUS_REQ_TYPE_E;
+      DeviceRequest.RequestType = USB_DEV_GET_STATUS_REQ_TYPE_E;
       break;
     }
     }
 
     // Fill device request, see USB1.1 spec
 
-    DevReq.Request = USB_REQ_GET_STATUS;
-    DevReq.Value   = 0;
-    DevReq.Index   = Target;
-    DevReq.Length  = sizeof (*DevStatus);
-    EfiStatus      = UsbIo->UsbControlTransfer (
-                              UsbIo,
-                              &DevReq,
-                              EfiUsbDataIn,
-                              TIMEOUT_VALUE,
-                              DevStatus,
-                              sizeof (*DevStatus),
-                              Status
-                              );
+    DeviceRequest.Request = USB_REQ_GET_STATUS;
+    DeviceRequest.Value   = 0;
+    DeviceRequest.Index   = Target;
+    DeviceRequest.Length  = sizeof (*DeviceStatus);
+    EfiStatus             = UsbIo->UsbControlTransfer (
+                                     UsbIo,
+                                     &DeviceRequest,
+                                     EfiUsbDataIn,
+                                     TIMEOUT_VALUE,
+                                     DeviceStatus,
+                                     sizeof (*DeviceStatus),
+                                     Status
+                                     );
   }
 
   return EfiStatus;
@@ -639,25 +639,25 @@ UsbGetHidDescriptor (
   EFI_STATUS             Status;
 
   UINT32                 UsbStatus;
-  EFI_USB_DEVICE_REQUEST Request;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (HidDescriptor != NULL);
 
-  Request.RequestType = 0x81;
-  Request.Request     = 0x06;
-  Request.Value       = (UINT16) (0x21 << 8);
-  Request.Index       = InterfaceNum;
-  Request.Length      = sizeof (*HidDescriptor);
-  Status              = UsbIo->UsbControlTransfer (
-                                 UsbIo,
-                                 &Request,
-                                 EfiUsbDataIn,
-                                 TIMEOUT_VALUE,
-                                 HidDescriptor,
-                                 sizeof (*HidDescriptor),
-                                 &UsbStatus
-                                 );
+  DeviceRequest.RequestType = 0x81;
+  DeviceRequest.Request     = 0x06;
+  DeviceRequest.Value       = (UINT16) (0x21 << 8);
+  DeviceRequest.Index       = InterfaceNum;
+  DeviceRequest.Length      = sizeof (*HidDescriptor);
+  Status                    = UsbIo->UsbControlTransfer (
+                                       UsbIo,
+                                       &DeviceRequest,
+                                       EfiUsbDataIn,
+                                       TIMEOUT_VALUE,
+                                       HidDescriptor,
+                                       sizeof (*HidDescriptor),
+                                       &UsbStatus
+                                       );
 
   return Status;
 }
@@ -686,7 +686,7 @@ UsbGetReportDescriptor (
   EFI_STATUS             Status;
 
   UINT32                 UsbStatus;
-  EFI_USB_DEVICE_REQUEST Request;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (DescriptorSize > 0);
@@ -694,20 +694,20 @@ UsbGetReportDescriptor (
 
   // Fill Device request packet
 
-  Request.RequestType = 0x81;
-  Request.Request     = 0x06;
-  Request.Value       = (UINT16)(0x22 << 8);
-  Request.Index       = InterfaceNum;
-  Request.Length      = DescriptorSize;
-  Status              = UsbIo->UsbControlTransfer (
-                                 UsbIo,
-                                 &Request,
-                                 EfiUsbDataIn,
-                                 TIMEOUT_VALUE,
-                                 DescriptorBuffer,
-                                 DescriptorSize,
-                                 &UsbStatus
-                                 );
+  DeviceRequest.RequestType = 0x81;
+  DeviceRequest.Request     = 0x06;
+  DeviceRequest.Value       = (UINT16)(0x22 << 8);
+  DeviceRequest.Index       = InterfaceNum;
+  DeviceRequest.Length      = DescriptorSize;
+  Status                    = UsbIo->UsbControlTransfer (
+                                       UsbIo,
+                                       &DeviceRequest,
+                                       EfiUsbDataIn,
+                                       TIMEOUT_VALUE,
+                                       DescriptorBuffer,
+                                       DescriptorSize,
+                                       &UsbStatus
+                                       );
 
   return Status;
 }
@@ -733,30 +733,30 @@ UsbGetProtocolRequest (
   EFI_STATUS             Status;
 
   UINT32                 UsbStatus;
-  EFI_USB_DEVICE_REQUEST Request;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (Protocol != NULL);
 
   // Fill Device request packet
 
-  Request.RequestType = 0xa1;
+  DeviceRequest.RequestType = 0xA1;
 
   // 10100001b;
 
-  Request.Request     = EFI_USB_GET_PROTOCOL_REQUEST;
-  Request.Value       = 0;
-  Request.Index       = Interface;
-  Request.Length      = sizeof (*Protocol);
-  Status              = UsbIo->UsbControlTransfer (
-                                 UsbIo,
-                                 &Request,
-                                 EfiUsbDataIn,
-                                 TIMEOUT_VALUE,
-                                 Protocol,
-                                 sizeof (*Protocol),
-                                 &UsbStatus
-                                 );
+  DeviceRequest.Request = EFI_USB_GET_PROTOCOL_REQUEST;
+  DeviceRequest.Value   = 0;
+  DeviceRequest.Index   = Interface;
+  DeviceRequest.Length  = sizeof (*Protocol);
+  Status                = UsbIo->UsbControlTransfer (
+                                   UsbIo,
+                                   &DeviceRequest,
+                                   EfiUsbDataIn,
+                                   TIMEOUT_VALUE,
+                                   Protocol,
+                                   sizeof (*Protocol),
+                                   &UsbStatus
+                                   );
 
   return Status;
 }
@@ -782,30 +782,31 @@ UsbSetProtocolRequest (
   EFI_STATUS             Status;
 
   UINT32                 UsbStatus;
-  EFI_USB_DEVICE_REQUEST Request;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
 
 
   // Fill Device request packet
 
-  Request.RequestType = 0x21;
+  DeviceRequest.RequestType = 0x21;
 
   // 00100001b;
 
-  Request.Request     = EFI_USB_SET_PROTOCOL_REQUEST;
-  Request.Value       = Protocol;
-  Request.Index       = Interface;
-  Request.Length      = 0;
-  Status              = UsbIo->UsbControlTransfer (
-                                 UsbIo,
-                                 &Request,
-                                 EfiUsbNoData,
-                                 TIMEOUT_VALUE,
-                                 NULL,
-                                 0,
-                                 &UsbStatus
-                                 );
+  DeviceRequest.Request = EFI_USB_SET_PROTOCOL_REQUEST;
+  DeviceRequest.Value   = Protocol;
+  DeviceRequest.Index   = Interface;
+  DeviceRequest.Length  = 0;
+  Status                = UsbIo->UsbControlTransfer (
+                                   UsbIo,
+                                   &DeviceRequest,
+                                   EfiUsbNoData,
+                                   TIMEOUT_VALUE,
+                                   NULL,
+                                   0,
+                                   &UsbStatus
+                                   );
+
   return Status;
 }
 
@@ -832,7 +833,7 @@ UsbSetIdleRequest (
   EFI_STATUS             Status;
 
   UINT32                 UsbStatus;
-  EFI_USB_DEVICE_REQUEST Request;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (Duration > 0);
@@ -840,23 +841,24 @@ UsbSetIdleRequest (
 
   // Fill Device request packet
 
-  Request.RequestType = 0x21;
+  DeviceRequest.RequestType = 0x21;
 
   // 00100001b;
 
-  Request.Request     = EFI_USB_SET_IDLE_REQUEST;
-  Request.Value       = (UINT16) ((Duration << 8) | ReportId);
-  Request.Index       = Interface;
-  Request.Length      = 0;
-  Status              = UsbIo->UsbControlTransfer (
-                                 UsbIo,
-                                 &Request,
-                                 EfiUsbNoData,
-                                 TIMEOUT_VALUE,
-                                 NULL,
-                                 0,
-                                 &UsbStatus
-                                 );
+  DeviceRequest.Request = EFI_USB_SET_IDLE_REQUEST;
+  DeviceRequest.Value   = (UINT16)((Duration << 8) | ReportId);
+  DeviceRequest.Index   = Interface;
+  DeviceRequest.Length  = 0;
+  Status                = UsbIo->UsbControlTransfer (
+                                   UsbIo,
+                                   &DeviceRequest,
+                                   EfiUsbNoData,
+                                   TIMEOUT_VALUE,
+                                   NULL,
+                                   0,
+                                   &UsbStatus
+                                   );
+
   return Status;
 }
 
@@ -883,30 +885,30 @@ UsbGetIdleRequest (
   EFI_STATUS             Status;
 
   UINT32                 UsbStatus;
-  EFI_USB_DEVICE_REQUEST Request;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (Duration != NULL);
 
   // Fill Device request packet
 
-  Request.RequestType = 0xa1;
+  DeviceRequest.RequestType = 0xA1;
 
   // 10100001b;
 
-  Request.Request     = EFI_USB_GET_IDLE_REQUEST;
-  Request.Value       = ReportId;
-  Request.Index       = Interface;
-  Request.Length      = sizeof (*Duration);
-  Status              = UsbIo->UsbControlTransfer (
-                                 UsbIo,
-                                 &Request,
-                                 EfiUsbDataIn,
-                                 TIMEOUT_VALUE,
-                                 Duration,
-                                 sizeof (*Duration),
-                                 &UsbStatus
-                                 );
+  DeviceRequest.Request = EFI_USB_GET_IDLE_REQUEST;
+  DeviceRequest.Value   = ReportId;
+  DeviceRequest.Index   = Interface;
+  DeviceRequest.Length  = sizeof (*Duration);
+  Status                = UsbIo->UsbControlTransfer (
+                                   UsbIo,
+                                   &DeviceRequest,
+                                   EfiUsbDataIn,
+                                   TIMEOUT_VALUE,
+                                   Duration,
+                                   sizeof (*Duration),
+                                   &UsbStatus
+                                   );
 
   return Status;
 }
@@ -938,7 +940,7 @@ UsbSetReportRequest (
   EFI_STATUS             Status;
 
   UINT32                 UsbStatus;
-  EFI_USB_DEVICE_REQUEST Request;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (ReportLen > 0);
@@ -946,23 +948,23 @@ UsbSetReportRequest (
 
   // Fill Device request packet
 
-  Request.RequestType = 0x21;
+  DeviceRequest.RequestType = 0x21;
 
   // 00100001b;
 
-  Request.Request     = EFI_USB_SET_REPORT_REQUEST;
-  Request.Value       = (UINT16)((ReportType << 8) | ReportId);
-  Request.Index       = Interface;
-  Request.Length      = ReportLen;
-  Status              = UsbIo->UsbControlTransfer (
-                                 UsbIo,
-                                 &Request,
-                                 EfiUsbDataOut,
-                                 TIMEOUT_VALUE,
-                                 Report,
-                                 ReportLen,
-                                 &UsbStatus
-                                 );
+  DeviceRequest.Request = EFI_USB_SET_REPORT_REQUEST;
+  DeviceRequest.Value   = (UINT16)((ReportType << 8) | ReportId);
+  DeviceRequest.Index   = Interface;
+  DeviceRequest.Length  = ReportLen;
+  Status                = UsbIo->UsbControlTransfer (
+                                   UsbIo,
+                                   &DeviceRequest,
+                                   EfiUsbDataOut,
+                                   TIMEOUT_VALUE,
+                                   Report,
+                                   ReportLen,
+                                   &UsbStatus
+                                   );
 
   return Status;
 }
@@ -994,7 +996,7 @@ UsbGetReportRequest (
   EFI_STATUS             Status;
 
   UINT32                 UsbStatus;
-  EFI_USB_DEVICE_REQUEST Request;
+  EFI_USB_DEVICE_REQUEST DeviceRequest;
 
   ASSERT (UsbIo != NULL);
   ASSERT (ReportLen > 0);
@@ -1002,23 +1004,23 @@ UsbGetReportRequest (
 
   // Fill Device request packet
 
-  Request.RequestType = 0xA1;
+  DeviceRequest.RequestType = 0xA1;
 
   // 10100001b;
 
-  Request.Request = EFI_USB_GET_REPORT_REQUEST;
-  Request.Value   = (UINT16)((ReportType << 8) | ReportId);
-  Request.Index   = Interface;
-  Request.Length  = ReportLen;
-  Status          = UsbIo->UsbControlTransfer (
-                             UsbIo,
-                             &Request,
-                             EfiUsbDataIn,
-                             TIMEOUT_VALUE,
-                             Report,
-                             ReportLen,
-                             &UsbStatus
-                             );
+  DeviceRequest.Request = EFI_USB_GET_REPORT_REQUEST;
+  DeviceRequest.Value   = (UINT16)((ReportType << 8) | ReportId);
+  DeviceRequest.Index   = Interface;
+  DeviceRequest.Length  = ReportLen;
+  Status                = UsbIo->UsbControlTransfer (
+                                   UsbIo,
+                                   &DeviceRequest,
+                                   EfiUsbDataIn,
+                                   TIMEOUT_VALUE,
+                                   Report,
+                                   ReportLen,
+                                   &UsbStatus
+                                   );
 
   return Status;
 }

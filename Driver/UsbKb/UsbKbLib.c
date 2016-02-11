@@ -133,7 +133,7 @@ STATIC KB_KEY mKeyConvertionTable[USB_KEYCODE_MAX_MAKE] = {
 };
 
 // mKeyboardModifierMap
-STATIC KB_MODIFIER mKeyboardModifierMap[8] = {
+STATIC KB_MODIFIER mKeyboardModifierMap[] = {
   { USB_HID_KB_KP_MODIFIER_LEFT_CONTROL,  UsbHidUsageIdKbKpModifierKeyLeftControl  },
   { USB_HID_KB_KP_MODIFIER_RIGHT_CONTROL, UsbHidUsageIdKbKpModifierKeyRightControl },
   { USB_HID_KB_KP_MODIFIER_LEFT_SHIFT,    UsbHidUsageIdKbKpModifierKeyLeftShift    },
@@ -460,16 +460,16 @@ KeyboardHandler (
   USB_KEY             UsbKey;
   UINT8               NewRepeatKey;
   UINT32              UsbStatus;
-  UINTN               NoKeys;
+  UINTN               NumberOfKeys;
   APPLE_KEY           Keys[34];
 
   ASSERT (Data != NULL);
   ASSERT (DataLength > 0);
   ASSERT (Context != NULL);
 
-  NewRepeatKey      = 0;
-  UsbKbDev = (USB_KB_DEV *) Context;
-  UsbIo             = UsbKbDev->UsbIo;
+  NewRepeatKey = 0;
+  UsbKbDev     = (USB_KB_DEV *)Context;
+  UsbIo        = UsbKbDev->UsbIo;
 
   // Analyzes the Result and performs corresponding action.
   if (Result != EFI_USB_NOERROR) {
@@ -482,11 +482,11 @@ KeyboardHandler (
 
     // stop the repeat key generation if any
     UsbKbDev->RepeatKey = 0;
-    Status                       = gBS->SetTimer (
-                                          UsbKbDev->RepeatTimer,
-                                          TimerCancel,
-                                          USBKBD_REPEAT_RATE
-                                          );
+    Status              = gBS->SetTimer (
+                                 UsbKbDev->RepeatTimer,
+                                 TimerCancel,
+                                 USBKBD_REPEAT_RATE
+                                 );
 
     ASSERT_EFI_ERROR (Status);
 
@@ -539,23 +539,26 @@ KeyboardHandler (
 
     if (Index != 8) {
       CurModifierMap = CurKeyCodeBuffer[0];
-      NoKeys         = 0;
+      NumberOfKeys   = 0;
 
       // Pass the data to the Apple protocol
       for (Index = 2; Index < 8; Index++) {
         if (USB_HID_KB_KP_VALID_KEYCODE (CurKeyCodeBuffer[Index])) {
-          Keys[NoKeys] = APPLE_HID_USB_KB_KP_USGAE (CurKeyCodeBuffer[Index]);
-          ++NoKeys;
+          Keys[NumberOfKeys] = APPLE_HID_USB_KB_KP_USGAE (
+                                 CurKeyCodeBuffer[Index]
+                                 );
+
+          ++NumberOfKeys;
         }
       }
 
       UsbKbDev->KeyMapDb->SetKeyStrokeBufferKeys (
-                                     UsbKbDev->KeyMapDb,
-                                     UsbKbDev->KeyMapDbIndex,
-                                     (APPLE_MODIFIER_MAP)CurModifierMap,
-                                     NoKeys,
-                                     &Keys[0]
-                                     );
+                            UsbKbDev->KeyMapDb,
+                            UsbKbDev->KeyMapDbIndex,
+                            (APPLE_MODIFIER_MAP)CurModifierMap,
+                            NumberOfKeys,
+                            &Keys[0]
+                            );
 
       // Parse the modifier key
       OldModifierMap = OldKeyCodeBuffer[0];
@@ -1074,8 +1077,9 @@ RemoveKeyCode (
     UsbKey->Down    = KeyboardBuffer->Buffer[KeyboardBuffer->Head].Down;
 
     // adjust the head pointer of the FIFO keyboard Buffer.
-    KeyboardBuffer->Head = (UINT8)((KeyboardBuffer->Head + 1)
-                             % (MAX_KEY_ALLOWED + 1));
+    KeyboardBuffer->Head = (UINT8)(
+                             (KeyboardBuffer->Head + 1) % (MAX_KEY_ALLOWED + 1)
+                             );
 
     Status = EFI_SUCCESS;
   }
@@ -1188,18 +1192,18 @@ UsbKbRecoveryHandler (
   ASSERT (Context != NULL);
   ASSERT (((USB_KB_DEV *)Context)->Signature == USB_KB_DEV_SIGNATURE);
 
-  UsbKbDev = (USB_KB_DEV *)Context;
-  UsbIo             = UsbKbDev->UsbIo;
-  PacketSize        = (UINT8)(UsbKbDev->EndpointDescriptor.MaxPacketSize);
-  Status            = UsbIo->UsbAsyncInterruptTransfer (
-                               UsbIo,
-                               UsbKbDev->EndpointDescriptor.EndpointAddress,
-                               TRUE,
-                               UsbKbDev->EndpointDescriptor.Interval,
-                               PacketSize,
-                               KeyboardHandler,
-                               UsbKbDev
-                               );
+  UsbKbDev   = (USB_KB_DEV *)Context;
+  UsbIo      = UsbKbDev->UsbIo;
+  PacketSize = (UINT8)(UsbKbDev->EndpointDescriptor.MaxPacketSize);
+  Status     = UsbIo->UsbAsyncInterruptTransfer (
+                        UsbIo,
+                        UsbKbDev->EndpointDescriptor.EndpointAddress,
+                        TRUE,
+                        UsbKbDev->EndpointDescriptor.Interval,
+                        PacketSize,
+                        KeyboardHandler,
+                        UsbKbDev
+                        );
 
   ASSERT_EFI_ERROR (Status);
 }
