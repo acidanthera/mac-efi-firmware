@@ -32,7 +32,7 @@ STATIC EFI_EVENT mQueryEvent = NULL;
 STATIC BOOLEAN mQueryEventCreated = FALSE;
 
 // mEventQueryList
-STATIC EFI_LIST mEventQueryList = INITIALIZE_LIST_HEAD_VARIABLE (mEventQueryList);
+STATIC EFI_LIST mQueryList = INITIALIZE_LIST_HEAD_VARIABLE (mQueryList);
 
 // UnloadAppleEvent
 EFI_STATUS
@@ -125,13 +125,13 @@ EventRemoveUnregisteredEvents (
   APPLE_EVENT_HANDLE *NextEvent;
 
   CurrentEvent = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
-                   mEventHandleList.ForwardLink
+                   mHandleList.ForwardLink
                    );
 
-  if (!IsListEmpty (&mEventHandleList)) {
+  if (!IsListEmpty (&mHandleList)) {
     do {
       NextEvent = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
-                    GetNextNode (&mEventHandleList, &CurrentEvent->This)
+                    GetNextNode (&mHandleList, &CurrentEvent->This)
                     );
 
       if (!CurrentEvent->Registered) {
@@ -144,7 +144,7 @@ EventRemoveUnregisteredEvents (
       }
 
       CurrentEvent = NextEvent;
-    } while (!IsNull (&mEventHandleList, &NextEvent->This));
+    } while (!IsNull (&mHandleList, &NextEvent->This));
   }
 }
 
@@ -154,14 +154,14 @@ EventUnregisterHandlers (
   VOID
   ) // sub_A31
 {
-  if (mSimplePointerInstances != NULL) {
-    gBS->FreePool (mSimplePointerInstances);
+  if (mPointerProtocols != NULL) {
+    gBS->FreePool (mPointerProtocols);
   }
 
   EventRemoveUnregisteredEvents ();
 
-  if (!IsListEmpty (&mEventHandleList)) {
-    EventUnregisterHandlerImpl ((APPLE_EVENT_HANDLE *)EFI_MAX_ADDRESS);
+  if (!IsListEmpty (&mHandleList)) {
+    EventUnregisterHandler ((APPLE_EVENT_HANDLE *)EFI_MAX_ADDRESS);
   }
 }
 
@@ -252,12 +252,12 @@ FlagAllEventsReady (
 {
   APPLE_EVENT_HANDLE *EventHandle;
 
-  if (!IsListEmpty (&mEventHandleList)) {
+  if (!IsListEmpty (&mHandleList)) {
     EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
-                    mEventHandleList.ForwardLink
+                    mHandleList.ForwardLink
                     );
 
-    while (!IsNull (&mEventHandleList, &EventHandle->This)) {
+    while (!IsNull (&mHandleList, &EventHandle->This)) {
       if (!EventHandle->Ready) {
         EventHandle->Ready = TRUE;
       }
@@ -291,17 +291,17 @@ QueryEventNotifyFunction (
 
     FlagAllEventsReady ();
 
-    if (!IsListEmpty (&mEventQueryList))  {
+    if (!IsListEmpty (&mQueryList))  {
       EventQuery = APPLE_EVENT_QUERY_FROM_LIST_ENTRY (
-                     mEventQueryList.ForwardLink
+                     mQueryList.ForwardLink
                      );
 
       do {
         EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
-                        mEventHandleList.ForwardLink
+                        mHandleList.ForwardLink
                         );
 
-        while (!IsNull (&mEventHandleList, &EventHandle->This)) {
+        while (!IsNull (&mHandleList, &EventHandle->This)) {
           if ((EventHandle->Registered)
            && EventHandle->Ready
            && ((EventQuery->Information->EventType & EventHandle->EventType) != 0)
@@ -327,7 +327,7 @@ QueryEventNotifyFunction (
         RemoveEntryList (EventQuery->This.ForwardLink->BackLink);
         gBS->FreePool ((VOID *)EventQuery->Information);
         gBS->FreePool ((VOID *)EventQuery);
-      } while (!IsNull (&mEventQueryList, &EventQuery->This));
+      } while (!IsNull (&mQueryList, &EventQuery->This));
     }
 
     EventRemoveUnregisteredEvents ();
@@ -398,7 +398,7 @@ EventAddEventQuery (
       EventQuery->Signature   = APPLE_EVENT_QUERY_SIGNATURE;
       EventQuery->Information = Information;
 
-      InsertTailList (&mEventQueryList, &EventQuery->This);
+      InsertTailList (&mQueryList, &EventQuery->This);
     }
 
     EfiReleaseLock (&mEfiLock);
@@ -431,7 +431,7 @@ EventCreateEventQuery (
                     Modifiers
                     );
 
-    Status      = EFI_OUT_OF_RESOURCES;
+    Status = EFI_OUT_OF_RESOURCES;
 
     if (Information != NULL) {
       EventAddEventQuery (Information);

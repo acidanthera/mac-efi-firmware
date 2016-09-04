@@ -80,23 +80,23 @@ typedef struct {
   EFI_DEVICE_PATH_PROPERTY_DATA *Value;     ///< 
 } EFI_DEVICE_PATH_PROPERTY;
 
-// DevicePathPropertyDbGetPropertyNode
+// DppDbGetPropertyNode
 EFI_DEVICE_PATH_PROPERTY_NODE *
-DevicePathPropertyDbGetPropertyNode (
+DppDbGetPropertyNode (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Database,
   IN EFI_DEVICE_PATH_PROTOCOL           *DevicePath
   );
 
-// DevicePathPropertyDbGetProperty
+// DppDbGetProperty
 EFI_DEVICE_PATH_PROPERTY *
-DevicePathPropertyDbGetProperty (
+DppDbGetProperty (
   IN CHAR16                         *Name,
   IN EFI_DEVICE_PATH_PROPERTY_NODE  *Node
   );
 
-// DevicePathPropertyDbCallProtocol
+// DppDbCallProtocol
 VOID
-DevicePathPropertyDbCallProtocol (
+DppDbCallProtocol (
   VOID
   );
 

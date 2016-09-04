@@ -38,7 +38,7 @@ typedef struct {
   BOOLEAN                                    Modified;   ///< 
 } EFI_DEVICE_PATH_PROPERTY_DATABASE;
 
-// DevicePathPropertyDbGetPropertyValueImpl
+// DppDbGetPropertyValueImpl
 /** Locates a device property in the database and returns its value into Value.
 
   @param[in]      This        A pointer to the protocol instance.
@@ -62,7 +62,7 @@ typedef struct {
 **/
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbGetPropertyValueImpl (
+DppDbGetPropertyValue (
   IN     EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN     EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN     CHAR16                                      *Name,
@@ -70,7 +70,7 @@ DevicePathPropertyDbGetPropertyValueImpl (
   IN OUT UINTN                                       *Size
   );
 
-// DevicePathPropertyDbSetPropertyImpl
+// DppDbSetPropertyImpl
 /** Sets the sepcified property of the given device path to the provided Value.
 
   @param[in] This        A pointer to the protocol instance.
@@ -87,7 +87,7 @@ DevicePathPropertyDbGetPropertyValueImpl (
 **/
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbSetPropertyImpl (
+DppDbSetProperty (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN CHAR16                                      *Name,
@@ -95,7 +95,7 @@ DevicePathPropertyDbSetPropertyImpl (
   IN UINTN                                       Size
   );
 
-// DevicePathPropertyDbRemovePropertyImpl
+// DppDbRemovePropertyImpl
 /** Removes the sepcified property from the given device path.
 
   @param[in] This        A pointer to the protocol instance.
@@ -109,13 +109,13 @@ DevicePathPropertyDbSetPropertyImpl (
 **/
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbRemovePropertyImpl (
+DppDbRemoveProperty (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
   IN CHAR16                                      *Name
   );
 
-// DevicePathPropertyDbGetPropertyBufferImpl
+// DppDbGetPropertyBufferImpl
 /** Returns a Buffer of all device properties into Buffer.
 
   @param[in]      This    A pointer to the protocol instance.
@@ -133,7 +133,7 @@ DevicePathPropertyDbRemovePropertyImpl (
 **/
 EFI_STATUS
 EFIAPI
-DevicePathPropertyDbGetPropertyBufferImpl (
+DppDbGetPropertyBuffer (
   IN     EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   OUT    EFI_DEVICE_PATH_PROPERTY_BUFFER             *Buffer, OPTIONAL
   IN OUT UINTN                                       *Size

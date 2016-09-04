@@ -19,7 +19,6 @@
 #include APPLE_PROTOCOL_PRODUCER (AppleKeyMapAggregator)
 #include APPLE_PROTOCOL_PRODUCER (AppleKeyMapDatabase)
 
-/// @{
 #define APPLE_KEY_MAP_PROTOCOLS_REVISION  0x010000
 
 #define APPLE_KEY_MAP_DATABASE_PROTOCOL_REVISION  \
@@ -27,28 +26,25 @@
 
 #define APPLE_KEY_MAP_AGGREGATOR_PROTOCOL_REVISION  \
   APPLE_KEY_MAP_PROTOCOLS_REVISION
-/// @}
 
-/// @{
 #define APPLE_KEY_MAP_AGGREGATOR_SIGNATURE  \
           EFI_SIGNATURE_32 ('K', 'e', 'y', 'A')
 
-#define APPLE_KEY_MAP_AGGREGATOR_FROM_AGGREGATOR_PROTOCOL(This)  \
-  CR (                                                           \
-    (This),                                                      \
-    APPLE_KEY_MAP_AGGREGATOR,                                    \
-    AggregatorProtocol,                                          \
-    APPLE_KEY_MAP_AGGREGATOR_SIGNATURE                           \
+#define APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_AGGREGATOR_THIS(This)  \
+  CR (                                                                   \
+    (This),                                                              \
+    APPLE_KEY_MAP_AGGREGATOR_PRIVATE,                                    \
+    Aggregator,                                                          \
+    APPLE_KEY_MAP_AGGREGATOR_SIGNATURE                                   \
     )
 
-#define APPLE_KEY_MAP_AGGREGATOR_FROM_DATABASE_PROTOCOL(This)  \
-  CR (                                                         \
-    (This),                                                    \
-    APPLE_KEY_MAP_AGGREGATOR,                                  \
-    DatabaseProtocol,                                          \
-    APPLE_KEY_MAP_AGGREGATOR_SIGNATURE                         \
+#define APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_DATABASE_THIS(This)  \
+  CR (                                                                 \
+    (This),                                                            \
+    APPLE_KEY_MAP_AGGREGATOR_PRIVATE,                                  \
+    Database,                                                          \
+    APPLE_KEY_MAP_AGGREGATOR_SIGNATURE                                 \
     )
-/// @}
 
 // APPLE_KEY_MAP_AGGREGATOR
 typedef struct {
@@ -57,11 +53,11 @@ typedef struct {
   APPLE_KEY                         *KeyBuffer;          ///< 
   UINTN                             KeyBuffersSize;      ///< 
   EFI_LIST                          KeyStrokesInfoList;  ///< 
-  APPLE_KEY_MAP_DATABASE_PROTOCOL   DatabaseProtocol;    ///< 
-  APPLE_KEY_MAP_AGGREGATOR_PROTOCOL AggregatorProtocol;  ///< 
-} APPLE_KEY_MAP_AGGREGATOR;
+  APPLE_KEY_MAP_DATABASE_PROTOCOL   Database;            ///< 
+  APPLE_KEY_MAP_AGGREGATOR_PROTOCOL Aggregator;          ///< 
+} APPLE_KEY_MAP_AGGREGATOR_PRIVATE;
 
-// KeyMapCreateKeyStrokesBufferImpl
+// KeyMapCreateKeyStrokesBuffer
 /** Creates a new key set with a given number of keys allocated.  The index
     within the database is returned.
 
@@ -78,13 +74,13 @@ typedef struct {
 **/
 EFI_STATUS
 EFIAPI
-KeyMapCreateKeyStrokesBufferImpl (
+KeyMapCreateKeyStrokesBuffer (
   IN  APPLE_KEY_MAP_DATABASE_PROTOCOL  *This,
   IN  UINTN                            KeyBufferLength,
   OUT UINTN                            *Index
   );
 
-// KeyMapRemoveKeyStrokesBufferImpl
+// KeyMapRemoveKeyStrokesBuffer
 /** Removes a key set specified by its index from the database.
 
   @param[in] This   A pointer to the protocol instance.
@@ -97,12 +93,12 @@ KeyMapCreateKeyStrokesBufferImpl (
 **/
 EFI_STATUS
 EFIAPI
-KeyMapRemoveKeyStrokesBufferImpl (
+KeyMapRemoveKeyStrokesBuffer (
   IN APPLE_KEY_MAP_DATABASE_PROTOCOL  *This,
   IN UINTN                            Index
   );
 
-// KeyMapSetKeyStrokeBufferKeysImpl
+// KeyMapSetKeyStrokeBufferKeys
 /** Sets the keys of a key set specified by its index to the given Keys Buffer.
 
   @param[in] This          A pointer to the protocol instance.
@@ -121,7 +117,7 @@ KeyMapRemoveKeyStrokesBufferImpl (
 **/
 EFI_STATUS
 EFIAPI
-KeyMapSetKeyStrokeBufferKeysImpl (
+KeyMapSetKeyStrokeBufferKeys (
   IN APPLE_KEY_MAP_DATABASE_PROTOCOL  *This,
   IN UINTN                            Index,
   IN APPLE_MODIFIER_MAP               Modifiers,
@@ -129,7 +125,7 @@ KeyMapSetKeyStrokeBufferKeysImpl (
   IN APPLE_KEY                        *Keys
   );
 
-// KeyMapGetKeyStrokesImpl
+// KeyMapGetKeyStrokes
 /** Returns all pressed keys and key modifiers into the appropiate buffers.
 
   @param[in]  This          A pointer to the protocol instance.
@@ -149,14 +145,14 @@ KeyMapSetKeyStrokeBufferKeysImpl (
 **/
 EFI_STATUS
 EFIAPI
-KeyMapGetKeyStrokesImpl (
+KeyMapGetKeyStrokes (
   IN  APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   OUT APPLE_MODIFIER_MAP                 *Modifiers,
   OUT UINTN                              *NumberOfKeys,
-  OUT APPLE_KEY                          *Keys
+  OUT APPLE_KEY                          *Keys OPTIONAL
   );
 
-// KeyMapContainsKeyStrokesImpl
+// KeyMapContainsKeyStrokes
 /** Returns whether or not a list of keys and their modifiers are part of the
     database of pressed keys.
 
@@ -175,7 +171,7 @@ KeyMapGetKeyStrokesImpl (
 **/
 EFI_STATUS
 EFIAPI
-KeyMapContainsKeyStrokesImpl (
+KeyMapContainsKeyStrokes (
   IN     APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   IN     APPLE_MODIFIER_MAP                 Modifiers,
   IN     UINTN                              NumberOfKeys,

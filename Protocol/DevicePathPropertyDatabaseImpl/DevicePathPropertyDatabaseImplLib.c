@@ -26,9 +26,9 @@
 EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
 //
 
-// DevicePathPropertyDbGetPropertyNode
+// DppDbGetPropertyNode
 EFI_DEVICE_PATH_PROPERTY_NODE *
-DevicePathPropertyDbGetPropertyNode (
+DppDbGetPropertyNode (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Database,
   IN EFI_DEVICE_PATH_PROTOCOL           *DevicePath
   ) // sub_AC5
@@ -72,9 +72,9 @@ DevicePathPropertyDbGetPropertyNode (
   return Node;
 }
 
-// DevicePathPropertyDbGetProperty
+// DppDbGetProperty
 EFI_DEVICE_PATH_PROPERTY *
-DevicePathPropertyDbGetProperty (
+DppDbGetProperty (
   IN CHAR16                         *Name,
   IN EFI_DEVICE_PATH_PROPERTY_NODE  *Node
   )
@@ -111,9 +111,9 @@ DevicePathPropertyDbGetProperty (
   return Property;
 }
 
-// DevicePathPropertyDbCallProtocol
+// DppDbCallProtocol
 VOID
-DevicePathPropertyDbCallProtocol (
+DppDbCallProtocol (
   VOID
   ) // sub_BB0
 {

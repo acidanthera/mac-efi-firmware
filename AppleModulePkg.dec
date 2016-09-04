@@ -60,4 +60,4 @@
   EfiKeyboardInformationImpl|AppleModulePkg/Protocol/KeyboardInformationImpl/KeyboardInformationImpl.inf
 
   ##  @libraryclass  
-  EfiOsIdentificationImpl|AppleModulePkg/Include/Protocol/OsIdentificationImpl.h
+  EfiOSInfoImpl|AppleModulePkg/Include/Protocol/OSInfoImpl.h

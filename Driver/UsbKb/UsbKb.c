@@ -43,7 +43,8 @@ EFI_DRIVER_BINDING_PROTOCOL gUsbKbDriverBindingProtocol = {
 };
 
 // gUsbKbKeyboardInformationProtocol
-GLOBAL_REMOVE_IF_UNREFERENCED EFI_KEYBOARD_INFO_PROTOCOL gUsbKbKeyboardInformationProtocol = {
+GLOBAL_REMOVE_IF_UNREFERENCED
+EFI_KEYBOARD_INFO_PROTOCOL gUsbKbKeyboardInformationProtocol = {
   KbInfoGetInfo
 };
 

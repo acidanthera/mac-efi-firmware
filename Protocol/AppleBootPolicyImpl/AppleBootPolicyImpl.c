@@ -89,7 +89,12 @@ BootPolicyGetBootFileImpl (
 
     if (!EFI_ERROR (Status)) {
       Size   = 0;
-      Status = Root->GetInfo (Root, &gAppleBlessedSystemFileInfoGuid, &Size, NULL);
+      Status = Root->GetInfo (
+                       Root,
+                       &gAppleBlessedSystemFileInfoGuid,
+                       &Size,
+                       NULL
+                       );
 
       if (Status == EFI_BUFFER_TOO_SMALL) {
         FilePath.DevPath = EfiLibAllocateZeroPool (Size);
@@ -116,7 +121,12 @@ BootPolicyGetBootFileImpl (
       }
 
       Size   = 0;
-      Status = Root->GetInfo (Root, &gAppleBlessedSystemFolderInfoGuid, &Size, NULL);
+      Status = Root->GetInfo (
+                       Root,
+                       &gAppleBlessedSystemFolderInfoGuid,
+                       &Size,
+                       NULL
+                       );
 
       if (Status == EFI_BUFFER_TOO_SMALL) {
         FilePath.DevPath = EfiLibAllocateZeroPool (Size);

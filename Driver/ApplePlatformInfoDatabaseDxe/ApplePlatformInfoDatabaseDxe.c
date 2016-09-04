@@ -22,10 +22,10 @@
 #include <Library/AppleDriverLib.h>
 #include <EfiHobLib.h>
 
-#include <Driver/ApplePlatformInfoDB.h>
+#include <Driver/ApplePlatformInfoDatabaseDxe.h>
 
-// mApplePlatformInfoDb
-STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDb = {
+// mApplePlatformInfoDatabaseDxe
+STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDatabase = {
   APPLE_PLATFORM_INFO_DATABASE_PROTOCOL_REVISION,
   PlatformInfoDbGetFirstDataImpl,
   PlatformInfoDbGetFirstDataSizeImpl,
@@ -33,9 +33,9 @@ STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDb = {
   PlatformInfoDbGetDataSizeImpl
 };
 
-EFI_DRIVER_ENTRY_POINT (ApplePlatformInfoDBMain);
+EFI_DRIVER_ENTRY_POINT (ApplePlatformInfoDatabaseDxeMain);
 
-// ApplePlatformInfoDBMain
+// ApplePlatformInfoDatabaseDxeMain
 /**
 
   @param[in] ImageHandle  The firmware allocated handle for the EFI image.
@@ -46,7 +46,7 @@ EFI_DRIVER_ENTRY_POINT (ApplePlatformInfoDBMain);
 **/
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDBMain (
+ApplePlatformInfoDatabaseDxeMain (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   ) // start
@@ -139,7 +139,7 @@ ApplePlatformInfoDBMain (
           }
         }
 
-        FirmwareVolumeFound = (FirmwareVolume == NULL);
+        FirmwareVolumeFound = (BOOLEAN)(FirmwareVolume == NULL);
       }
     }
 
@@ -202,8 +202,8 @@ ApplePlatformInfoDBMain (
 
     EfiCopyMem (
       (VOID *)&PlatformInfoDatabase->Protocol,
-      (VOID *)&mApplePlatformInfoDb,
-      sizeof (mApplePlatformInfoDb)
+      (VOID *)&mApplePlatformInfoDatabase,
+      sizeof (mApplePlatformInfoDatabase)
       );
     
     Status = gBS->InstallProtocolInterface (

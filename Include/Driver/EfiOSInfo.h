@@ -11,28 +11,23 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#ifndef KEYBOARD_INFORMATION_IMPL_H_
-#define KEYBOARD_INFORMATION_IMPL_H_
+#ifndef APPLE_OS_INFO_DRV_H_
+#define APPLE_OS_INFO_DRV_H_
 
-#include APPLE_PROTOCOL_PRODUCER (KeyboardInfo)
+// EfiOSInfoMain
+/**
 
-// gKeyboardInfoIdVendor
-extern UINT16 gKbInfoIdVendor;
+  @param[in] ImageHandle  The firmware allocated handle for the EFI image.
+  @param[in] SystemTable  A pointer to the EFI System Table.
 
-// gKeyboardInfoCountryCode
-extern UINT8 gKeyboardInfoCountryCode;
-
-// gKeyboardInfoIdProduct
-extern UINT16 gKbInfoIdProduct;
-
-// KbInfoGetInfo
+  @retval EFI_SUCCESS          The entry point is executed successfully.
+  @retval EFI_ALREADY_STARTED  The protocol has already been installed.
+**/
 EFI_STATUS
 EFIAPI
-KbInfoGetInfo (
-  OUT UINT16  *IdVendor,
-  OUT UINT16  *IdProduct,
-  OUT UINT8   *CountryCode
+EfiOSInfoMain (
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   );
 
-#endif // KEYBOARD_INFORMATION_IMPL_H_
-
+#endif // APPLE_OS_INFO_DRV_H_

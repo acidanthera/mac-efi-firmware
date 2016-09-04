@@ -22,11 +22,11 @@
 // mAppleEventProtocol
 APPLE_EVENT_PROTOCOL mAppleEventProtocol = {
   APPLE_EVENT_PROTOCOL_REVISION,
-  EventRegisterHandlerImpl,
-  EventUnregisterHandlerImpl,
-  EventSetCursorPositionImpl,
-  EventSetEventNameImpl,
-  EventIsCapsLockOnImpl
+  EventRegisterHandler,
+  EventUnregisterHandler,
+  EventSetCursorPosition,
+  EventSetEventName,
+  EventIsCapsLockOn
 };
 
 // UnloadAppleEventDummy
@@ -66,6 +66,7 @@ AppleEventMain (
                                         &gEfiLoadedImageProtocolGuid,
                                         (VOID **)&Interface
                                         );
+
   ASSERT_EFI_ERROR (Status);
 
   Interface->Unload = UnloadAppleEventDummy;

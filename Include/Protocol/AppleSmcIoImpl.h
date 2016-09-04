@@ -22,12 +22,10 @@
 // APPLE_SMC_IO_PROTOCOL_REVISION
 #define APPLE_SMC_IO_PROTOCOL_REVISION  0x33
 
-/// @{
 #define SMC_DEV_SIGNATURE  \
   EFI_SIGNATURE_64 ('A', 'p', 'p', 'l', 'e', 'S', 'm', 'c')
 
 #define SMC_DEV_FROM_THIS(x) CR ((x), SMC_DEV, SmcIo, SMC_DEV_SIGNATURE)
-/// @}
 
 #pragma pack (1)
 

@@ -225,7 +225,7 @@ BreakBoth:
     AppleModifiers = Modifiers;
   }
 
-  ShiftPressed   = ((AppleModifiers & APPLE_MODIFIERS_SHIFT) != 0);
+  ShiftPressed   = (BOOLEAN)((AppleModifiers & APPLE_MODIFIERS_SHIFT) != 0);
   ReleasedKeyPtr = ReleasedKeysPtr;
 
   for (Index = 0; Index < *NumberOfKeys; ++Index) {
@@ -287,7 +287,7 @@ BreakBoth:
       break;
     }
 
-    ++KeyInfo->NoStrokes;
+    ++KeyInfo->NumberOfStrokes;
   }
 
   // if a new key is hold down, cancel all previos inputs
@@ -305,7 +305,7 @@ BreakBoth:
       if (KeyInfo != NULL) {
         KeyInfo->AppleKey      = Keys[NewKeyIndex];
         KeyInfo->CurrentStroke = TRUE;
-        KeyInfo->NoStrokes     = 0;
+        KeyInfo->NumberOfStrokes     = 0;
       }
 
       break;
@@ -338,18 +338,20 @@ NoNewKey:
 
     if (KeyInfo == NULL) {
       *NumberOfKeys = 0;
-    } else if (KeyInfo->NoStrokes < (KEY_STROKE_DELAY * 10)) {
-      if (KeyInfo->NoStrokes > 0) {
+    } else if (KeyInfo->NumberOfStrokes < (KEY_STROKE_DELAY * 10)) {
+      if (KeyInfo->NumberOfStrokes > 0) {
         goto Return;
       }
-    } else if ((KeyInfo->NoStrokes % KEY_STROKE_DELAY) > 0) {
+    } else if ((KeyInfo->NumberOfStrokes % KEY_STROKE_DELAY) > 0) {
       goto Return;
     }
 
     *NumberOfKeys = 1;
     *Keys        = KeyInfo->AppleKey;
-    Shifted      = ((IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
-                     != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0));
+    Shifted      = (BOOLEAN)(
+                     (IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
+                       != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
+                     );
 
     InputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
 

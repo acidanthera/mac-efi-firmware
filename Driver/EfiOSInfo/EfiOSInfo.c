@@ -1,7 +1,3 @@
-//
-
-//
-
 /** @file
   Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
 
@@ -15,10 +11,24 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#ifndef APPLE_PLATFORM_INFO_DB_DRV_H_
-#define APPLE_PLATFORM_INFO_DB_DRV_H_
+#include <AppleEfi.h>
 
-// ApplePlatformInfoDBMain
+#include APPLE_PROTOCOL_PRODUCER (OSInfoImpl)
+
+#include <Library/AppleDriverLib.h>
+
+#include <Driver/EfiOSInfo.h>
+
+// mEfiOSInfo
+STATIC EFI_OS_INFO_PROTOCOL mEfiOSInfo = {
+  EFI_OS_INFO_PROTOCOL_REVISION,
+  OSInfoOSNameImpl,
+  OSInfoOSVendorImpl
+};
+
+EFI_DRIVER_ENTRY_POINT (EfiOSInfoMain);
+
+// EfiOSInfoMain
 /**
 
   @param[in] ImageHandle  The firmware allocated handle for the EFI image.
@@ -29,9 +39,18 @@
 **/
 EFI_STATUS
 EFIAPI
-ApplePlatformInfoDBMain (
+EfiOSInfoMain (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
-  );
+  ) // start
+{
+  AppleInitializeDriverLib (ImageHandle, SystemTable);
+  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gEfiOSInfoProtocolGuid);
 
-#endif // APPLE_PLATFORM_INFO_DB_DRV_H_
+  return gBS->InstallProtocolInterface (
+                ImageHandle,
+                &gEfiOSInfoProtocolGuid,
+                EFI_NATIVE_INTERFACE,
+                (VOID *)&mEfiOSInfo
+                );
+}

@@ -16,7 +16,6 @@
 
 #include APPLE_PROTOCOL_PRODUCER (AppleKeyMapImpl)
 
-/// @{
 #define APPLE_KEY_STROKES_INFO_SIGNATURE  EFI_SIGNATURE_32 ('K', 'e', 'y', 'S')
 
 #define APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY(Entry)  \
@@ -28,7 +27,6 @@
       APPLE_KEY_STROKES_INFO_SIGNATURE                 \
       )                                                \
     ))
-/// @}
 
 // APPLE_KEY_STROKES_INFO_HDR
 typedef struct {

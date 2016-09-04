@@ -14,10 +14,10 @@
 ##
 
 [Defines]
-  BASE_NAME   = ApplePlatformInfoDB
-  FILE_GUID   = 8B24E4D4-C84C-4FFC-81E5-D3EACC3F08D
-  MODULE_TYPE = DXE_DRIVER
-  ENTRY_POINT = ApplePlatformInfoDBMain
+  BASE_NAME   = EfiOSInfo
+  FILE_GUID   = 2ECED69B-2793-4388-BA3C-823040EBCCD2
+  MODULE_TYPE = UEFI_DRIVER
+  ENTRY_POINT = EfiOSInfoMain
   INF_VERSION = 0x00010005
 
 [Packages]
@@ -25,20 +25,12 @@
   AppleModulePkg/AppleModulePkg.dec
   EdkBridgePkg/EdkBridgePkg.dec
 
-[Guids]
-  gAppleHob1Guid   ## SOMETIMES_CONSUMES
-  gAppleFile1Guid  ## SOMETIMES_CONSUMES
-
 [Protocols]
-  gApplePlatformInfoDatabaseProtocolGuid  ## PRODUCES
+  gEfiOSInfoProtocolGuid  ## PRODUCES
 
 [LibraryClasses]
   AppleDriverLib
-  EdkFrameworkProtocolLib
-  ApplePlatformInfoDatabaseImpl
+  EfiOSInfoImpl
 
 [Sources]
-  ApplePlatformInfoDB.c
-
-[Depex]
-  gEfiFirmwareVolumeProtocolGuid AND gEfiFvbExtensionProtocolGuid
+  EfiOSInfo.c

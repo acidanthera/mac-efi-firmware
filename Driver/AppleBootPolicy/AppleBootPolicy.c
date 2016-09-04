@@ -61,12 +61,14 @@ AppleBootPolicyMain (
                   );
 
   if (EFI_ERROR (Status)) {
-    gBS->InstallProtocolInterface (
-           &Handle,
-           &gAppleBootPolicyProtocolGuid,
-           EFI_NATIVE_INTERFACE,
-           (VOID **)&mAppleBootPolicyProtocol
-           );
+    Status = gBS->InstallProtocolInterface (
+                    &Handle,
+                    &gAppleBootPolicyProtocolGuid,
+                    EFI_NATIVE_INTERFACE,
+                    (VOID **)&mAppleBootPolicyProtocol
+                    );
+
+    ASSERT_EFI_ERROR (Status);
 
     Status = EFI_SUCCESS;
   } else {

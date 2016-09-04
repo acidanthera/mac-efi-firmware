@@ -134,7 +134,7 @@ SmcIoSmcReadData8 (
   Index     = 60000;
   SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
-  while ((SmcStatus & (SMC_STATUS_AWAITING_MORE_BYTES | SMC_STATUS_BUSY)) == SMC_STATUS_BUSY) {
+  while ((SmcStatus & (SMC_STATUS_AWAITING_DATA | SMC_STATUS_BUSY)) == SMC_STATUS_BUSY) {
     SmcStatus = SmcIoSmcReadStatus (SmcDev);
 
     if (Index == 0) {

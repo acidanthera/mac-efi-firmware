@@ -11,28 +11,12 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#ifndef KEYBOARD_INFORMATION_IMPL_H_
-#define KEYBOARD_INFORMATION_IMPL_H_
+#ifndef OS_INFO_IMPL_H_
+#define OS_INFO_IMPL_H_
 
-#include APPLE_PROTOCOL_PRODUCER (KeyboardInfo)
+#include APPLE_PROTOCOL_PRODUCER (OSInfoImpl)
 
-// gKeyboardInfoIdVendor
-extern UINT16 gKbInfoIdVendor;
+// OS_INFO_VENDOR_NAME
+#define OS_INFO_VENDOR_NAME  "Apple Inc."
 
-// gKeyboardInfoCountryCode
-extern UINT8 gKeyboardInfoCountryCode;
-
-// gKeyboardInfoIdProduct
-extern UINT16 gKbInfoIdProduct;
-
-// KbInfoGetInfo
-EFI_STATUS
-EFIAPI
-KbInfoGetInfo (
-  OUT UINT16  *IdVendor,
-  OUT UINT16  *IdProduct,
-  OUT UINT8   *CountryCode
-  );
-
-#endif // KEYBOARD_INFORMATION_IMPL_H_
-
+#endif // OS_INFO_IMPL_H_

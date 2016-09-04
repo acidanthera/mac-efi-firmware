@@ -11,12 +11,29 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#ifndef OS_IDENTIFICATION_IMPL_H_
-#define OS_IDENTIFICATION_IMPL_H_
+#ifndef OS_INFO_IMPL_H_
+#define OS_INFO_IMPL_H_
 
-#include APPLE_PROTOCOL_PRODUCER (OsIdentificationImpl)
+#include APPLE_PROTOCOL_PRODUCER (OSInfo)
 
-// OS_IDENTIFICATION_VENDOR_NAME
-#define OS_IDENTIFICATION_VENDOR_NAME  "Apple Inc."
+// OS_INFO_PROTOCOL_REVISION
+#define EFI_OS_INFO_PROTOCOL_REVISION  0x01
 
-#endif // OS_IDENTIFICATION_IMPL_H_
+// OS_INFO_VENDOR_NAME
+#define OS_INFO_VENDOR_NAME  "Apple Inc."
+
+// OSInfoOSNameImpl
+VOID
+EFIAPI
+OSInfoOSNameImpl (
+  IN CHAR8 *OSName
+  );
+
+// OSInfoOSVendorImpl
+VOID
+EFIAPI
+OSInfoOSVendorImpl (
+  IN CHAR8 *OSVendor
+  );
+
+#endif // OS_INFO_IMPL_H_

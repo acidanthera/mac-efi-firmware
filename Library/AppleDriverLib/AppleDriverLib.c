@@ -46,37 +46,38 @@ AppleInitializeDriverLib (
   )
 {
   VOID                 *Table;
-  EFI_PEI_HOB_POINTERS TableWalker;
+  EFI_PEI_HOB_POINTERS TableIterator;
   BOOLEAN              Match;
 
   EfiInitializeDriverLib (ImageHandle, SystemTable);
   EfiLibGetSystemConfigurationTable (&gEfiHobListGuid, &Table);
 
-  TableWalker.Raw = Table;
+  TableIterator.Raw = Table;
 
-  if (!END_OF_HOB_LIST (TableWalker)) {
+  if (!END_OF_HOB_LIST (TableIterator)) {
     do {
-      GetHob (EFI_HOB_TYPE_GUID_EXTENSION, (VOID *)TableWalker.Raw);
+      GetHob (EFI_HOB_TYPE_GUID_EXTENSION, (VOID *)TableIterator.Raw);
 
-      if (GET_HOB_TYPE (TableWalker) == EFI_HOB_TYPE_GUID_EXTENSION) {
+      if (GET_HOB_TYPE (TableIterator) == EFI_HOB_TYPE_GUID_EXTENSION) {
         Match = EfiCompareGuid (
                   &gAppleDriverInitHobGuid,
-                  &TableWalker.Guid->Name
+                  &TableIterator.Guid->Name
                   );
 
         if (Match) {
-          Table = (VOID *)GET_NEXT_HOB (TableWalker);
+          Table = GET_NEXT_HOB (TableIterator);
 
           SaveAppleDriverInitHobData (
-            (VOID *)((UINTN)TableWalker.Raw + sizeof (*TableWalker.Guid))
+            (VOID *)((UINTN)TableIterator.Raw + sizeof (*TableIterator.Guid))
             );
+
           break;
         }
       }
 
-      Table           = (VOID *)GET_NEXT_HOB (TableWalker);
-      TableWalker.Raw = GET_NEXT_HOB (TableWalker);
-    } while (!END_OF_HOB_LIST (TableWalker));
+      Table             = GET_NEXT_HOB (TableIterator);
+      TableIterator.Raw = GET_NEXT_HOB (TableIterator);
+    } while (!END_OF_HOB_LIST (TableIterator));
   }
 
   return EFI_SUCCESS;

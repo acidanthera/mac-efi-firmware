@@ -370,16 +370,16 @@ UsbKbBindingStart (
                             gKeyboardInfoCountryCode = HidDescriptor.CountryCode;
                           }
 
-                          gKeyboardInfoIdVendor  = UsbKbDev->DeviceDescriptor.IdVendor;
-                          gKeyboardInfoIdProduct = UsbKbDev->DeviceDescriptor.IdProduct;
-                          mIdsInitialized        = TRUE;
+                          gKbInfoIdVendor  = UsbKbDev->DeviceDescriptor.IdVendor;
+                          gKbInfoIdProduct = UsbKbDev->DeviceDescriptor.IdProduct;
+                          mIdsInitialized  = TRUE;
 
                           gBS->InstallProtocolInterface (
-                            NULL,
-                            &gEfiKeyboardInfoProtocolGuid,
-                            EFI_NATIVE_INTERFACE,
-                            (VOID *)&gUsbKbKeyboardInformationProtocol
-                            );
+                                 NULL,
+                                 &gEfiKeyboardInfoProtocolGuid,
+                                 EFI_NATIVE_INTERFACE,
+                                 (VOID *)&gUsbKbKeyboardInformationProtocol
+                                 );
                         }
                       }
 

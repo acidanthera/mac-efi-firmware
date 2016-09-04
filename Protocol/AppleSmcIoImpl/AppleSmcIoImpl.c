@@ -86,7 +86,7 @@ SmcIoSmcReadValueImpl (
 
         if (Status == EFI_TIMEOUT) {
           Status = EFI_SMC_TIMEOUT_ERROR;
-        } else if (Result == SMC_SUCCESS) {
+        } else if (Result == SmcSuccess) {
           Status = EFI_SUCCESS;
 
           if (Key == SMC_MAKE_KEY ('R', 'P', 'L', 'T')) {

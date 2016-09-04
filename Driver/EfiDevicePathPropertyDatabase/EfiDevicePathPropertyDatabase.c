@@ -23,18 +23,17 @@
 
 #include <Driver/EfiDevicePathPropertyDatabase.h>
 
-/// @{
 #define APPLE_PATH_PROPERTIES_VARIABLE_NAME    L"AAPL,PathProperties"
 #define APPLE_PATH_PROPERTY_VARIABLE_MAX_SIZE  768
-/// @}
 
 // mEfiDevicePathPropertyDatabaseProtocol
-STATIC EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDevicePathPropertyDatabase = {
+STATIC
+EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDevicePathPropertyDatabase = {
   EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION,
-  DevicePathPropertyDbGetPropertyValueImpl,
-  DevicePathPropertyDbSetPropertyImpl,
-  DevicePathPropertyDbRemovePropertyImpl,
-  DevicePathPropertyDbGetPropertyBufferImpl
+  DppDbGetPropertyValue,
+  DppDbSetProperty,
+  DppDbRemoveProperty,
+  DppDbGetPropertyBuffer
 };
 
 // GetNvramProperties
@@ -42,7 +41,7 @@ EFI_STATUS
 GetNvramProperties (
   IN EFI_GUID                           *VendorGuid,
   IN BOOLEAN                            DeleteVariables,
-  IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Database
+  IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Private
   ) // sub_FEF
 {
   EFI_STATUS                           Status;
@@ -57,12 +56,12 @@ GetNvramProperties (
   VOID                                 *BufferPtr;
   EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *BufferNode;
   UINTN                                NumberOfNodes;
-  UINTN                                NumberOfProperties;
+  UINTN                                Index;
   EFI_DEVICE_PATH_PROPERTY_DATA        *NameData;
   EFI_DEVICE_PATH_PROPERTY_DATA        *ValueData;
 
   ASSERT (VendorGuid != NULL);
-  ASSERT (Database != NULL);
+  ASSERT (Private != NULL);
 
   NumberOfVariables = 0;
   BufferSize        = 0;
@@ -154,34 +153,34 @@ GetNvramProperties (
                            );
 
               ValueData = (EFI_DEVICE_PATH_PROPERTY_DATA *)(
-                            (UINTN)NameData + (UINTN)NameData->Hdr.Size
+                            (UINTN)NameData + NameData->Hdr.Size
                             );
 
-              NumberOfProperties = 0;
+              Index = 0;
 
               do {
-                Status = Database->Protocol.SetProperty (
-                                              &Database->Protocol,
-                                              &BufferNode->DevicePath,
-                                              (CHAR16 *)&NameData->Data,
-                                              (VOID *)&ValueData->Data,
-                                              (UINTN)(ValueData->Hdr.Size
-                                                - sizeof (ValueData->Hdr.Size))
-                                              );
+                Status = Private->Protocol.SetProperty (
+                                             &Private->Protocol,
+                                             &BufferNode->DevicePath,
+                                             (CHAR16 *)&NameData->Data,
+                                             (VOID *)&ValueData->Data,
+                                             (UINTN)(
+                                               ValueData->Hdr.Size
+                                                 - sizeof (ValueData->Hdr.Size)
+                                               )
+                                             );
 
-                ++NumberOfProperties;
+                ++Index;
 
                 NameData = (EFI_DEVICE_PATH_PROPERTY_DATA *)(
-                             (UINTN)ValueData
-                               + (UINTN)ValueData->Hdr.Size
+                             (UINTN)ValueData + ValueData->Hdr.Size
                              );
 
                 ValueData =
                   (EFI_DEVICE_PATH_PROPERTY_DATA *)(
-                    (UINTN)ValueData
-                      + (UINTN)(ValueData->Hdr.Size + NameData->Hdr.Size)
+                    (UINTN)ValueData + ValueData->Hdr.Size + NameData->Hdr.Size
                     );
-              } while (NumberOfProperties < BufferNode->Hdr.NumberOfProperties);
+              } while (Index < BufferNode->Hdr.NumberOfProperties);
             }
 
             ++NumberOfNodes;
@@ -284,7 +283,7 @@ EfiDevicePathPropertyDatabaseMain (
       if (!EFI_ERROR (Status)) {
         if (Database->Modified) {
           DataSize = 0;
-          Status   = DevicePathPropertyDbGetPropertyBufferImpl (
+          Status   = DppDbGetPropertyBuffer (
                        &Database->Protocol,
                        NULL,
                        &DataSize
@@ -297,7 +296,7 @@ EfiDevicePathPropertyDatabaseMain (
               Status = EFI_OUT_OF_RESOURCES;
               goto FreePoolReturn;
             } else {
-              Status = DevicePathPropertyDbGetPropertyBufferImpl (
+              Status = DppDbGetPropertyBuffer (
                          &Database->Protocol,
                          Buffer,
                          &DataSize
@@ -316,7 +315,11 @@ EfiDevicePathPropertyDatabaseMain (
                     ARRAY_LENGTH (IndexBuffer)
                     );
 
-                  EfiStrCpy (VariableName, APPLE_PATH_PROPERTIES_VARIABLE_NAME);
+                  EfiStrCpy (
+                    VariableName,
+                    APPLE_PATH_PROPERTIES_VARIABLE_NAME
+                    );
+
                   EfiStrCat (VariableName, IndexBuffer);
 
                   VariableSize = EFI_MIN (
@@ -349,7 +352,11 @@ EfiDevicePathPropertyDatabaseMain (
                     ARRAY_LENGTH (IndexBuffer)
                     );
 
-                  EfiStrCpy (VariableName, APPLE_PATH_PROPERTIES_VARIABLE_NAME);
+                  EfiStrCpy (
+                    VariableName,
+                    APPLE_PATH_PROPERTIES_VARIABLE_NAME
+                    );
+
                   EfiStrCat (VariableName, IndexBuffer);
 
                   VariableSize = 0;
@@ -363,6 +370,7 @@ EfiDevicePathPropertyDatabaseMain (
 
                   if (Status != EFI_BUFFER_TOO_SMALL) {
                     Status = EFI_SUCCESS;
+
                     break;
                   }
 
@@ -393,13 +401,14 @@ EfiDevicePathPropertyDatabaseMain (
         }
 
         Database->Modified = FALSE;
-        Handle             = NULL;
-        Status             = gBS->InstallProtocolInterface (
-                                    &Handle,
-                                    &gEfiDevicePathPropertyDatabaseProtocolGuid,
-                                    EFI_NATIVE_INTERFACE,
-                                    &Database->Protocol
-                                    );
+
+        Handle = NULL;
+        Status = gBS->InstallProtocolInterface (
+                        &Handle,
+                        &gEfiDevicePathPropertyDatabaseProtocolGuid,
+                        EFI_NATIVE_INTERFACE,
+                        &Database->Protocol
+                        );
       } else {
         gBS->FreePool ((VOID *)Database);
       }

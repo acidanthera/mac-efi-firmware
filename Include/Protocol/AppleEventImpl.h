@@ -34,7 +34,7 @@ EventImplInitialize (
 // EventRegisterHandlerImpl
 EFI_STATUS
 EFIAPI
-EventRegisterHandlerImpl (
+EventRegisterHandler (
   IN  UINT32                       EventType,
   IN  APPLE_EVENT_NOTIFY_FUNCTION  NotifyFunction,
   OUT APPLE_EVENT_HANDLE           **EventHandle,
@@ -44,21 +44,21 @@ EventRegisterHandlerImpl (
 // EventUnregisterHandlerImpl
 EFI_STATUS
 EFIAPI
-EventUnregisterHandlerImpl (
+EventUnregisterHandler (
   IN APPLE_EVENT_HANDLE  *EventHandle
   );
 
 // EventSetCursorPositionImpl
 EFI_STATUS
 EFIAPI
-EventSetCursorPositionImpl (
+EventSetCursorPosition (
   IN DIMENSION  *Position
   );
 
 // EventSetEventNameImpl
 EFI_STATUS
 EFIAPI
-EventSetEventNameImpl (
+EventSetEventName (
   IN OUT APPLE_EVENT_HANDLE  *EventHandle,
   IN     CHAR8               *EventName
   );
@@ -66,7 +66,7 @@ EventSetEventNameImpl (
 // EventIsCapsLockOnImpl
 EFI_STATUS
 EFIAPI
-EventIsCapsLockOnImpl (
+EventIsCapsLockOn (
   IN OUT BOOLEAN  *CapsLockOn
   );
 

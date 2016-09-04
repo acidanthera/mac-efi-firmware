@@ -1,3 +1,7 @@
+//
+
+//
+
 /** @file
   Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
 
@@ -11,23 +15,23 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#ifndef APPLE_OS_IDENTIFICATION_DRV_H_
-#define APPLE_OS_IDENTIFICATION_DRV_H_
+#ifndef APPLE_PLATFORM_INFO_DATABASE_DXE_DRV_H_
+#define APPLE_PLATFORM_INFO_DATABASE_DXE_DRV_H_
 
-// AppleOsIdentificationMain
+// ApplePlatformInfoDatabaseDxeMain
 /**
 
-  @param[in] ImageHandle The firmware allocated handle for the EFI image.
-  @param[in] SystemTable A pointer to the EFI System Table.
+  @param[in] ImageHandle  The firmware allocated handle for the EFI image.
+  @param[in] SystemTable  A pointer to the EFI System Table.
 
-  @retval EFI_SUCCESS         The entry point is executed successfully.
-  @retval EFI_ALREADY_STARTED The protocol has already been installed.
+  @retval EFI_SUCCESS          The entry point is executed successfully.
+  @retval EFI_ALREADY_STARTED  The protocol has already been installed.
 **/
 EFI_STATUS
 EFIAPI
-AppleOsIdentificationMain (
+ApplePlatformInfoDatabaseDxeMain (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   );
 
-#endif // APPLE_OS_IDENTIFICATION_DRV_H_
+#endif // APPLE_PLATFORM_INFO_DATABASE_DXE_DRV_H_

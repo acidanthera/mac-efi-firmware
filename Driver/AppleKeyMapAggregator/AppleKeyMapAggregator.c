@@ -40,12 +40,12 @@ AppleKeyMapAggregatorMain (
   IN EFI_SYSTEM_TABLE  *SystemTable
   ) // start
 {
-  EFI_STATUS               Status;
+  EFI_STATUS                       Status;
 
-  UINTN                    NumberHandles;
-  EFI_HANDLE               *Buffer;
-  APPLE_KEY_MAP_AGGREGATOR *Aggregator;
-  EFI_HANDLE               Handle;
+  UINTN                            NumberOfHandles;
+  EFI_HANDLE                       *Buffer;
+  APPLE_KEY_MAP_AGGREGATOR_PRIVATE *Private;
+  EFI_HANDLE                       Handle;
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
 
@@ -55,7 +55,7 @@ AppleKeyMapAggregatorMain (
                   ByProtocol,
                   &gAppleKeyMapDatabaseProtocolGuid,
                   NULL,
-                  &NumberHandles,
+                  &NumberOfHandles,
                   &Buffer
                   );
 
@@ -66,30 +66,32 @@ AppleKeyMapAggregatorMain (
       gBS->FreePool ((VOID *)Buffer);
     }
   } else {
-    Aggregator                     = EfiLibAllocateZeroPool (sizeof (*Aggregator));
-    Aggregator->Signature          = APPLE_KEY_MAP_AGGREGATOR_SIGNATURE;
-    Aggregator->NextKeyStrokeIndex = 3000;
+    Private                     = EfiLibAllocateZeroPool (sizeof (*Private));
+    Private->Signature          = APPLE_KEY_MAP_AGGREGATOR_SIGNATURE;
+    Private->NextKeyStrokeIndex = 3000;
 
-    Aggregator->DatabaseProtocol.Revision               = APPLE_KEY_MAP_DATABASE_PROTOCOL_REVISION;
-    Aggregator->DatabaseProtocol.CreateKeyStrokesBuffer = KeyMapCreateKeyStrokesBufferImpl;
-    Aggregator->DatabaseProtocol.RemoveKeyStrokesBuffer = KeyMapRemoveKeyStrokesBufferImpl;
-    Aggregator->DatabaseProtocol.SetKeyStrokeBufferKeys = KeyMapSetKeyStrokeBufferKeysImpl;
+    Private->Database.Revision               = APPLE_KEY_MAP_DATABASE_PROTOCOL_REVISION;
+    Private->Database.CreateKeyStrokesBuffer = KeyMapCreateKeyStrokesBuffer;
+    Private->Database.RemoveKeyStrokesBuffer = KeyMapRemoveKeyStrokesBuffer;
+    Private->Database.SetKeyStrokeBufferKeys = KeyMapSetKeyStrokeBufferKeys;
 
-    Aggregator->AggregatorProtocol.Revision           = APPLE_KEY_MAP_AGGREGATOR_PROTOCOL_REVISION;
-    Aggregator->AggregatorProtocol.GetKeyStrokes      = KeyMapGetKeyStrokesImpl;
-    Aggregator->AggregatorProtocol.ContainsKeyStrokes = KeyMapContainsKeyStrokesImpl;
+    Private->Aggregator.Revision           = APPLE_KEY_MAP_AGGREGATOR_PROTOCOL_REVISION;
+    Private->Aggregator.GetKeyStrokes      = KeyMapGetKeyStrokes;
+    Private->Aggregator.ContainsKeyStrokes = KeyMapContainsKeyStrokes;
 
-    InitializeListHead (&Aggregator->KeyStrokesInfoList);
+    InitializeListHead (&Private->KeyStrokesInfoList);
 
     Handle = NULL;
     Status = gBS->InstallMultipleProtocolInterfaces (
                     &Handle,
                     &gAppleKeyMapDatabaseProtocolGuid,
-                    (VOID *)&Aggregator->DatabaseProtocol,
+                    (VOID *)&Private->Database,
                     &gAppleKeyMapAggregatorProtocolGuid,
-                    (VOID *)&Aggregator->AggregatorProtocol,
+                    (VOID *)&Private->Aggregator,
                     NULL
                     );
+
+    ASSERT_EFI_ERROR (Status);
   }
 
   return Status;

@@ -11,29 +11,40 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#ifndef OS_IDENTIFICATION_IMPL_H_
-#define OS_IDENTIFICATION_IMPL_H_
+#include <AppleEfi.h>
 
-#include APPLE_PROTOCOL_PRODUCER (OsIdentification)
+#include APPLE_GUID_DEFINITION (AppleOsLoaded)
 
-// OS_IDENTIFICATION_PROTOCOL_REVISION
-#define OS_IDENTIFICATION_PROTOCOL_REVISION  0x01
+#include <Library/AppleDriverLib.h>
 
-// OS_IDENTIFICATION_VENDOR_NAME
-#define OS_IDENTIFICATION_VENDOR_NAME  "Apple Inc."
+#include "OSInfoImplInternal.h"
 
-// OsIdentificationOSNameImpl
+// OSInfoOSNameImpl
 VOID
 EFIAPI
-OsIdentificationOSNameImpl (
-  IN CHAR8 *OSName
-  );
+OSInfoOSNameImpl (
+  IN CHAR8  *OSName
+  )
+{
+  ASSERT (OSName != NULL);
 
-// OsIdentificationOSVendorImpl
+  return;
+}
+
+// OSInfoOSVendorImpl
 VOID
 EFIAPI
-OsIdentificationOSVendorImpl (
-  IN CHAR8 *OSVendor
-  );
+OSInfoOSVendorImpl (
+  IN CHAR8  *OSVendor
+  )
+{
+  INTN Result;
 
-#endif // OS_IDENTIFICATION_IMPL_H_
+  ASSERT (OSVendor != NULL);
+
+  Result = EfiAsciiStrCmp (OSVendor, OS_INFO_VENDOR_NAME);
+
+  if (Result == 0) {
+    EfiLibNamedEventSignal (&gAppleOsLoadedNamedEventGuid);
+  }
+}

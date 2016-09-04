@@ -21,76 +21,56 @@
 // Standard device request and request type
 // By [Spec-USB20/Chapter-9.4]
 
-/// @{
 #define USB_DEV_GET_STATUS             0x00
 #define USB_DEV_GET_STATUS_REQ_TYPE_D  0x80  // Receiver : Device
 #define USB_DEV_GET_STATUS_REQ_TYPE_I  0x81  // Receiver : Interface
 #define USB_DEV_GET_STATUS_REQ_TYPE_E  0x82  // Receiver : Endpoint
-/// @}
 
-/// @{
 #define USB_DEV_CLEAR_FEATURE             0x01
 #define USB_DEV_CLEAR_FEATURE_REQ_TYPE_D  0x00  // Receiver : Device
 #define USB_DEV_CLEAR_FEATURE_REQ_TYPE_I  0x01  // Receiver : Interface
 #define USB_DEV_CLEAR_FEATURE_REQ_TYPE_E  0x02  // Receiver : Endpoint
-/// @} 
 
-/// @{
 #define USB_DEV_SET_FEATURE             0x03
 #define USB_DEV_SET_FEATURE_REQ_TYPE_D  0x00  // Receiver : Device
 #define USB_DEV_SET_FEATURE_REQ_TYPE_I  0x01  // Receiver : Interface
 #define USB_DEV_SET_FEATURE_REQ_TYPE_E  0x02  // Receiver : Endpoint
-/// @}
 
-/// @{
 #define USB_DEV_SET_ADDRESS           0x05
 #define USB_DEV_SET_ADDRESS_REQ_TYPE  0x00
-/// @}
 
-/// @{
 #define USB_DEV_GET_DESCRIPTOR           0x06
 #define USB_DEV_GET_DESCRIPTOR_REQ_TYPE  0x80
-/// @}
 
-/// @{
 #define USB_DEV_SET_DESCRIPTOR           0x07
 #define USB_DEV_SET_DESCRIPTOR_REQ_TYPE  0x00
-/// @}
 
-/// @{
 #define USB_DEV_GET_CONFIGURATION           0x08
 #define USB_DEV_GET_CONFIGURATION_REQ_TYPE  0x80
-/// @}
 
-/// @{
 #define USB_DEV_SET_CONFIGURATION           0x09
 #define USB_DEV_SET_CONFIGURATION_REQ_TYPE  0x00
-/// @}
 
-/// @{
+
 #define USB_DEV_GET_INTERFACE           0x0A
 #define USB_DEV_GET_INTERFACE_REQ_TYPE  0x81
-/// @}
 
-/// @{
+
 #define USB_DEV_SET_INTERFACE           0x0B
 #define USB_DEV_SET_INTERFACE_REQ_TYPE  0x01
-/// @}
 
-/// @{
+
 #define USB_DEV_SYNCH_FRAME           0x0C
 #define USB_DEV_SYNCH_FRAME_REQ_TYPE  0x82
-/// @}
 
-// Usb HID
-
-// define the timeout time as 3ms
+// TIMEOUT_VALUE
+/// Define the timeout time as 3ms
 #define TIMEOUT_VALUE  (3 * 1000)
 
 // HID constants definition, see HID rev1.0
 
 // HID report item format
-/// @{
+
 #define HID_ITEM_FORMAT_SHORT  0
 #define HID_ITEM_FORMAT_LONG   1
 
@@ -98,24 +78,24 @@
 #define HID_ITEM_TAG_LONG  15
 
 // HID report descriptor item type (prefix bit 2,3)
-/// @{
+
 #define HID_ITEM_TYPE_MAIN      0
 #define HID_ITEM_TYPE_GLOBAL    1
 #define HID_ITEM_TYPE_LOCAL     2
 #define HID_ITEM_TYPE_RESERVED  3
-/// @}
+
 
 // HID report descriptor main item tags
-/// @{
+
 #define HID_MAIN_ITEM_TAG_INPUT             8
 #define HID_MAIN_ITEM_TAG_OUTPUT            9
 #define HID_MAIN_ITEM_TAG_FEATURE           11
 #define HID_MAIN_ITEM_TAG_BEGIN_COLLECTION  10
 #define HID_MAIN_ITEM_TAG_END_COLLECTION    12
-/// @}
+
 
 // HID report descriptor main item contents
-/// @{
+
 #define HID_MAIN_ITEM_CONSTANT       0x0001
 #define HID_MAIN_ITEM_VARIABLE       0x0002
 #define HID_MAIN_ITEM_RELATIVE       0x0004
@@ -125,17 +105,16 @@
 #define HID_MAIN_ITEM_NULL_STATE     0x0040
 #define HID_MAIN_ITEM_VOLATILE       0x0080
 #define HID_MAIN_ITEM_BUFFERED_BYTE  0x0100
-/// @}
+
 
 // HID report descriptor collection item types
-/// @{
+
 #define HID_COLLECTION_PHYSICAL     0
 #define HID_COLLECTION_APPLICATION  1
 #define HID_COLLECTION_LOGICAL      2
-/// @}
 
 // HID report descriptor global item tags
-/// @{
+
 #define HID_GLOBAL_ITEM_TAG_USAGE_PAGE        0
 #define HID_GLOBAL_ITEM_TAG_LOGICAL_MINIMUM   1
 #define HID_GLOBAL_ITEM_TAG_LOGICAL_MAXIMUM   2
@@ -148,10 +127,10 @@
 #define HID_GLOBAL_ITEM_TAG_REPORT_COUNT      9
 #define HID_GLOBAL_ITEM_TAG_PUSH              10
 #define HID_GLOBAL_ITEM_TAG_POP               11
-/// @}
+
 
 // HID report descriptor local item tags
-/// @{
+
 #define HID_LOCAL_ITEM_TAG_USAGE               0
 #define HID_LOCAL_ITEM_TAG_USAGE_MINIMUM       1
 #define HID_LOCAL_ITEM_TAG_USAGE_MAXIMUM       2
@@ -162,10 +141,10 @@
 #define HID_LOCAL_ITEM_TAG_STRING_MINIMUM      8
 #define HID_LOCAL_ITEM_TAG_STRING_MAXIMUM      9
 #define HID_LOCAL_ITEM_TAG_DELIMITER           10
-/// @}
+
 
 // HID usage tables
-/// @{
+
 #define HID_USAGE_PAGE    0xffff0000
 
 #define HID_UP_GENDESK    0x00010000
@@ -183,30 +162,27 @@
 #define HID_GD_JOYSTICK   0x00010004
 #define HID_GD_GAMEPAD    0x00010005
 #define HID_GD_HATSWITCH  0x00010039
-/// @}
+
 
 // HID report types
-/// @{
+
 #define HID_INPUT_REPORT    1
 #define HID_OUTPUT_REPORT   2
 #define HID_FEATURE_REPORT  3
-/// @}
 
 // HID device quirks.
-/// @{
+
 #define HID_QUIRK_INVERT   0x01
 #define HID_QUIRK_NOTOUCH  0x02
-/// @}
 
 // HID class protocol request
-/// @{
+
 #define EFI_USB_GET_REPORT_REQUEST    0x01
 #define EFI_USB_GET_IDLE_REQUEST      0x02
 #define EFI_USB_GET_PROTOCOL_REQUEST  0x03
 #define EFI_USB_SET_REPORT_REQUEST    0x09
 #define EFI_USB_SET_IDLE_REQUEST      0x0A
 #define EFI_USB_SET_PROTOCOL_REQUEST  0x0B
-/// @}
 
 #pragma pack (1)
 

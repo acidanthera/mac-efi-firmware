@@ -38,7 +38,7 @@ typedef struct {
 } EFI_PROTOCOL_INSTANCE;
 
 // mAppleEventHandleList
-extern EFI_LIST mEventHandleList;
+extern EFI_LIST mHandleList;
 
 // mAppleEventProtocol
 extern APPLE_EVENT_PROTOCOL mAppleEventProtocol;
@@ -47,31 +47,31 @@ extern APPLE_EVENT_PROTOCOL mAppleEventProtocol;
 extern EFI_EVENT mSimplePointerInstallNotifyEvent;
 
 // mProtocolInstances
-extern EFI_PROTOCOL_INSTANCE *mSimplePointerInstances;
+extern EFI_PROTOCOL_INSTANCE *mPointerProtocols;
 
 // mEventHandleList
-extern EFI_LIST mEventHandleList;
+extern EFI_LIST mHandleList;
 
 // mCLockOn
 extern BOOLEAN mCLockOn;
 
 // KEY_STROKE_INFORMATION
 typedef struct {
-  APPLE_KEY AppleKey;       ///< 
-  UINTN     NoStrokes;      ///< 
-  BOOLEAN   CurrentStroke;  ///< 
+  APPLE_KEY AppleKey;         ///< 
+  UINTN     NumberOfStrokes;  ///< 
+  BOOLEAN   CurrentStroke;    ///< 
 } KEY_STROKE_INFORMATION;
 
 // POINTER_BUTTON_INFORMATION
 typedef struct {
   UINTN     Button;             ///< 
-  UINTN     NoButtonPressed;    ///< 
+  UINTN     NumberOfStrokes;    ///< 
   UINTN     Polls;              ///< 
   UINTN     PreviousEventType;  ///< 
   BOOLEAN   PreviousButton;     ///< 
   BOOLEAN   CurrentButton;      ///< 
   DIMENSION PreviousPosition;   ///< 
-  DIMENSION CurrentPosition;    ///< 
+  DIMENSION Position;           ///< 
 } POINTER_BUTTON_INFORMATION;
 
 // EventUnregisterHandlers

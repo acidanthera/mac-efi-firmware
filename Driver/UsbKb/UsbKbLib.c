@@ -199,10 +199,12 @@ IsUsbKeyboard (
 
   ASSERT_EFI_ERROR (Status);
 
-  return (!EFI_ERROR (Status)
-       && InterfaceDescriptor.InterfaceClass == CLASS_HID
-       && InterfaceDescriptor.InterfaceSubClass == SUBCLASS_BOOT
-       && InterfaceDescriptor.InterfaceProtocol == PROTOCOL_KEYBOARD);
+  return (BOOLEAN)(
+           !EFI_ERROR (Status)
+        && (InterfaceDescriptor.InterfaceClass == CLASS_HID)
+        && (InterfaceDescriptor.InterfaceSubClass == SUBCLASS_BOOT)
+        && (InterfaceDescriptor.InterfaceProtocol == PROTOCOL_KEYBOARD)
+         );
 }
 
 // UsbKbCheckForKey

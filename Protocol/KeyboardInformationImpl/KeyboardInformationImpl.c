@@ -16,13 +16,13 @@
 #include APPLE_PROTOCOL_PRODUCER (KeyboardInformationImpl)
 
 // gKeyboardInfoIdVendor
-UINT16 gKeyboardInfoIdVendor = 0;
+UINT16 gKbInfoIdVendor = 0;
 
 // gKeyboardInfoCountryCode
 UINT8 gKeyboardInfoCountryCode = 0;
 
 // gKeyboardInfoIdProduct
-UINT16 gKeyboardInfoIdProduct = 0;
+UINT16 gKbInfoIdProduct = 0;
 
 // KbInfoGetInfo
 EFI_STATUS
@@ -37,8 +37,8 @@ KbInfoGetInfo (
   ASSERT (IdProduct != NULL);
   ASSERT (CountryCode);
 
-  *IdVendor    = gKeyboardInfoIdVendor;
-  *IdProduct   = gKeyboardInfoIdProduct;
+  *IdVendor    = gKbInfoIdVendor;
+  *IdProduct   = gKbInfoIdProduct;
   *CountryCode = gKeyboardInfoCountryCode;
 
   return EFI_SUCCESS;

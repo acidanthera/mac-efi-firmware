@@ -152,7 +152,7 @@ SmcReadData32Mmio (
   Data  = (MmioRead8 (Address + SMC_MMIO_DATA_VARIABLE) << 24);
 
   Data |= (MmioRead8 (
-             Address + SMC_MMIO_DATA_VARIABLE + sizeof (UINT8)
+             Address + SMC_MMIO_DATA_VARIABLE + (1 * sizeof (UINT8))
              ) << 16);
 
   Data |= (MmioRead8 (
@@ -380,7 +380,7 @@ SmcReadValueMmio (
     if (!EFI_ERROR (Status)) {
       Result = (SMC_RESULT)SmcReadResultMmio ((UINTN)BaseAddress);
 
-      if (!SMCERR (Result)) {
+      if (!SMC_ERROR (Result)) {
         KeySize = SmcReadDataSizeMmio (BaseAddress);
         *Size   = KeySize;
 
@@ -402,8 +402,8 @@ SmcReadValueMmio (
   }
 
   if (Status == EFI_TIMEOUT) {
-    Status = EFI_SMC_TIMEOUT_ERROR;
-  } else if (Status == SMC_INVALID_SIZE) {
+	Status = EFI_SMC_TIMEOUT_ERROR;
+  } else if (Status == SmcInvalidSize) {
   ReturnInvalidSize:
     Status = EFI_SMC_INVALID_SIZE;
   } else {
@@ -489,7 +489,7 @@ SmcGetKeyFromIndexMmio (
       if (!EFI_ERROR (Status)) {
         Result = (SMC_RESULT)SmcReadResultMmio ((UINTN)BaseAddress);
 
-        if (!SMCERR (Result)) {
+        if (!SMC_ERROR (Result)) {
           *Key = (SMC_KEY)SmcReadData32Mmio (
                             (UINTN)BaseAddress + SMC_MMIO_READ_KEY
                             );
@@ -499,7 +499,7 @@ SmcGetKeyFromIndexMmio (
       }
     }
 
-    Result = SMC_SUCCESS;
+    Result = SmcSuccess;
 
     if (Status == EFI_TIMEOUT) {
       Status = EFI_SMC_TIMEOUT_ERROR;
@@ -544,17 +544,22 @@ SmcGetKeyInfoMmio (
       if (!EFI_ERROR (Status)) {
         Result = (SMC_RESULT)SmcReadResultMmio (BaseAddress);
 
-        if (!SMCERR (Result)) {
+        if (!SMC_ERROR (Result)) {
           *Type = (SMC_KEY_TYPE)SmcReadData32Mmio (
                                   (UINTN)(BaseAddress + SMC_MMIO_READ_KEY_TYPE)
                                   );
 
           *Size = (SMC_DATA_SIZE)SmcReadData8Mmio (
-                                   (UINTN)(BaseAddress + SMC_MMIO_READ_DATA_SIZE)
+                                   (SMC_ADDRESS)(
+                                     BaseAddress + SMC_MMIO_READ_DATA_SIZE
+                                     )
                                    );
 
           *Attributes = (SMC_KEY_ATTRIBUTES)SmcReadData8Mmio (
-                                              (UINTN)(BaseAddress + SMC_MMIO_READ_KEY_ATTRIBUTES)
+                                              (SMC_ADDRESS)(
+                                                BaseAddress
+                                                  + SMC_MMIO_READ_KEY_ATTRIBUTES
+                                                )
                                               );
         }
 
@@ -562,7 +567,7 @@ SmcGetKeyInfoMmio (
       }
     }
 
-    Result = SMC_SUCCESS;
+    Result = SmcSuccess;
 
     if (Status == EFI_TIMEOUT) {
       Status = EFI_SMC_TIMEOUT_ERROR;
@@ -658,7 +663,7 @@ SmcFlashWriteMmio (
       TotalSize    = (UINT32)(UINT16)(Size + sizeof (Unknown) + sizeof (Size));
       BytesWritten = 0;
       SizeWritten  = 0;
-      Result       = SMC_SUCCESS;
+      Result       = SmcSuccess;
 
       do {
         while (BytesWritten < Size) {
@@ -708,7 +713,7 @@ SmcFlashWriteMmio (
 
           Result = (SMC_RESULT)SmcReadResultMmio (BaseAddress);
 
-          if (Result != SMC_SUCCESS) {
+          if (Result != SmcSuccess) {
             goto ReturnResult;
           }
 
@@ -770,7 +775,7 @@ SmcFlashAuthMmio (
       TotalSize        = (UINT32)(UINT16)(Size + sizeof (Size));
       BytesWritten     = 0;
       SizeWritten      = 0;
-      Result           = SMC_SUCCESS;
+      Result           = SmcSuccess;
 
       do {
         while (BytesWritten < Size) {
@@ -820,7 +825,7 @@ SmcFlashAuthMmio (
 
           Result = (SMC_RESULT)SmcReadResultMmio (BaseAddress);
 
-          if (Result != SMC_SUCCESS) {
+          if (Result != SmcSuccess) {
             goto ReturnResult;
           }
 
@@ -913,7 +918,7 @@ AcpiPmTimerFunc (
   Timer    = IoRead32 (0x1808);
   ModdedA1 = (UINT64)MULT_U64_X32 (a1, 358); // 358 = Freq (rnd), a1 * 1000000 per second
   Timer   &= 0x00FFFFFF;
-  ModdedA1 = ((DIV_U64_X64 (ModdedA1, 100) >> 32) + 1 + Timer);
+  ModdedA1 = (SHR_U64 (DIV_U64_X64 (ModdedA1, 100), 32) + 1 + Timer);
   DivModA1 = DIV_U64_X64 (ModdedA1, 0x01000000); // EDK2 function needed w. Remainder
 
   if (DivModA1 == 0) {

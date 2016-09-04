@@ -29,6 +29,9 @@
 
   #define DIV_S64_X64(Dividend, Divisor)  \
     ((Dividend) / (Divisor))
+
+  #define SHR_U64(Operand, Count)  \
+    ((Operand) >> (Count))
 #else
   #define MULT_U64_X32(Multiplicand, Multiplier)  \
     MultU64x32 ((Multiplicand), (Multiplier))
@@ -44,6 +47,9 @@
 
   #define DIV_S64_X64(Dividend, Divisor)  \
     MathLibDivS64x64 ((Dividend), (Divisor))
+
+  #define SHR_U64(Operand, Count)  \
+    (RShiftU64 ((Operand), (Count)))
 #endif // CPU_IA32
 
 #define HZ  (1000 * 1000 * 10)
@@ -55,7 +61,6 @@
 #define CONVERT_LENGTH(Size, SourceType, DestinationType)  \
   (((Size) / sizeof (SourceType)) * sizeof (DestinationType))
 
-/// @{
 #define OFFSET_PTR(Ptr, Index, Type)  \
           ((Type *)((UINTN)(Ptr) + (UINTN)((Index) * sizeof (Type))))
 
@@ -68,7 +73,6 @@
 #define DWORD(Value, Index)         (*(OFFSET ((Value), (Index), UINT32)))
 #define QWORD_PTR(Ptr, Index)       (*(OFFSET ((Ptr), (Index), UINT64)))
 #define QWORD(Value, Index)         (*(OFFSET ((Value), (Index), UINT64)))
-/// @}
 
 #define BIT(Index) (1 << (Index))
 

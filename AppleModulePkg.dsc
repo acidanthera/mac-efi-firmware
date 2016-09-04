@@ -19,7 +19,7 @@
   PLATFORM_VERSION          = 2015.001
   DSC_SPECIFICATION         = 0x00010006
   SUPPORTED_ARCHITECTURES   = IA32|IPF|X64|EBC|ARM|AARCH64
-  BUILD_TARGETS             = DEBUG|RELEASE
+  BUILD_TARGETS             = DEBUG|NOOPT|RELEASE
   SKUID_IDENTIFIER          = DEFAULT
   EFI_SPECIFICATION_VERSION = 0x0001000A
   PI_SPECIFICATION_VERSION  = 0x00000009
@@ -56,7 +56,7 @@
   AppleSmcIoImpl|AppleModulePkg/Protocol/AppleSmcIoImpl/AppleSmcIoImpl.inf
   EfiDevicePathPropertyDatabaseImpl|AppleModulePkg/Protocol/DevicePathPropertyDatabaseImpl/DevicePathPropertyDatabaseImpl.inf
   EfiKeyboardInformationImpl|AppleModulePkg/Protocol/KeyboardInformationImpl/KeyboardInformationImpl.inf
-  EfiOsIdentificationImpl|AppleModulePkg/Protocol/OsIdentificationImpl/OsIdentificationImpl.inf
+  EfiOSInfoImpl|AppleModulePkg/Protocol/OSInfoImpl/OSInfoImpl.inf
 
 [LibraryClasses.IA32, LibraryClasses.X64]
   NULL|EdkCompatibilityPkg/Foundation/Library/CompilerStub/CompilerStubLib_Edk2.inf
@@ -83,13 +83,13 @@
   AppleModulePkg/Protocol/AppleKeyMapImpl/AppleKeyMapImpl.inf
   AppleModulePkg/Protocol/ApplePlatformInfoDatabaseImpl/ApplePlatformInfoDatabaseImpl.inf
   AppleModulePkg/Protocol/DevicePathPropertyDatabaseImpl/DevicePathPropertyDatabaseImpl.inf
-  AppleModulePkg/Protocol/OsIdentificationImpl/OsIdentificationImpl.inf
+  AppleModulePkg/Protocol/OSInfoImpl/OSInfoImpl.inf
 
   AppleModulePkg/Driver/AppleBootPolicy/AppleBootPolicy.inf
   AppleModulePkg/Driver/AppleEvent/AppleEvent.inf
   AppleModulePkg/Driver/AppleKeyMapAggregator/AppleKeyMapAggregator.inf
-  AppleModulePkg/Driver/AppleOsIdentification/AppleOsIdentification.inf
-  AppleModulePkg/Driver/ApplePlatformInfoDB/ApplePlatformInfoDB.inf
+  AppleModulePkg/Driver/EfiOSInfo/EfiOSInfo.inf
+  AppleModulePkg/Driver/ApplePlatformInfoDatabaseDxe/ApplePlatformInfoDatabaseDxe.inf
   AppleModulePkg/Driver/AppleSmcIo/AppleSmcIo.inf
   AppleModulePkg/Driver/EfiDevicePathPropertyDatabase/EfiDevicePathPropertyDatabase.inf
   AppleModulePkg/Driver/UsbKb/UsbKb.inf
@@ -105,12 +105,16 @@ DEFINE DASH_MACRO  = -DEFI_SPECIFICATION_VERSION=$(EFI_SPECIFICATION_VERSION) -D
 
   INTEL:DEBUG_*_*_CC_FLAGS   = $(SLASH_MACRO) /D EFI_DEBUG
   INTEL:RELEASE_*_*_CC_FLAGS = $(SLASH_MACRO) /D EFI_NDEBUG /D MDEPKG_NDEBUG
+  INTEL:NOOPT_*_*_CC_FLAGS   = $(SLASH_MACRO) /D EFI_NDEBUG /D MDEPKG_NDEBUG
   GCC:DEBUG_*_*_CC_FLAGS     = $(DASH_MACRO) -DEFI_DEBUG
   GCC:RELEASE_*_*_CC_FLAGS   = $(DASH_MACRO) -DEFI_NDEBUG -DMDEPKG_NDEBUG
+  GCC:NOOPT_*_*_CC_FLAGS     = $(DASH_MACRO) -DEFI_NDEBUG -DMDEPKG_NDEBUG
   MSFT:DEBUG_*_*_CC_FLAGS    = $(SLASH_MACRO) /D EFI_DEBUG
   MSFT:RELEASE_*_*_CC_FLAGS  = $(SLASH_MACRO) /D EFI_NDEBUG /D MDEPKG_NDEBUG
+  MSFT:NOOPT_*_*_CC_FLAGS    = $(SLASH_MACRO) /D EFI_NDEBUG /D MDEPKG_NDEBUG
   XCODE:DEBUG_*_*_CC_FLAGS   = $(DASH_MACRO) -DEFI_DEBUG
   XCODE:RELEASE_*_*_CC_FLAGS = $(DASH_MACRO) -DEFI_NDEBUG -DMDEPKG_NDEBUG
+  XCODE:NOOPT_*_*_CC_FLAGS   = $(DASH_MACRO) -DEFI_NDEBUG -DMDEPKG_NDEBUG
 
   # Disable errors
 

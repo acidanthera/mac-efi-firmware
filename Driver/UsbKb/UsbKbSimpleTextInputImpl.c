@@ -122,13 +122,13 @@ UsbKbReadKeyStrokeWorker (
       }
     }
 
-    KeyData->Key.UnicodeChar      = 0;
-    KeyData->Key.ScanCode         = SCAN_NULL;
-    KeyChar                       = UsbKbDev->CurKeyChar;
-    UsbKbDev->CurKeyChar = 0;
+    KeyData->Key.UnicodeChar = 0;
+    KeyData->Key.ScanCode    = SCAN_NULL;
+    KeyChar                  = UsbKbDev->CurKeyChar;
+    UsbKbDev->CurKeyChar     = 0;
 
     // Translate saved ASCII byte into EFI_INPUT_KEY
-    Status                        = UsbKeyCodeToEfiScanCode (UsbKbDev, KeyChar, &KeyData->Key);
+    Status = UsbKeyCodeToEfiScanCode (UsbKbDev, KeyChar, &KeyData->Key);
   }
 
 Return:
@@ -162,7 +162,7 @@ UsbKbReadKeyStroke (
   ASSERT (Key != NULL);
 
   UsbKbDev = USB_KB_DEV_FROM_THIS (This);
-  Status            = UsbKbReadKeyStrokeWorker (UsbKbDev, &KeyData);
+  Status   = UsbKbReadKeyStrokeWorker (UsbKbDev, &KeyData);
 
   if (!EFI_ERROR (Status)) {
     EfiCopyMem (Key, &KeyData.Key, sizeof (KeyData.Key));

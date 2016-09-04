@@ -38,7 +38,7 @@
 **/
 EFI_STATUS
 EFIAPI
-KeyMapGetKeyStrokesImpl (
+KeyMapGetKeyStrokes (
   IN     APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   OUT    APPLE_MODIFIER_MAP                 *Modifiers,
   OUT    UINTN                              *NumberOfKeys,
@@ -47,11 +47,11 @@ KeyMapGetKeyStrokesImpl (
 {
   EFI_STATUS               Status;
 
-  APPLE_KEY_MAP_AGGREGATOR *Aggregator;
+  APPLE_KEY_MAP_AGGREGATOR_PRIVATE *Aggregator;
   APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
   APPLE_MODIFIER_MAP       DbModifiers;
   BOOLEAN                  Result;
-  UINTN                    DbNoKeyStrokes;
+  UINTN                    DbNumberOfKeyStrokes;
   UINTN                    Index;
   UINTN                    Index2;
   APPLE_KEY                Key;
@@ -59,20 +59,20 @@ KeyMapGetKeyStrokesImpl (
   ASSERT (This != NULL);
   ASSERT (Modifiers != NULL);
   ASSERT (NumberOfKeys != NULL);
-  ASSERT (((((*NumberOfKeys == 0) ? 1 : 0)) ^ ((Keys != NULL) ? 0 : 1)) != 0);
+  ASSERT ((((*NumberOfKeys > 0) ? 1 : 0) ^ ((Keys == NULL) ? 1 : 0)) != 0);
 
-  Aggregator     = APPLE_KEY_MAP_AGGREGATOR_FROM_AGGREGATOR_PROTOCOL (This);
+  Aggregator     = APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_AGGREGATOR_THIS (This);
   KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (
                      GetFirstNode (&Aggregator->KeyStrokesInfoList)
                      );
 
   if (IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This)) {
-    *NumberOfKeys  = 0;
-    DbNoKeyStrokes = 0;
-    DbModifiers    = 0;
+    *NumberOfKeys        = 0;
+    DbNumberOfKeyStrokes = 0;
+    DbModifiers          = 0;
   } else {
-    DbModifiers    = 0;
-    DbNoKeyStrokes = 0;
+    DbModifiers          = 0;
+    DbNumberOfKeyStrokes = 0;
 
     do {
       DbModifiers |= KeyStrokesInfo->Hdr.Modifiers;
@@ -84,15 +84,15 @@ KeyMapGetKeyStrokesImpl (
           Key = (&KeyStrokesInfo->Keys)[Index];
           ++Index;
 
-          for (Index2 = 0; Index2 < DbNoKeyStrokes; ++Index2) {
+          for (Index2 = 0; Index2 < DbNumberOfKeyStrokes; ++Index2) {
             if (Aggregator->KeyBuffer[Index2] == Key) {
               break;
             }
           }
 
-          if (DbNoKeyStrokes == Index2) {
-            Aggregator->KeyBuffer[DbNoKeyStrokes] = Key;
-            ++DbNoKeyStrokes;
+          if (DbNumberOfKeyStrokes == Index2) {
+            Aggregator->KeyBuffer[DbNumberOfKeyStrokes] = Key;
+            ++DbNumberOfKeyStrokes;
           }
         } while (Index < KeyStrokesInfo->Hdr.NumberOfKeys);
       }
@@ -103,10 +103,15 @@ KeyMapGetKeyStrokesImpl (
                            &KeyStrokesInfo->Hdr.This
                            )
                          );
-    } while (!IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This));
 
-    Result        = (DbNoKeyStrokes > *NumberOfKeys);
-    *NumberOfKeys = DbNoKeyStrokes;
+      Result = !IsNull (
+                  &Aggregator->KeyStrokesInfoList,
+                  &KeyStrokesInfo->Hdr.This
+                  );
+    } while (Result);
+
+    Result        = (BOOLEAN)(DbNumberOfKeyStrokes > *NumberOfKeys);
+    *NumberOfKeys = DbNumberOfKeyStrokes;
     Status        = EFI_BUFFER_TOO_SMALL;
 
     if (Result) {
@@ -115,14 +120,14 @@ KeyMapGetKeyStrokesImpl (
   }
 
   *Modifiers    = DbModifiers;
-  *NumberOfKeys = DbNoKeyStrokes;
+  *NumberOfKeys = DbNumberOfKeyStrokes;
   Status        = EFI_SUCCESS;
 
   if (Keys != NULL) {
     EfiCopyMem (
       (VOID *)Keys,
       (VOID *)Aggregator->KeyBuffer,
-      (DbNoKeyStrokes * sizeof (*Keys))
+      (DbNumberOfKeyStrokes * sizeof (*Keys))
       );
   }
 
@@ -151,7 +156,7 @@ Return:
 **/
 EFI_STATUS
 EFIAPI
-KeyMapContainsKeyStrokesImpl (
+KeyMapContainsKeyStrokes (
   IN     APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   IN     APPLE_MODIFIER_MAP                 Modifiers,
   IN     UINTN                              NumberOfKeys,

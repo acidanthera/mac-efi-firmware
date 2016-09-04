@@ -32,19 +32,15 @@
 // MAX_KEY_ALLOWED
 #define MAX_KEY_ALLOWED  32
 
-/// @{
 #define USBKBD_REPEAT_DELAY  ((HZ) / 2)
 #define USBKBD_REPEAT_RATE   ((HZ) / 50)
-/// @}
 
 #define CLASS_HID          3
 #define SUBCLASS_BOOT      1
 #define PROTOCOL_KEYBOARD  1
 
-/// @{
 #define BOOT_PROTOCOL    0
 #define REPORT_PROTOCOL  1
-/// @}
 
 // USB_KEYCODE_MAX_MAKE
 #define USB_KEYCODE_MAX_MAKE  0x64

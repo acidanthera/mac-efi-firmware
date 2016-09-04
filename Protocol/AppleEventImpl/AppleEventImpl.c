@@ -18,7 +18,7 @@
 #include "AppleEventImplInternal.h"
 
 // mEventHandleList
-EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mEventHandleList);
+EFI_LIST_ENTRY mHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mHandleList);
 
 // mNoEventHandles
 STATIC UINTN mNoEventHandles = 0;
@@ -26,7 +26,7 @@ STATIC UINTN mNoEventHandles = 0;
 // EventRegisterHandlerImpl
 EFI_STATUS
 EFIAPI
-EventRegisterHandlerImpl (
+EventRegisterHandler (
   IN  APPLE_EVENT_TYPE             EventType,
   IN  APPLE_EVENT_NOTIFY_FUNCTION  NotifyFunction,
   OUT APPLE_EVENT_HANDLE           **EventHandle,
@@ -73,7 +73,7 @@ EventRegisterHandlerImpl (
       Event->Name           = NULL;
       ++mNoEventHandles;
 
-      InsertTailList (&mEventHandleList, &Event->This);
+      InsertTailList (&mHandleList, &Event->This);
 
       *EventHandle = Event;
       Status       = EFI_SUCCESS;
@@ -89,7 +89,7 @@ Return:
 // EventUnregisterHandlerImpl
 EFI_STATUS
 EFIAPI
-EventUnregisterHandlerImpl (
+EventUnregisterHandler (
   IN APPLE_EVENT_HANDLE  *EventHandle
   ) // sub_7DE
 {
@@ -100,7 +100,7 @@ EventUnregisterHandlerImpl (
   ASSERT (EventHandle != NULL);
 
   Status = EFI_INVALID_PARAMETER;
-  Event  = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (&mEventHandleList);
+  Event  = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (&mHandleList);
 
   do {
     if ((Event == EventHandle)
@@ -115,9 +115,9 @@ EventUnregisterHandlerImpl (
     }
 
     Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
-              GetNextNode (&mEventHandleList, &Event->This)
+              GetNextNode (&mHandleList, &Event->This)
               );
-  } while (!IsNull (&mEventHandleList, &Event->This));
+  } while (!IsNull (&mHandleList, &Event->This));
 
   if (mNoEventHandles == 0) {
     EventCancelPollEvents ();
@@ -128,10 +128,16 @@ EventUnregisterHandlerImpl (
   return Status;
 }
 
-// EventSetCursorPositionImpl 
+// EventSetCursorPositionImpl
+/** This function is used to change the position of the cursor on the screen.
+
+  @param[in] Position  The position where to position the cursor.
+  
+  @retval EFI_INVALID_PARAMETER  Position is invalid.
+**/
 EFI_STATUS
 EFIAPI
-EventSetCursorPositionImpl (
+EventSetCursorPosition (
   IN DIMENSION  *Position
   ) // sub_84D
 {
@@ -139,9 +145,19 @@ EventSetCursorPositionImpl (
 }
 
 // EventSetEventNameImpl
+/** This function is used to assign a name to an event.
+
+  @param[in, out] EventHandle  
+  @param[in]      EventName 
+
+  @retval EFI_SUCCESS            The event name was assigned successfully.
+  @retval EFI_INVALID_PARAMETER  EventHandle or EventName is NULL.
+  @retval EFI_OUT_OF_RESOURCES   There are not enough resources to allocate the
+                                 event name.
+**/
 EFI_STATUS
 EFIAPI
-EventSetEventNameImpl (
+EventSetEventName (
   IN OUT APPLE_EVENT_HANDLE  *EventHandle,
   IN     CHAR8               *EventName
   ) // sub_1483
@@ -149,7 +165,7 @@ EventSetEventNameImpl (
   EFI_STATUS Status;
 
   UINTN      AllocationSize;
-  CHAR8      *Memory;
+  CHAR8      *Name;
 
   ASSERT (EventHandle != NULL);
   ASSERT (EventName != NULL);
@@ -158,13 +174,13 @@ EventSetEventNameImpl (
 
   if ((EventHandle != NULL) && (EventName != NULL)) {
     AllocationSize    = EfiAsciiStrSize (EventName);
-    Memory            = EfiLibAllocateZeroPool (AllocationSize);
-    EventHandle->Name = Memory;
+    Name              = EfiLibAllocateZeroPool (AllocationSize);
+    EventHandle->Name = Name;
 
     Status = EFI_OUT_OF_RESOURCES;
 
     if (EventHandle != NULL) {
-      EfiAsciiStrCpy (Memory, EventName);
+      EfiAsciiStrCpy (Name, EventName);
 
       Status = EFI_SUCCESS;
     }
@@ -176,9 +192,18 @@ EventSetEventNameImpl (
 }
 
 // EventIsCapsLockOnImpl
+/** Retrieves the state of the CapsLock key.
+
+  @param[in, out] CLockOn  This parameter indicates the state of the CapsLock
+                           key.
+
+  @retval EFI_SUCCESS            The CapsLock state was successfully returned
+                                 in CLockOn.
+  @retval EFI_INVALID_PARAMETER  CLockOn is NULL.
+**/
 EFI_STATUS
 EFIAPI
-EventIsCapsLockOnImpl (
+EventIsCapsLockOn (
   IN OUT BOOLEAN  *CLockOn
   ) // sub_3582
 {
