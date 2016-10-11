@@ -546,7 +546,7 @@ KeyboardHandler (
       // Pass the data to the Apple protocol
       for (Index = 2; Index < 8; Index++) {
         if (USB_HID_KB_KP_VALID_KEYCODE (CurKeyCodeBuffer[Index])) {
-          Keys[NumberOfKeys] = APPLE_HID_USB_KB_KP_USGAE (
+          Keys[NumberOfKeys] = APPLE_HID_USB_KB_KP_USAGE (
                                  CurKeyCodeBuffer[Index]
                                  );
 
