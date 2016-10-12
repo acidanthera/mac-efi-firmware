@@ -349,11 +349,11 @@ NoNewKey:
     }
 
     *NumberOfKeys = 1;
-    *Keys        = KeyInfo->AppleKey;
-    Shifted      = (BOOLEAN)(
-                     (IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
-                       != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
-                     );
+    *Keys         = KeyInfo->AppleKey;
+    Shifted       = (BOOLEAN)(
+                      (IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
+                        != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
+                      );
 
     InputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
 
@@ -535,7 +535,8 @@ EventCreateKeyStrokePollEvent (
 
     mKeyStrokePollEvent = CreateNotifyEvent (
                             KeyStrokePollNotifyFunction,
-                            NULL, EFI_TIMER_PERIOD_MILLISECONDS (10),
+                            NULL,
+                            EFI_TIMER_PERIOD_MILLISECONDS (10),
                             TRUE
                             );
 
