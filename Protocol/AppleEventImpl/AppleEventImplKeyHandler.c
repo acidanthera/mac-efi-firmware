@@ -283,6 +283,8 @@ BreakBoth:
       ++Index2;
     }
 
+    // Note: This check makes no sense, it is superfluous
+    //       (goto NoNewKey handles it).
     if (KeyInfo == NULL) {
       break;
     }
@@ -290,7 +292,7 @@ BreakBoth:
     ++KeyInfo->NumberOfStrokes;
   }
 
-  // if a new key is hold down, cancel all previous inputs
+  // if a new key is held down, cancel all previous inputs
 
   for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
     mKeyInformation[Index].CurrentStroke = FALSE;
