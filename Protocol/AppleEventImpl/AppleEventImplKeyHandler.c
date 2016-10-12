@@ -137,7 +137,7 @@ GetCurrentKeyStroke (
   // clean previous keys - set no longer pressed key infos to 0s
 
   for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
-    for (Index2 = 0; Index < *NumberOfKeys; ++Index) {
+    for (Index2 = 0; Index2 < *NumberOfKeys; ++Index2) {
       if (mKeyInformation[Index].AppleKey == Keys[Index2]) {
         break;
       }
@@ -303,9 +303,9 @@ BreakBoth:
   for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
     if (KeyInfo->AppleKey == 0) {
       if (KeyInfo != NULL) {
-        KeyInfo->AppleKey      = Keys[NewKeyIndex];
-        KeyInfo->CurrentStroke = TRUE;
-        KeyInfo->NumberOfStrokes     = 0;
+        KeyInfo->AppleKey        = Keys[NewKeyIndex];
+        KeyInfo->CurrentStroke   = TRUE;
+        KeyInfo->NumberOfStrokes = 0;
       }
 
       break;
