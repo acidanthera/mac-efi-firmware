@@ -70,7 +70,7 @@ AppleKeyEventDataFromInputKey (
     Status       = EFI_OUT_OF_RESOURCES;
 
     if (KeyEventData != NULL) {
-      KeyEventData->NumberOfKeyPairs       = 1;
+      KeyEventData->NumberOfKeyPairs = 1;
       KeyEventData->KeyPair.InputKey = *InputKey;
 
       EfiCommonLibCopyMem (
@@ -275,12 +275,12 @@ BreakBoth:
 
       KeyInfo = KeyInfo2;
 
-      if (mKeyInformation[Index2].AppleKey == Keys[NewKeyIndex]) {
+      if (KeyInfo->AppleKey == Keys[NewKeyIndex]) {
         break;
       }
 
       ++KeyInfo2;
-      ++NewKeyIndex;
+      ++Index2;
     }
 
     if (KeyInfo == NULL) {
@@ -290,7 +290,7 @@ BreakBoth:
     ++KeyInfo->NumberOfStrokes;
   }
 
-  // if a new key is hold down, cancel all previos inputs
+  // if a new key is hold down, cancel all previous inputs
 
   for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
     mKeyInformation[Index].CurrentStroke = FALSE;
