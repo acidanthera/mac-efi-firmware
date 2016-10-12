@@ -268,7 +268,8 @@ BreakBoth:
     Index2   = 0;
     KeyInfo2 = mKeyInformation;
 
-    while (TRUE) {
+    for (Index2 = 0; TRUE; ++Index2) {
+      // Note: Should this be the break condition?
       if (Index2 >= ARRAY_LENGTH (mKeyInformation)) {
         goto NoNewKey;
       }
@@ -280,7 +281,6 @@ BreakBoth:
       }
 
       ++KeyInfo2;
-      ++Index2;
     }
 
     // Note: This check makes no sense, it is superfluous
