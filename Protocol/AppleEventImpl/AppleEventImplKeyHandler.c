@@ -326,12 +326,12 @@ NoNewKey:
 
   for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
     KeyInfo = KeyInfo2;
+    ++KeyInfo2;
 
-    if (KeyInfo2->CurrentStroke) {
+    if (KeyInfo->CurrentStroke) {
       break;
     }
 
-    ++KeyInfo2;
     KeyInfo = NULL;
   }
 
@@ -342,32 +342,36 @@ NoNewKey:
 
     // verify the timeframe the key has been pressed
 
-    if (KeyInfo == NULL) {
-      *NumberOfKeys = 0;
-      goto Return;
-    } else if (KeyInfo->NumberOfStrokes < (KEY_STROKE_DELAY * 10)) {
-      if (KeyInfo->NumberOfStrokes > 0) {
+    if (KeyInfo != NULL) {
+      if (KeyInfo->NumberOfStrokes < (KEY_STROKE_DELAY * 10)) {
+        if (KeyInfo->NumberOfStrokes > 0) {
+          goto Return;
+        }
+      } else if ((KeyInfo->NumberOfStrokes % KEY_STROKE_DELAY) > 0) {
         goto Return;
       }
-    } else if ((KeyInfo->NumberOfStrokes % KEY_STROKE_DELAY) > 0) {
-      goto Return;
+
+      *NumberOfKeys = 1;
+      *Keys         = KeyInfo->AppleKey;
+
+      Shifted = (BOOLEAN)(
+                  (IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
+                    != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
+                  );
+
+      InputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
+    } else {
+      *NumberOfKeys = 0;
     }
-
-    *NumberOfKeys = 1;
-    *Keys         = KeyInfo->AppleKey;
-    Shifted       = (BOOLEAN)(
-                      (IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
-                        != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
-                      );
-
-    InputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
 
     Status = EFI_SUCCESS;
   }
 
-  ASSERT_EFI_ERROR (Status);
-
 Return:
+  if (Status != EFI_NOT_READY) {
+    ASSERT_EFI_ERROR (Status);
+  }
+
   return Status;
 }
 
