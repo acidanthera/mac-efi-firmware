@@ -269,63 +269,62 @@ BreakBoth:
   // increase number of strokes for all currently held keys
 
   // TODO: Refactor these loops
+  // FIXME: This is not 1:1 reversed.
 
   NewKeyIndex = 0;
 
-  // FIXME: This is not 1:1 reversed.
-  if (NewKeyIndex >= *NumberOfKeys) {
-    goto NoNewKey;
-  }
+  if (NewKeyIndex < *NumberOfKeys) {
+    do {
+      KeyInfo2 = mKeyInformation;
 
-  for (NewKeyIndex = 0; NewKeyIndex < *NumberOfKeys; ++NewKeyIndex) {
-    KeyInfo2 = mKeyInformation;
+      for (Index2 = 0; TRUE; ++Index2) {
+        // Note: Should this be the break condition?
+        if (Index2 >= ARRAY_LENGTH (mKeyInformation)) {
+          goto NoNewKey;
+        }
 
-    for (Index2 = 0; TRUE; ++Index2) {
-      // Note: Should this be the break condition?
-      if (Index2 >= ARRAY_LENGTH (mKeyInformation)) {
-        goto NoNewKey;
+        KeyInfo = KeyInfo2;
+
+        if (KeyInfo->AppleKey == Keys[NewKeyIndex]) {
+          break;
+        }
+
+        ++KeyInfo2;
       }
 
-      KeyInfo = KeyInfo2;
-
-      if (KeyInfo->AppleKey == Keys[NewKeyIndex]) {
+      // Note: This check makes no sense, it is superfluous
+      //       (goto NoNewKey handles it).
+      if (KeyInfo == NULL) {
         break;
       }
 
-      ++KeyInfo2;
+      ++KeyInfo->NumberOfStrokes;
+      ++NewKeyIndex;
+    } while (NewKeyIndex < *NumberOfKeys);
+
+    // if a new key is held down, cancel all previous inputs
+
+    for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
+      mKeyInformation[Index].CurrentStroke = FALSE;
     }
 
-    // Note: This check makes no sense, it is superfluous
-    //       (goto NoNewKey handles it).
-    if (KeyInfo == NULL) {
-      break;
-    }
+    // Overwrite an empty key info with new key
 
-    ++KeyInfo->NumberOfStrokes;
-  }
+    KeyInfo = mKeyInformation;
 
-  // if a new key is held down, cancel all previous inputs
+    for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
+      if (KeyInfo->AppleKey == 0) {
+        if (KeyInfo != NULL) {
+          KeyInfo->AppleKey        = Keys[NewKeyIndex];
+          KeyInfo->CurrentStroke   = TRUE;
+          KeyInfo->NumberOfStrokes = 0;
+        }
 
-  for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
-    mKeyInformation[Index].CurrentStroke = FALSE;
-  }
-
-  // Overwrite an empty key info with new key
-
-  KeyInfo = mKeyInformation;
-
-  for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
-    if (KeyInfo->AppleKey == 0) {
-      if (KeyInfo != NULL) {
-        KeyInfo->AppleKey        = Keys[NewKeyIndex];
-        KeyInfo->CurrentStroke   = TRUE;
-        KeyInfo->NumberOfStrokes = 0;
+        break;
       }
 
-      break;
+      ++KeyInfo;
     }
-
-    ++KeyInfo;
   }
 
 NoNewKey:
