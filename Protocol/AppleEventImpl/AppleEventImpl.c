@@ -95,16 +95,20 @@ EventUnregisterHandler (
 {
   EFI_STATUS         Status;
 
+  EFI_LIST_ENTRY     *EventHandleEntry;
   APPLE_EVENT_HANDLE *Event;
 
   ASSERT (EventHandle != NULL);
 
   Status = EFI_INVALID_PARAMETER;
-  Event  = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (&mHandleList);
+
+  EventHandleEntry = &mHandleList;
 
   goto LoopEntry;
 
   do {
+    Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandleEntry);
+
     if ((Event == EventHandle)
      || ((UINTN)EventHandle == EFI_MAX_ADDRESS)) {
       Event->Registered = FALSE;
@@ -118,10 +122,8 @@ EventUnregisterHandler (
     }
 
   LoopEntry:
-    Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
-              GetNextNode (&mHandleList, &Event->This)
-              );
-  } while (!IsNull (&mHandleList, &Event->This));
+    EventHandleEntry = GetNextNode (&mHandleList, EventHandleEntry);
+  } while (!IsNull (&mHandleList, EventHandleEntry));
 
   if (mNoEventHandles == 0) {
     EventCancelPollEvents ();

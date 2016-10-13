@@ -133,7 +133,9 @@ AddProtocolInstance (
     Buffer[Index].Interface = Interface;
     Buffer[Index].Installed = TRUE;
 
-    gBS->FreePool ((VOID *)mPointerProtocols);
+    if (mPointerProtocols != NULL) {
+      gBS->FreePool ((VOID *)mPointerProtocols);
+    }
 
     mPointerProtocols = Buffer;
   }
