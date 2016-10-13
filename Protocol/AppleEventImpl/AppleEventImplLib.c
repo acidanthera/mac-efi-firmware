@@ -157,6 +157,8 @@ EventUnregisterHandlers (
     gBS->FreePool ((VOID *)mPointerProtocols);
   }
 
+  // BUG: Memory leak, currently active events are not freed.
+
   EventRemoveUnregisteredEvents ();
 
   if (!IsListEmpty (&mHandleList)) {
@@ -285,7 +287,7 @@ QueryEventNotifyFunction (
   if (mQueryEventCreated) {
     do {
       Status = EfiAcquireLockOrFail (&mEfiLock);
-    } while (!EFI_ERROR (Status));
+    } while (Status != EFI_SUCCESS);
 
     FlagAllEventsReady ();
 
@@ -350,6 +352,8 @@ EventCreateQueryEvent (
                   NULL,
                   &mQueryEvent
                   );
+
+  ASSERT_EFI_ERROR (Status);
 
   if (!EFI_ERROR (Status)) {
     mQueryEventCreated = TRUE;

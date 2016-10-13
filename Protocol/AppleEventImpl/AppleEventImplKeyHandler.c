@@ -188,40 +188,40 @@ GetCurrentKeyStroke (
     }
   }
 
+  // CHECKME start
+
   if ((NumberOfKeys != NULL) && ((*NumberOfKeys == 0) || (Keys != NULL))) {
     TempCLockOn = mCLockOn;
 
     for (Index = 0; Index < *NumberOfKeys; ++Index) {
-      Index2          = 0;
       KeyInfo2 = mKeyInformation;
 
-      while (TRUE) {
+      for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyInformation); ++Index2) {
         KeyInfo = KeyInfo2;
 
-        if (Index2 < ARRAY_LENGTH (mKeyInformation)) {
-          if (KeyInfo->AppleKey == Keys[Index]) {
-            break;
-          }
-
-          ++KeyInfo2;
-          ++Index2;
-        } else {
-          if ((Keys[Index] == AppleHidUsbKbUsageKeyCLock)
-           && !mPreviouslyCLockOn) {
-            TempCLockOn = !mCLockOn;
-          }
-
-          goto BreakBoth;
+        if (KeyInfo->AppleKey == Keys[Index]) {
+          break;
         }
+
+        ++KeyInfo2;
+      }
+
+      if (Index2 >= ARRAY_LENGTH (mKeyInformation)) {
+        Index = *NumberOfKeys;
       }
 
       if (KeyInfo == NULL) {
         break;
       }
     }
+
+	  if ((Keys[Index] == AppleHidUsbKbUsageKeyCLock) && !mPreviouslyCLockOn) {
+		  TempCLockOn = !mCLockOn;
+	  }
   }
 
-BreakBoth:
+  // CHECKME end
+
   AppleModifiers = (Modifiers | APPLE_MODIFIERS_SHIFT);
 
   if (!TempCLockOn) {
@@ -278,18 +278,18 @@ BreakBoth:
       KeyInfo2 = mKeyInformation;
 
       for (Index2 = 0; TRUE; ++Index2) {
-        // Note: Should this be the break condition?
-        if (Index2 >= ARRAY_LENGTH (mKeyInformation)) {
-          goto NoNewKey;
-        }
-
         KeyInfo = KeyInfo2;
 
-        if (KeyInfo->AppleKey == Keys[NewKeyIndex]) {
+        // Note: Should this be the break condition?
+        if (Index2 >= ARRAY_LENGTH (mKeyInformation)) {
           break;
         }
 
         ++KeyInfo2;
+
+        if (KeyInfo->AppleKey == Keys[NewKeyIndex]) {
+          break;
+        }
       }
 
       // Note: This check makes no sense, it is superfluous
@@ -327,7 +327,6 @@ BreakBoth:
     }
   }
 
-NoNewKey:
   KeyInfo  = NULL;
   KeyInfo2 = mKeyInformation;
 
@@ -524,7 +523,7 @@ Initialize (
   if (!mInitialized) {
     mInitialized = TRUE;
 
-    EfiCommonLibZeroMem ((VOID *)&mKeyInformation, sizeof (mKeyInformation));
+    EfiZeroMem ((VOID *)&mKeyInformation[0], sizeof (mKeyInformation));
 
     mModifiers         = 0;
     mCLockOn           = FALSE;
