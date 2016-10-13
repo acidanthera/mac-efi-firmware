@@ -34,10 +34,10 @@ GetAppleKeyStrokes (
 {
   EFI_STATUS Status;
 
-  ASSERT (mAppleKeyMapAggregator != NULL);
   ASSERT (Modifiers != NULL);
   ASSERT (NumberOfKeys != NULL);
   ASSERT (Keys != NULL);
+  ASSERT (mAppleKeyMapAggregator != NULL);
 
   Status = EFI_UNSUPPORTED;
 

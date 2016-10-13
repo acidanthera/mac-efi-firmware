@@ -268,8 +268,16 @@ BreakBoth:
 
   // increase number of strokes for all currently held keys
 
+  // TODO: Refactor these loops
+
+  NewKeyIndex = 0;
+
+  // FIXME: This is not 1:1 reversed.
+  if (NewKeyIndex >= *NumberOfKeys) {
+    goto NoNewKey;
+  }
+
   for (NewKeyIndex = 0; NewKeyIndex < *NumberOfKeys; ++NewKeyIndex) {
-    Index2   = 0;
     KeyInfo2 = mKeyInformation;
 
     for (Index2 = 0; TRUE; ++Index2) {
