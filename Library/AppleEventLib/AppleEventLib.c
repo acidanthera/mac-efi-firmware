@@ -33,11 +33,11 @@ CreateTimerEvent (
 
   EFI_STATUS Status;
 
-  ASSERT (NotifyTpl < EFI_TPL_CALLBACK);
+  ASSERT (NotifyTpl > EFI_TPL_CALLBACK);
 
   Event = NULL;
 
-  if (NotifyTpl < EFI_TPL_CALLBACK) {
+  if (NotifyTpl > EFI_TPL_CALLBACK) {
     Status = gBS->CreateEvent (
                     ((NotifyFunction != NULL)
                       ? (EFI_EVENT_TIMER | EFI_EVENT_NOTIFY_SIGNAL)

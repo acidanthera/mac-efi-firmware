@@ -102,18 +102,22 @@ EventUnregisterHandler (
   Status = EFI_INVALID_PARAMETER;
   Event  = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (&mHandleList);
 
+  goto LoopEntry;
+
   do {
     if ((Event == EventHandle)
      || ((UINTN)EventHandle == EFI_MAX_ADDRESS)) {
       Event->Registered = FALSE;
       --mNoEventHandles;
-      Status            = EFI_SUCCESS;
+
+      Status = EFI_SUCCESS;
 
       if ((UINTN)EventHandle != EFI_MAX_ADDRESS) {
         break;
       }
     }
 
+  LoopEntry:
     Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
               GetNextNode (&mHandleList, &Event->This)
               );

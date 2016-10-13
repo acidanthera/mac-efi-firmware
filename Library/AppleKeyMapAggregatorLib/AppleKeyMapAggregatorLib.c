@@ -54,7 +54,7 @@ GetAppleKeyStrokes (
                                                 NULL
                                                 );
 
-      ASSERT (Status == EFI_BUFFER_TOO_SMALL);
+      ASSERT (!EFI_ERROR (Status) || Status == EFI_BUFFER_TOO_SMALL);
 
       if (Status == EFI_BUFFER_TOO_SMALL) {
         if (*NumberOfKeys == 0) {
@@ -103,7 +103,9 @@ GetModifierStrokes (
   Status = GetAppleKeyStrokes (&Modifiers, &NumberOfKeys, &Keys);
 
   if (!EFI_ERROR (Status)) {
-    gBS->FreePool ((VOID *)Keys);
+    if (Keys != NULL) {
+      gBS->FreePool ((VOID *)Keys);
+    }
   } else {
     Modifiers = 0;
   }

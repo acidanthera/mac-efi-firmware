@@ -125,7 +125,7 @@ EventRemoveUnregisteredEvents (
   APPLE_EVENT_HANDLE *NextEvent;
 
   CurrentEvent = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (
-                   mHandleList.ForwardLink
+                   GetFirstNode (&mHandleList)
                    );
 
   if (!IsListEmpty (&mHandleList)) {
@@ -155,7 +155,7 @@ EventUnregisterHandlers (
   ) // sub_A31
 {
   if (mPointerProtocols != NULL) {
-    gBS->FreePool (mPointerProtocols);
+    gBS->FreePool ((VOID *)mPointerProtocols);
   }
 
   EventRemoveUnregisteredEvents ();
@@ -281,6 +281,7 @@ QueryEventNotifyFunction (
 
   APPLE_EVENT_QUERY  *EventQuery;
   APPLE_EVENT_HANDLE *EventHandle;
+  APPLE_EVENT_QUERY  *NextEventQuery;
 
   ASSERT (Event != NULL);
 
@@ -324,9 +325,15 @@ QueryEventNotifyFunction (
                  );
         }
 
-        RemoveEntryList (EventQuery->This.ForwardLink->BackLink);
+        NextEventQuery = APPLE_EVENT_QUERY_FROM_LIST_ENTRY (
+                           GetNextNode (&mQueryList, &EventQuery->This)
+                           );
+
+        RemoveEntryList (NextEventQuery->This.BackLink);
         gBS->FreePool ((VOID *)EventQuery->Information);
         gBS->FreePool ((VOID *)EventQuery);
+
+        EventQuery = NextEventQuery;
       } while (!IsNull (&mQueryList, &EventQuery->This));
     }
 

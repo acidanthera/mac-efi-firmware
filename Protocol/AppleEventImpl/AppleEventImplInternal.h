@@ -21,7 +21,7 @@
 
 // APPLE_EVENT_QUERY_FROM_LIST_ENTRY
 #define APPLE_EVENT_QUERY_FROM_LIST_ENTRY(ListEntry) \
-  CR (ListEntry, APPLE_EVENT_QUERY, This, APPLE_EVENT_QUERY_SIGNATURE)
+  CR ((ListEntry), APPLE_EVENT_QUERY, This, APPLE_EVENT_QUERY_SIGNATURE)
 
 // APPLE_EVENT_QUERY
 typedef struct {
@@ -36,9 +36,6 @@ typedef struct {
   VOID       *Interface;  ///<
   BOOLEAN    Installed;   ///<
 } EFI_PROTOCOL_INSTANCE;
-
-// mAppleEventHandleList
-extern EFI_LIST mHandleList;
 
 // mAppleEventProtocol
 extern APPLE_EVENT_PROTOCOL mAppleEventProtocol;

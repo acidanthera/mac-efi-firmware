@@ -52,7 +52,7 @@ EFI_STATUS
 AppleKeyEventDataFromInputKey (
   OUT APPLE_EVENT_DATA  *EventData,
   IN  APPLE_KEY         *AppleKey,
-  IN  EFI_INPUT_KEY    *InputKey
+  IN  EFI_INPUT_KEY     *InputKey
   ) // sub_1257
 {
   EFI_STATUS           Status;
@@ -119,12 +119,8 @@ GetCurrentKeyStroke (
   BOOLEAN                Shifted;
 
   ASSERT (NumberOfKeys != NULL);
-  ASSERT (Keys != NULL);
+  ASSERT ((((*NumberOfKeys > 0) ? 1 : 0) ^ ((Keys == NULL) ? 1 : 0)) != 0);
   ASSERT (Key != NULL);
-
-  TempCLockOn     = FALSE;
-  NoReleasedKeys  = 0;
-  ReleasedKeysPtr = NULL;
 
   if (mModifiers != Modifiers) {
     KeyInfo = mKeyInformation;
@@ -133,6 +129,9 @@ GetCurrentKeyStroke (
       mKeyInformation[Index].CurrentStroke = FALSE;
     }
   }
+
+  TempCLockOn    = FALSE;
+  NoReleasedKeys = 0;
 
   // clean previous keys - set no longer pressed key infos to 0s
 
@@ -172,6 +171,8 @@ GetCurrentKeyStroke (
     }
   }
 
+  ReleasedKeysPtr = NULL;
+
   if (NoReleasedKeys > 0) {
     ReleasedKeysSize = (sizeof (*ReleasedKeys) * NoReleasedKeys);
     ReleasedKeysPtr  = EfiLibAllocatePool (ReleasedKeysSize);
@@ -182,6 +183,8 @@ GetCurrentKeyStroke (
         (VOID *)&ReleasedKeys,
         ReleasedKeysSize
         );
+    } else {
+      NoReleasedKeys = 0;
     }
   }
 
@@ -228,7 +231,7 @@ BreakBoth:
   ShiftPressed   = (BOOLEAN)((AppleModifiers & APPLE_MODIFIERS_SHIFT) != 0);
   ReleasedKeyPtr = ReleasedKeysPtr;
 
-  for (Index = 0; Index < *NumberOfKeys; ++Index) {
+  for (Index = 0; Index < NoReleasedKeys; ++Index) {
     InputKeyFromAppleKey (*ReleasedKeyPtr, &InputKey, ShiftPressed);
 
     Status = AppleKeyEventDataFromInputKey (
@@ -238,19 +241,20 @@ BreakBoth:
                );
 
     if (Status != EFI_SUCCESS) {
-      gBS->FreePool ((VOID *)ReleasedKeysPtr);
-    } else {
-      EventCreateEventQuery (
-        AppleEventData,
-        APPLE_EVENT_TYPE_KEY_UP,
-        AppleModifiers
-        );
-
-      ++ReleasedKeyPtr;
+      goto FreeReleasedKeysPtr;
     }
+
+    EventCreateEventQuery (
+      AppleEventData,
+      APPLE_EVENT_TYPE_KEY_UP,
+      AppleModifiers
+      );
+
+    ++ReleasedKeyPtr;
   }
 
   if (ReleasedKeysPtr != NULL) {
+  FreeReleasedKeysPtr:
     gBS->FreePool ((VOID *)ReleasedKeysPtr);
   }
 

@@ -228,9 +228,9 @@ RemoveUninstalledInstances (
           *NoInstances = NoMatches;
         }
       }
-
-      gBS->FreePool ((VOID *)Buffer);
     }
+
+    gBS->FreePool ((VOID *)Buffer);
   } else {
     gBS->FreePool ((VOID *)*Instances);
 
@@ -252,8 +252,6 @@ SimplePointerInstallNotifyFunction (
   EFI_HANDLE                  *Buffer;
   UINTN                       Index;
   EFI_SIMPLE_POINTER_PROTOCOL *SimplePointer;
-
-  ASSERT (Event != NULL);
 
   if (Event != NULL) {
     Status = gBS->LocateHandleBuffer (
