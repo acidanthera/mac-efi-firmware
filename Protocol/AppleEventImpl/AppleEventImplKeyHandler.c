@@ -344,6 +344,7 @@ NoNewKey:
 
     if (KeyInfo == NULL) {
       *NumberOfKeys = 0;
+      goto Return;
     } else if (KeyInfo->NumberOfStrokes < (KEY_STROKE_DELAY * 10)) {
       if (KeyInfo->NumberOfStrokes > 0) {
         goto Return;
