@@ -182,10 +182,7 @@ IsCLockOn (
   KEY_STROKE_INFORMATION *KeyInfo;
 
   ASSERT (NumberOfKeys != NULL);
-
-  if (NumberOfKeys != NULL) {
-    ASSERT ((((*NumberOfKeys > 0) ? 1 : 0) ^ ((Keys == NULL) ? 1 : 0)) != 0);
-  }
+  ASSERT ((((*NumberOfKeys > 0) ? 1 : 0) ^ ((Keys == NULL) ? 1 : 0)) != 0);
 
   CLockOn = FALSE;
 

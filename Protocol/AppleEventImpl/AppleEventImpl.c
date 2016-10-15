@@ -100,10 +100,7 @@ EventUnregisterHandler (
   APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
 
   ASSERT (Handle != NULL);
-  
-  if (Handle != NULL) {
-    ASSERT_APPLE_EVENT_HANDLE_SIGNATURE (Handle);
-  }
+  ASSERT_APPLE_EVENT_HANDLE_SIGNATURE (Handle);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -178,16 +175,9 @@ EventSetEventName (
   CHAR8      *EventName;
 
   ASSERT (Handle != NULL);
-
-  if (Handle != NULL) {
-    ASSERT_APPLE_EVENT_HANDLE_SIGNATURE (Handle);
-  }
-
+  ASSERT_APPLE_EVENT_HANDLE_SIGNATURE (Handle);
   ASSERT (Name != NULL);
-
-  if (Name != NULL) {
-    ASSERT (Name[0] != '\0');
-  }
+  ASSERT (Name[0] != '\0');
 
   Status = EFI_INVALID_PARAMETER;
 
