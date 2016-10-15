@@ -315,9 +315,9 @@ QueryEventNotifyFunction (
       }
 
       if (((EventQuery->Information->EventType & APPLE_ALL_KEYBOARD_EVENTS) != 0)
-        && (EventQuery->Information->EventData.AppleKeyEventData != NULL)) {
+        && (EventQuery->Information->EventData.KeyData != NULL)) {
         gBS->FreePool (
-               (VOID *)EventQuery->Information->EventData.AppleKeyEventData
+               (VOID *)EventQuery->Information->EventData.KeyData
                );
       }
 
