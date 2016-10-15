@@ -47,7 +47,7 @@ extern EFI_EVENT mSimplePointerInstallNotifyEvent;
 extern EFI_PROTOCOL_INSTANCE *mPointerProtocols;
 
 // mEventHandleList
-extern EFI_LIST mHandleList;
+extern EFI_LIST mEventHandleList;
 
 // mCLockOn
 extern BOOLEAN mCLockOn;

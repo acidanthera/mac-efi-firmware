@@ -121,7 +121,7 @@ AddProtocolInstance (
   ASSERT (Buffer != NULL);
 
   if (Buffer != NULL) {
-    EfiCommonLibCopyMem (
+    EfiCopyMem (
       (VOID *)Buffer,
       (VOID *)mPointerProtocols,
       (mNumberOfPointerProtocols * sizeof (*mPointerProtocols))
@@ -211,7 +211,7 @@ RemoveUninstalledInstances (
 
             do {
               if (Instance->Installed) {
-                EfiCommonLibCopyMem (
+                EfiCopyMem (
                   (VOID *)&InstanceBuffer[Index2],
                   (VOID *)Instance, sizeof (*Instance)
                   );
@@ -650,7 +650,7 @@ SimplePointerPollNotifyFunction (
                    );
 
         if (Result != 0) {
-          EfiCommonLibCopyMem (
+          EfiCopyMem (
             (VOID *)&Resolution,
             (VOID *)&mCursorPosition,
             sizeof (mCursorPosition)
@@ -740,7 +740,7 @@ EventCreateSimplePointerPollEvent (
   }
 
   GetScreenResolution ();
-  EfiCommonLibZeroMem (&mCursorPosition, sizeof (mCursorPosition));
+  EfiZeroMem (&mCursorPosition, sizeof (mCursorPosition));
 
   mSimplePointerPollEvent = CreateNotifyEvent (
                               SimplePointerPollNotifyFunction,

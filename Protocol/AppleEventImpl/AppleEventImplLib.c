@@ -125,11 +125,11 @@ EventRemoveUnregisteredEvents (
   EFI_LIST_ENTRY     *NextEventHandleEntry;
   APPLE_EVENT_HANDLE *Event;
 
-  EventHandleEntry = GetFirstNode (&mHandleList);
+  EventHandleEntry = GetFirstNode (&mEventHandleList);
 
-  if (!IsListEmpty (&mHandleList)) {
+  if (!IsListEmpty (&mEventHandleList)) {
     do {
-      NextEventHandleEntry = GetNextNode (&mHandleList, EventHandleEntry);
+      NextEventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
 
       Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandleEntry);
 
@@ -143,7 +143,7 @@ EventRemoveUnregisteredEvents (
       }
 
       EventHandleEntry = NextEventHandleEntry;
-    } while (!IsNull (&mHandleList, NextEventHandleEntry));
+    } while (!IsNull (&mEventHandleList, NextEventHandleEntry));
   }
 }
 
@@ -161,7 +161,7 @@ EventUnregisterHandlers (
 
   EventRemoveUnregisteredEvents ();
 
-  if (!IsListEmpty (&mHandleList)) {
+  if (!IsListEmpty (&mEventHandleList)) {
     EventUnregisterHandler ((APPLE_EVENT_HANDLE *)EFI_MAX_ADDRESS);
   }
 }
@@ -232,7 +232,7 @@ EventCreateAppleEventQueryInfo (
     QueryInfo->CreationTime.Pad1   = CreationTime.Pad1;
 
     if (PointerPosition != NULL) {
-      EfiCommonLibCopyMem (
+      EfiCopyMem (
         (VOID *)&QueryInfo->PointerPosition,
         (VOID *)PointerPosition,
         sizeof (*PointerPosition)
@@ -254,15 +254,15 @@ FlagAllEventsReady (
   EFI_LIST_ENTRY     *Entry;
   APPLE_EVENT_HANDLE *EventHandle;
 
-  Entry = GetFirstNode (&mHandleList);
+  Entry = GetFirstNode (&mEventHandleList);
 
-  if (!IsListEmpty (&mHandleList)) {
+  if (!IsListEmpty (&mEventHandleList)) {
     do {
       EventHandle        = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (Entry);
       EventHandle->Ready = TRUE;
 
-      Entry = GetNextNode (&mHandleList, Entry);
-    } while (!IsNull (&mHandleList, Entry));
+      Entry = GetNextNode (&mEventHandleList, Entry);
+    } while (!IsNull (&mEventHandleList, Entry));
   }
 }
 
@@ -296,9 +296,9 @@ QueryEventNotifyFunction (
     while (!IsNull (&mQueryList, EventQueryEntry)) {
       EventQuery = APPLE_EVENT_QUERY_FROM_LIST_ENTRY (EventQueryEntry);
 
-      EventHandleEntry = GetFirstNode (&mHandleList);
+      EventHandleEntry = GetFirstNode (&mEventHandleList);
 
-      while (!IsNull (&mHandleList, EventHandleEntry)) {
+      while (!IsNull (&mEventHandleList, EventHandleEntry)) {
         EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandleEntry);
 
         if (EventHandle->Registered
@@ -311,7 +311,7 @@ QueryEventNotifyFunction (
                          );
         }
 
-        EventHandleEntry = GetNextNode (&mHandleList, EventHandleEntry);
+        EventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
       }
 
       if (((EventQuery->Information->EventType & APPLE_ALL_KEYBOARD_EVENTS) != 0)

@@ -73,7 +73,7 @@ AppleKeyEventDataFromInputKey (
       KeyEventData->NumberOfKeyPairs = 1;
       KeyEventData->KeyPair.InputKey = *InputKey;
 
-      EfiCommonLibCopyMem (
+      EfiCopyMem (
         (VOID *)&KeyEventData->KeyPair.AppleKey,
         (VOID *)AppleKey,
         sizeof (*AppleKey)
@@ -93,16 +93,18 @@ AppleKeyEventDataFromInputKey (
 inline
 STATIC
 UINTN
-RemoveReleasedKeys (
+GetAndRemoveReleasedKeys (
   IN  UINTN      *NumberOfKeys,
   IN  APPLE_KEY  *Keys,
-  OUT APPLE_KEY  *ReleasedKeys
+  OUT APPLE_KEY  **ReleasedKeys
   )
 {
-  UINTN NumberOfReleasedKeys;
+  UINTN     NumberOfReleasedKeys;
 
-  UINTN Index;
-  UINTN Index2;
+  UINTN     Index;
+  UINTN     Index2;
+  APPLE_KEY ReleasedKeysBuffer[12];
+  UINTN     ReleasedKeysSize;
 
   NumberOfReleasedKeys = 0;
 
@@ -115,11 +117,11 @@ RemoveReleasedKeys (
 
     if (*NumberOfKeys == Index2) {
       if (mKeyInformation[Index].AppleKey != 0) {
-        ReleasedKeys[NumberOfReleasedKeys] = mKeyInformation[Index].AppleKey;
+        ReleasedKeysBuffer[NumberOfReleasedKeys] = mKeyInformation[Index].AppleKey;
         ++NumberOfReleasedKeys;
       }
 
-      EfiCommonLibZeroMem (
+      EfiZeroMem (
         &mKeyInformation[Index],
         sizeof (mKeyInformation[Index])
         );
@@ -136,16 +138,117 @@ RemoveReleasedKeys (
     }
 
     if (*NumberOfKeys == Index) {
-      mPreviouslyCLockOn                 = FALSE;
-      ReleasedKeys[NumberOfReleasedKeys] = AppleHidUsbKbUsageKeyCLock;
+      mPreviouslyCLockOn                       = FALSE;
+      ReleasedKeysBuffer[NumberOfReleasedKeys] = AppleHidUsbKbUsageKeyCLock;
       ++NumberOfReleasedKeys;
+    }
+  }
+
+  // Allocate a heap buffer to return.
+
+  *ReleasedKeys = NULL;
+
+  if (NumberOfReleasedKeys > 0) {
+    ReleasedKeysSize = (sizeof (**ReleasedKeys) * NumberOfReleasedKeys);
+    *ReleasedKeys    = EfiLibAllocatePool (ReleasedKeysSize);
+
+    if (*ReleasedKeys != NULL) {
+      EfiCopyMem (
+        (VOID *)*ReleasedKeys,
+        (VOID *)&ReleasedKeysBuffer[0],
+        ReleasedKeysSize
+      );
+    } else {
+      NumberOfReleasedKeys = 0;
     }
   }
 
   return NumberOfReleasedKeys;
 }
 
+inline
+STATIC
+BOOLEAN
+IsCLockOn (
+  IN UINTN      *NumberOfKeys,
+  IN APPLE_KEY  *Keys
+  )
+{
+  BOOLEAN                CLockOn;
+
+  UINTN                  Index;
+  KEY_STROKE_INFORMATION *KeyInfoWalker;
+  UINTN                  Index2;
+  KEY_STROKE_INFORMATION *KeyInfo;
+
+  ASSERT (NumberOfKeys != NULL);
+
+  if (NumberOfKeys != NULL) {
+    ASSERT ((((*NumberOfKeys > 0) ? 1 : 0) ^ ((Keys == NULL) ? 1 : 0)) != 0);
+  }
+
+  CLockOn = FALSE;
+
+  if ((NumberOfKeys != NULL) && ((*NumberOfKeys == 0) || (Keys != NULL))) {
+    CLockOn = mCLockOn;
+
+    for (Index = 0; Index < *NumberOfKeys; ++Index) {
+      KeyInfoWalker = mKeyInformation;
+
+      for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyInformation); ++Index2) {
+        if (KeyInfo->AppleKey == Keys[Index]) {
+          KeyInfo = KeyInfoWalker;
+
+          break;
+        }
+
+        ++KeyInfoWalker;
+      }
+
+      // NOTE: (KeyInfo == NULL) makes no sense.
+      if ((Index2 >= ARRAY_LENGTH (mKeyInformation)) || (KeyInfo == NULL)) {
+        if ((Keys[Index] == AppleHidUsbKbUsageKeyCLock) && !mPreviouslyCLockOn) {
+          CLockOn = !mCLockOn;
+        }
+
+        break;
+      }
+    }
+  }
+
+  return CLockOn;
+}
+
+inline
+STATIC
+KEY_STROKE_INFORMATION *
+GetCurrentStroke (
+  VOID
+  )
+{
+  KEY_STROKE_INFORMATION *KeyInfo;
+
+  KEY_STROKE_INFORMATION *KeyInfoWalker;
+  UINTN                  Index;
+
+  KeyInfo       = NULL;
+  KeyInfoWalker = &mKeyInformation[0];
+
+  for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
+    if (KeyInfo->CurrentStroke) {
+      KeyInfo = KeyInfoWalker;
+
+      break;
+    }
+
+    ++KeyInfoWalker;
+  }
+
+  return KeyInfo;
+}
+
 // GetCurrentKeyStroke
+STATIC
 EFI_STATUS
 GetCurrentKeyStroke (
   IN     APPLE_MODIFIER_MAP  Modifiers,
@@ -159,11 +262,9 @@ GetCurrentKeyStroke (
   KEY_STROKE_INFORMATION *KeyInfo;
   UINTN                  Index;
   UINTN                  Index2;
-  UINTN                  NoReleasedKeys;
-  APPLE_KEY              ReleasedKeys[12];
-  APPLE_KEY              *ReleasedKeysPtr;
-  UINTN                  ReleasedKeysSize;
-  BOOLEAN                TempCLockOn;
+  UINTN                  NumberOfReleasedKeys;
+  APPLE_KEY              *ReleasedKeys;
+  UINTN                  ReleasedKeysBufferSize;
   BOOLEAN                CLockOn;
   APPLE_MODIFIER_MAP     AppleModifiers;
   BOOLEAN                ShiftPressed;
@@ -172,10 +273,15 @@ GetCurrentKeyStroke (
   APPLE_EVENT_DATA       AppleEventData;
   KEY_STROKE_INFORMATION *KeyInfoWalker;
   UINTN                  NewKeyIndex;
+  BOOLEAN                AcceptStroke;
   BOOLEAN                Shifted;
 
   ASSERT (NumberOfKeys != NULL);
-  ASSERT ((((*NumberOfKeys > 0) ? 1 : 0) ^ ((Keys == NULL) ? 1 : 0)) != 0);
+
+  if (NumberOfKeys != NULL) {
+    ASSERT ((((*NumberOfKeys > 0) ? 1 : 0) ^ ((Keys == NULL) ? 1 : 0)) != 0);
+  }
+
   ASSERT (Key != NULL);
 
   if (mModifiers != Modifiers) {
@@ -186,62 +292,20 @@ GetCurrentKeyStroke (
     }
   }
 
-  TempCLockOn = FALSE;
+  NumberOfReleasedKeys = GetAndRemoveReleasedKeys (NumberOfKeys, Keys, &ReleasedKeys);
 
-  NoReleasedKeys = RemoveReleasedKeys (NumberOfKeys, Keys, &ReleasedKeys[0]);
+  CLockOn = IsCLockOn (NumberOfKeys, Keys);
 
-  ReleasedKeysPtr = NULL;
+  AppleModifiers = Modifiers;
 
-  if (NoReleasedKeys > 0) {
-    ReleasedKeysSize = (sizeof (*ReleasedKeys) * NoReleasedKeys);
-    ReleasedKeysPtr  = EfiLibAllocatePool (ReleasedKeysSize);
-
-    if (ReleasedKeysPtr != NULL) {
-      EfiCommonLibCopyMem (
-        (VOID *)ReleasedKeysPtr,
-        (VOID *)&ReleasedKeys,
-        ReleasedKeysSize
-        );
-    } else {
-      NoReleasedKeys = 0;
-    }
-  }
-
-  if ((NumberOfKeys != NULL) && ((*NumberOfKeys == 0) || (Keys != NULL))) {
-    TempCLockOn = mCLockOn;
-
-    for (Index = 0; Index < *NumberOfKeys; ++Index) {
-      KeyInfoWalker = mKeyInformation;
-
-      for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyInformation); ++Index2) {
-        KeyInfo = KeyInfoWalker;
-        ++KeyInfoWalker;
-
-        if (KeyInfo->AppleKey == Keys[Index]) {
-          break;
-        }
-      }
-
-      if ((Index2 >= ARRAY_LENGTH (mKeyInformation)) || (KeyInfo == NULL)) {
-        if ((Keys[Index] == AppleHidUsbKbUsageKeyCLock) && !mPreviouslyCLockOn) {
-          TempCLockOn = !mCLockOn;
-        }
-
-        break;
-      }
-    }
-  }
-
-  AppleModifiers = (Modifiers | APPLE_MODIFIERS_SHIFT);
-
-  if (!TempCLockOn) {
-    AppleModifiers = Modifiers;
+  if (CLockOn) {
+    AppleModifiers |= APPLE_MODIFIERS_SHIFT;
   }
 
   ShiftPressed      = (BOOLEAN)((AppleModifiers & APPLE_MODIFIERS_SHIFT) != 0);
-  ReleasedKeyWalker = ReleasedKeysPtr;
+  ReleasedKeyWalker = ReleasedKeys;
 
-  for (Index = 0; Index < NoReleasedKeys; ++Index) {
+  for (Index = 0; Index < NumberOfReleasedKeys; ++Index) {
     InputKeyFromAppleKey (*ReleasedKeyWalker, &InputKey, ShiftPressed);
 
     AppleEventData.KeyData = NULL;
@@ -252,9 +316,9 @@ GetCurrentKeyStroke (
                                );
 
     if (Status != EFI_SUCCESS) {
-      gBS->FreePool ((VOID *)ReleasedKeysPtr);
+      gBS->FreePool ((VOID *)ReleasedKeys);
 
-      ReleasedKeysPtr = NULL;
+      ReleasedKeys = NULL;
     }
 
     EventCreateEventQuery (
@@ -266,16 +330,13 @@ GetCurrentKeyStroke (
     ++ReleasedKeyWalker;
   }
 
-  if (ReleasedKeysPtr != NULL) {
-    gBS->FreePool ((VOID *)ReleasedKeysPtr);
+  if (ReleasedKeys != NULL) {
+    gBS->FreePool ((VOID *)ReleasedKeys);
   }
 
-  CLockOn = mCLockOn;
-
-  if (TempCLockOn != mCLockOn) {
-    mCLockOn           = TempCLockOn;
+  if (CLockOn != mCLockOn) {
+    mCLockOn           = CLockOn;
     mPreviouslyCLockOn = TRUE;
-    CLockOn            = TempCLockOn;
   }
 
   // increase number of strokes for all currently held keys
@@ -307,8 +368,8 @@ GetCurrentKeyStroke (
 
       for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
         if (KeyInfo->AppleKey == 0) {
-          KeyInfo->AppleKey = Keys[NewKeyIndex];
-          KeyInfo->CurrentStroke = TRUE;
+          KeyInfo->AppleKey        = Keys[NewKeyIndex];
+          KeyInfo->CurrentStroke   = TRUE;
           KeyInfo->NumberOfStrokes = 0;
 
           break;
@@ -325,19 +386,7 @@ GetCurrentKeyStroke (
     ++KeyInfo->NumberOfStrokes;
   }
 
-  KeyInfo       = NULL;
-  KeyInfoWalker = mKeyInformation;
-
-  for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
-    KeyInfo = KeyInfoWalker;
-    ++KeyInfoWalker;
-
-    if (KeyInfo->CurrentStroke) {
-      break;
-    }
-
-    KeyInfo = NULL;
-  }
+  KeyInfo = GetCurrentStroke ();
 
   Status = EFI_NOT_READY;
 
@@ -347,23 +396,21 @@ GetCurrentKeyStroke (
     // verify the timeframe the key has been pressed
 
     if (KeyInfo != NULL) {
-      if (KeyInfo->NumberOfStrokes < (KEY_STROKE_DELAY * 10)) {
-        if (KeyInfo->NumberOfStrokes > 0) {
-          goto Return;
-        }
-      } else if ((KeyInfo->NumberOfStrokes % KEY_STROKE_DELAY) > 0) {
-        goto Return;
+      AcceptStroke = (KeyInfo->NumberOfStrokes < (KEY_STROKE_DELAY * 10))
+                       ? (KeyInfo->NumberOfStrokes == 0)
+                       : ((KeyInfo->NumberOfStrokes % KEY_STROKE_DELAY) == 0);
+
+      if (AcceptStroke) {
+        *NumberOfKeys = 1;
+        *Keys         = KeyInfo->AppleKey;
+
+        Shifted = (BOOLEAN)(
+                    (IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
+                      != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
+                    );
+
+        InputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
       }
-
-      *NumberOfKeys = 1;
-      *Keys         = KeyInfo->AppleKey;
-
-      Shifted = (BOOLEAN)(
-                  (IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
-                    != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
-                  );
-
-      InputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
     } else {
       *NumberOfKeys = 0;
     }
@@ -371,7 +418,6 @@ GetCurrentKeyStroke (
     Status = EFI_SUCCESS;
   }
 
-Return:
   if (Status != EFI_NOT_READY) {
     ASSERT_EFI_ERROR (Status);
   }
@@ -380,6 +426,7 @@ Return:
 }
 
 // CreateAppleKeyDescriptorsFromKeyStrokes
+STATIC
 EFI_STATUS
 AppleEventDataFromCurrentKeyStroke (
   IN OUT APPLE_EVENT_DATA    *EventData,
@@ -396,9 +443,9 @@ AppleEventDataFromCurrentKeyStroke (
   EFI_CONSOLE_CONTROL_SCREEN_MODE Mode;
   UINTN                           Index;
 
-  ASSERT (mAppleKeyMapAggregator != NULL);
   ASSERT (EventData != NULL);
   ASSERT (Modifiers != NULL);
+  ASSERT (mAppleKeyMapAggregator != NULL);
 
   EfiZeroMem (&InputKey, sizeof (InputKey));
 
@@ -453,6 +500,7 @@ AppleEventDataFromCurrentKeyStroke (
 }
 
 // KeyStrokePollNotifyFunction
+STATIC
 VOID
 EFIAPI
 KeyStrokePollNotifyFunction (
@@ -510,9 +558,10 @@ KeyStrokePollNotifyFunction (
   }
 }
 
-// Initialize
+// InitializeKeyHandler
+STATIC
 VOID
-Initialize (
+InitializeKeyHandler (
   VOID
   ) // sub_143C
 {
@@ -544,7 +593,7 @@ EventCreateKeyStrokePollEvent (
                   );
 
   if (!EFI_ERROR (Status)) {
-    Initialize ();
+    InitializeKeyHandler ();
 
     mKeyStrokePollEvent = CreateNotifyEvent (
                             KeyStrokePollNotifyFunction,

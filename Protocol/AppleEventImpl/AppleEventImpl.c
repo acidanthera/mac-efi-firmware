@@ -18,7 +18,7 @@
 #include "AppleEventImplInternal.h"
 
 // mEventHandleList
-EFI_LIST_ENTRY mHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mHandleList);
+EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mEventHandleList);
 
 // mNoEventHandles
 STATIC UINTN mNoEventHandles = 0;
@@ -73,7 +73,7 @@ EventRegisterHandler (
       Event->Name           = NULL;
       ++mNoEventHandles;
 
-      InsertTailList (&mHandleList, &Event->This);
+      InsertTailList (&mEventHandleList, &Event->This);
 
       *EventHandle = Event;
       Status       = EFI_SUCCESS;
@@ -102,11 +102,9 @@ EventUnregisterHandler (
 
   Status = EFI_INVALID_PARAMETER;
 
-  EventHandleEntry = &mHandleList;
+  EventHandleEntry = GetFirstNode (&mEventHandleList, EventHandleEntry);
 
-  goto LoopEntry;
-
-  do {
+  while (!IsNull (&mEventHandleList, EventHandleEntry)) {
     Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandleEntry);
 
     if ((Event == EventHandle)
@@ -121,9 +119,8 @@ EventUnregisterHandler (
       }
     }
 
-  LoopEntry:
-    EventHandleEntry = GetNextNode (&mHandleList, EventHandleEntry);
-  } while (!IsNull (&mHandleList, EventHandleEntry));
+    EventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
+  }
 
   if (mNoEventHandles == 0) {
     EventCancelPollEvents ();
@@ -221,7 +218,8 @@ EventIsCapsLockOn (
 
   if (CLockOn != NULL) {
     *CLockOn = mCLockOn;
-    Status   = EFI_SUCCESS;
+
+    Status = EFI_SUCCESS;
   }
 
   ASSERT_EFI_ERROR (Status);
