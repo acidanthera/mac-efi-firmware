@@ -27,26 +27,26 @@ STATIC UINTN mNoEventHandles = 0;
 EFI_STATUS
 EFIAPI
 EventRegisterHandler (
-  IN  APPLE_EVENT_TYPE             EventType,
+  IN  APPLE_EVENT_TYPE             Type,
   IN  APPLE_EVENT_NOTIFY_FUNCTION  NotifyFunction,
-  OUT APPLE_EVENT_HANDLE           **EventHandle,
+  OUT APPLE_EVENT_HANDLE           *Handle,
   IN  VOID                         *NotifyContext
   ) // sub_70E
 {
-  EFI_STATUS         Status;
+  EFI_STATUS                 Status;
 
-  APPLE_EVENT_HANDLE *Event;
+  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
 
-  ASSERT (EventHandle != NULL);
+  ASSERT (Handle != NULL);
   ASSERT (NotifyFunction != NULL);
-  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
+  ASSERT (Type != APPLE_EVENT_TYPE_NONE);
 
   Status = EFI_INVALID_PARAMETER;
 
-  if ((EventHandle != NULL)
+  if ((Handle != NULL)
    && (NotifyFunction != NULL)
-   && (EventType != APPLE_EVENT_TYPE_NONE)) {
-    *EventHandle = NULL;
+   && (Type != APPLE_EVENT_TYPE_NONE)) {
+    *Handle = NULL;
 
     EventRemoveUnregisteredEvents ();
 
@@ -60,23 +60,24 @@ EventRegisterHandler (
       }
     }
 
-    Event  = EfiLibAllocatePool (sizeof (*Event));
+    EventHandle  = EfiLibAllocatePool (sizeof (*EventHandle));
     Status = EFI_OUT_OF_RESOURCES;
 
-    if (Event != NULL) {
-      Event->Signature      = APPLE_EVENT_HANDLE_SIGNATURE;
-      Event->Ready          = FALSE;
-      Event->Registered     = TRUE;
-      Event->EventType      = EventType;
-      Event->NotifyFunction = NotifyFunction;
-      Event->NotifyContext  = NotifyContext;
-      Event->Name           = NULL;
+    if (EventHandle != NULL) {
+      EventHandle->Signature      = APPLE_EVENT_HANDLE_PRIVATE_SIGNATURE;
+      EventHandle->Ready          = FALSE;
+      EventHandle->Registered     = TRUE;
+      EventHandle->EventType      = Type;
+      EventHandle->NotifyFunction = NotifyFunction;
+      EventHandle->NotifyContext  = NotifyContext;
+      EventHandle->Name           = NULL;
       ++mNoEventHandles;
 
-      InsertTailList (&mEventHandleList, &Event->This);
+      InsertTailList (&mEventHandleList, &EventHandle->This);
 
-      *EventHandle = Event;
-      Status       = EFI_SUCCESS;
+      *Handle = EventHandle;
+
+      Status = EFI_SUCCESS;
     }
   }
 
@@ -90,31 +91,37 @@ Return:
 EFI_STATUS
 EFIAPI
 EventUnregisterHandler (
-  IN APPLE_EVENT_HANDLE  *EventHandle
+  IN APPLE_EVENT_HANDLE  Handle
   ) // sub_7DE
 {
-  EFI_STATUS         Status;
+  EFI_STATUS                 Status;
 
-  EFI_LIST_ENTRY     *EventHandleEntry;
-  APPLE_EVENT_HANDLE *Event;
+  EFI_LIST_ENTRY             *EventHandleEntry;
+  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
 
-  ASSERT (EventHandle != NULL);
+  ASSERT (Handle != NULL);
+  
+  if (Handle != NULL) {
+    ASSERT_APPLE_EVENT_HANDLE_SIGNATURE (Handle);
+  }
 
   Status = EFI_INVALID_PARAMETER;
 
-  EventHandleEntry = GetFirstNode (&mEventHandleList, EventHandleEntry);
+  EventHandleEntry = GetFirstNode (&mEventHandleList);
 
   while (!IsNull (&mEventHandleList, EventHandleEntry)) {
-    Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandleEntry);
+    EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (
+                    EventHandleEntry
+                    );
 
-    if ((Event == EventHandle)
-     || ((UINTN)EventHandle == EFI_MAX_ADDRESS)) {
-      Event->Registered = FALSE;
+    if (((UINTN)EventHandle == (UINTN)Handle)
+     || ((UINTN)Handle == EFI_MAX_ADDRESS)) {
+      EventHandle->Registered = FALSE;
       --mNoEventHandles;
 
       Status = EFI_SUCCESS;
 
-      if ((UINTN)EventHandle != EFI_MAX_ADDRESS) {
+      if ((UINTN)Handle != EFI_MAX_ADDRESS) {
         break;
       }
     }
@@ -161,29 +168,39 @@ EventSetCursorPosition (
 EFI_STATUS
 EFIAPI
 EventSetEventName (
-  IN OUT APPLE_EVENT_HANDLE  *EventHandle,
-  IN     CHAR8               *EventName
+  IN OUT APPLE_EVENT_HANDLE  Handle,
+  IN     CHAR8               *Name
   ) // sub_1483
 {
   EFI_STATUS Status;
 
   UINTN      AllocationSize;
-  CHAR8      *Name;
+  CHAR8      *EventName;
 
-  ASSERT (EventHandle != NULL);
-  ASSERT (EventName != NULL);
+  ASSERT (Handle != NULL);
+
+  if (Handle != NULL) {
+    ASSERT_APPLE_EVENT_HANDLE_SIGNATURE (Handle);
+  }
+
+  ASSERT (Name != NULL);
+
+  if (Name != NULL) {
+    ASSERT (Name[0] != '\0');
+  }
 
   Status = EFI_INVALID_PARAMETER;
 
-  if ((EventHandle != NULL) && (EventName != NULL)) {
-    AllocationSize    = EfiAsciiStrSize (EventName);
-    Name              = EfiLibAllocateZeroPool (AllocationSize);
-    EventHandle->Name = Name;
+  if ((Handle != NULL) && (Name != NULL)) {
+    AllocationSize = EfiAsciiStrSize (Name);
+    EventName      = EfiLibAllocateZeroPool (AllocationSize);
+
+    ((APPLE_EVENT_HANDLE_PRIVATE *)Handle)->Name = EventName;
 
     Status = EFI_OUT_OF_RESOURCES;
 
-    if (EventHandle != NULL) {
-      EfiAsciiStrCpy (Name, EventName);
+    if (EventName != NULL) {
+      EfiAsciiStrCpy (EventName, Name);
 
       Status = EFI_SUCCESS;
     }

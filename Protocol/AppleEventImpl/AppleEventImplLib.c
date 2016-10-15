@@ -121,9 +121,9 @@ EventRemoveUnregisteredEvents (
   VOID
   ) // sub_B34
 {
-  EFI_LIST_ENTRY     *EventHandleEntry;
-  EFI_LIST_ENTRY     *NextEventHandleEntry;
-  APPLE_EVENT_HANDLE *Event;
+  EFI_LIST_ENTRY             *EventHandleEntry;
+  EFI_LIST_ENTRY             *NextEventHandleEntry;
+  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
 
   EventHandleEntry = GetFirstNode (&mEventHandleList);
 
@@ -131,15 +131,15 @@ EventRemoveUnregisteredEvents (
     do {
       NextEventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
 
-      Event = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandleEntry);
+      EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (EventHandleEntry);
 
-      if (!Event->Registered) {
-        if (Event->Name != NULL) {
-          gBS->FreePool ((VOID *)Event->Name);
+      if (!EventHandle->Registered) {
+        if (EventHandle->Name != NULL) {
+          gBS->FreePool ((VOID *)EventHandle->Name);
         }
 
-        RemoveEntryList (&Event->This);
-        gBS->FreePool ((VOID *)Event);
+        RemoveEntryList (&EventHandle->This);
+        gBS->FreePool ((VOID *)EventHandle);
       }
 
       EventHandleEntry = NextEventHandleEntry;
@@ -162,7 +162,7 @@ EventUnregisterHandlers (
   EventRemoveUnregisteredEvents ();
 
   if (!IsListEmpty (&mEventHandleList)) {
-    EventUnregisterHandler ((APPLE_EVENT_HANDLE *)EFI_MAX_ADDRESS);
+    EventUnregisterHandler ((APPLE_EVENT_HANDLE_PRIVATE *)EFI_MAX_ADDRESS);
   }
 }
 
@@ -251,18 +251,21 @@ FlagAllEventsReady (
   VOID
   ) // sub_B96
 {
-  EFI_LIST_ENTRY     *Entry;
-  APPLE_EVENT_HANDLE *EventHandle;
+  EFI_LIST_ENTRY             *EventHandleEntry;
+  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
 
-  Entry = GetFirstNode (&mEventHandleList);
+  EventHandleEntry = GetFirstNode (&mEventHandleList);
 
   if (!IsListEmpty (&mEventHandleList)) {
     do {
-      EventHandle        = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (Entry);
+      EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (
+                      EventHandleEntry
+                      );
+
       EventHandle->Ready = TRUE;
 
-      Entry = GetNextNode (&mEventHandleList, Entry);
-    } while (!IsNull (&mEventHandleList, Entry));
+      EventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
+    } while (!IsNull (&mEventHandleList, EventHandleEntry));
   }
 }
 
@@ -274,13 +277,13 @@ QueryEventNotifyFunction (
   IN VOID       *Context
 ) // sub_D56
 {
-  EFI_STATUS         Status;
+  EFI_STATUS                 Status;
 
-  EFI_LIST_ENTRY     *EventQueryEntry;
-  APPLE_EVENT_QUERY  *EventQuery;
-  EFI_LIST_ENTRY     *EventHandleEntry;
-  APPLE_EVENT_HANDLE *EventHandle;
-  EFI_LIST_ENTRY     *NextEventQueryEntry;
+  EFI_LIST_ENTRY             *EventQueryEntry;
+  APPLE_EVENT_QUERY          *EventQuery;
+  EFI_LIST_ENTRY             *EventHandleEntry;
+  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
+  EFI_LIST_ENTRY             *NextEventQueryEntry;
 
   ASSERT (Event != NULL);
 
@@ -299,7 +302,9 @@ QueryEventNotifyFunction (
       EventHandleEntry = GetFirstNode (&mEventHandleList);
 
       while (!IsNull (&mEventHandleList, EventHandleEntry)) {
-        EventHandle = APPLE_EVENT_HANDLE_FROM_LIST_ENTRY (EventHandleEntry);
+        EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (
+                        EventHandleEntry
+                        );
 
         if (EventHandle->Registered
          && EventHandle->Ready

@@ -193,10 +193,11 @@ IsCLockOn (
     CLockOn = mCLockOn;
 
     for (Index = 0; Index < *NumberOfKeys; ++Index) {
-      KeyInfoWalker = mKeyInformation;
+      KeyInfo       = NULL;
+      KeyInfoWalker = &mKeyInformation[0];
 
       for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyInformation); ++Index2) {
-        if (KeyInfo->AppleKey == Keys[Index]) {
+        if (KeyInfoWalker->AppleKey == Keys[Index]) {
           KeyInfo = KeyInfoWalker;
 
           break;
@@ -264,7 +265,6 @@ GetCurrentKeyStroke (
   UINTN                  Index2;
   UINTN                  NumberOfReleasedKeys;
   APPLE_KEY              *ReleasedKeys;
-  UINTN                  ReleasedKeysBufferSize;
   BOOLEAN                CLockOn;
   APPLE_MODIFIER_MAP     AppleModifiers;
   BOOLEAN                ShiftPressed;

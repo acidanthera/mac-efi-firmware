@@ -16,6 +16,34 @@
 
 #include APPLE_PROTOCOL_PRODUCER (AppleEventImpl)
 
+#define APPLE_EVENT_HANDLE_PRIVATE_SIGNATURE  SIGNATURE_32 ('A', 'L', 's', 't')
+
+#define APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY(Handle)  \
+  CR (                                                      \
+    (Handle),                                               \
+    APPLE_EVENT_HANDLE_PRIVATE,                             \
+    This,                                                   \
+    APPLE_EVENT_HANDLE_PRIVATE_SIGNATURE                    \
+    )
+
+#define ASSERT_APPLE_EVENT_HANDLE_SIGNATURE(Handle)      \
+  ASSERT (                                               \
+    ((APPLE_EVENT_HANDLE_PRIVATE *)(Handle))->Signature  \
+      == APPLE_EVENT_HANDLE_PRIVATE_SIGNATURE            \
+    )
+
+// APPLE_EVENT_HANDLE_PRIVATE
+typedef struct {
+  UINT32                      Signature;       ///< 
+  EFI_LIST_ENTRY              This;            ///< 
+  BOOLEAN                     Ready;           ///< 
+  BOOLEAN                     Registered;      ///< 
+  APPLE_EVENT_TYPE            EventType;       ///< 
+  APPLE_EVENT_NOTIFY_FUNCTION NotifyFunction;  ///< 
+  VOID                        *NotifyContext;  ///< 
+  CHAR8                       *Name;           ///< 
+} APPLE_EVENT_HANDLE_PRIVATE;
+
 // APPLE_EVENT_QUERY_SIGNATURE
 #define APPLE_EVENT_QUERY_SIGNATURE  EFI_SIGNATURE_32 ('A', 'E', 'v', 'Q')
 
