@@ -90,7 +90,7 @@
   AppleModulePkg/Driver/AppleKeyMapAggregator/AppleKeyMapAggregator.inf
   AppleModulePkg/Driver/EfiOSInfo/EfiOSInfo.inf
   AppleModulePkg/Driver/ApplePlatformInfoDatabaseDxe/ApplePlatformInfoDatabaseDxe.inf
-  AppleModulePkg/Driver/AppleSmcIo/AppleSmcIo.inf
+  AppleModulePkg/Driver/AppleSmc/AppleSmc.inf
   AppleModulePkg/Driver/EfiDevicePathPropertyDatabase/EfiDevicePathPropertyDatabase.inf
   AppleModulePkg/Driver/UsbKb/UsbKb.inf
 

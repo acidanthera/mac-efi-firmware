@@ -18,7 +18,7 @@
 
 #include <Library/AppleDriverLib.h>
 
-#include <Driver/AppleSmcIo.h>
+#include <Driver/AppleSmc.h>
 
 // NEXT_SMC_ADDRESS
 #define NEXT_SMC_ADDRESS(Address)                         \
@@ -49,12 +49,12 @@ STATIC APPLE_SMC_IO_PROTOCOL mAppleSmcIoProtocolTemplate = {
   SmcIoSmcUnknown5Impl
 };
 
-EFI_DRIVER_ENTRY_POINT (AppleSmcIoMain);
+EFI_DRIVER_ENTRY_POINT (AppleSmcMain);
 
 // AppleSmcIoMain
 EFI_STATUS
 EFIAPI
-AppleSmcIoMain (
+AppleSmcMain (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   ) // start
@@ -77,6 +77,8 @@ AppleSmcIoMain (
 
   if (!EFI_ERROR (Status)) {
     SmcDev = EfiLibAllocateZeroPool (sizeof (*SmcDev));
+
+    ASSERT (SmcDev != NULL);
 
     if (SmcDev == NULL) {
       Status = EFI_OUT_OF_RESOURCES;
@@ -111,67 +113,62 @@ AppleSmcIoMain (
           (VOID *)&NumberOfSmcDevices
           );
 
-        Index    = 1;
-        SmcIndex = Index;
+        Status = EFI_SUCCESS;
 
-        if (NumberOfSmcDevices <= Index) {
-          Status = EFI_SUCCESS;
-        } else {
-          do {
-            Status = SmcIoSmcWriteValueImpl (
+        for (Index = 1; Index < NumberOfSmcDevices; ++Index) {
+          SmcIndex = Index;
+          Status   = SmcIoSmcWriteValueImpl (
                        &SmcDev->SmcIo,
                        SMC_KEY_NUM,
                        sizeof (SmcIndex),
                        (VOID *)&SmcIndex
                        );
 
+          if (!EFI_ERROR (Status)) {
+            Status = SmcIoSmcReadValueImpl (
+                       &SmcDev->SmcIo,
+                       SMC_KEY_ADR,
+                       sizeof (SmcAddress),
+                       (VOID *)&SmcAddress
+                       );
+
             if (!EFI_ERROR (Status)) {
-              Status = SmcIoSmcReadValueImpl (
-                         &SmcDev->SmcIo,
-                         SMC_KEY_ADR,
-                         sizeof (SmcAddress),
-                         (VOID *)&SmcAddress
-                         );
+              SmcDevChild = EfiLibAllocateZeroPool (sizeof (*SmcDevChild));
 
-              if (!EFI_ERROR (Status)) {
-                SmcDevChild = EfiLibAllocateZeroPool (sizeof (*SmcDevChild));
+              if (SmcDevChild != NULL) {
+                SmcDevChild->Signature = SMC_DEV_SIGNATURE;
+                SmcDevChild->CpuIo     = CpuIo;
 
-                if (SmcDevChild != NULL) {
-                  SmcDevChild->Signature = SMC_DEV_SIGNATURE;
-                  SmcDevChild->CpuIo     = CpuIo;
+                EfiInitializeLock (&SmcDevChild->Lock, EFI_TPL_NOTIFY);
 
-                  EfiInitializeLock (&SmcDevChild->Lock, EFI_TPL_NOTIFY);
+                EfiCopyMem (
+                  (VOID *)&SmcDevChild->SmcIo,
+                  (VOID *)&mAppleSmcIoProtocolTemplate,
+                  sizeof (mAppleSmcIoProtocolTemplate)
+                  );
 
-                  EfiCopyMem (
-                    (VOID *)&SmcDevChild->SmcIo,
-                    (VOID *)&mAppleSmcIoProtocolTemplate,
-                    sizeof (mAppleSmcIoProtocolTemplate)
-                    );
+                SmcDevChild->SmcIo.Index   = Index;
+                SmcDevChild->SmcIo.Address = NEXT_SMC_ADDRESS (SmcAddress);
 
-                  SmcDevChild->SmcIo.Index   = Index;
-                  SmcDevChild->SmcIo.Address = NEXT_SMC_ADDRESS (SmcAddress);
+                Status = gBS->InstallProtocolInterface (
+                                &SmcDevChild->Handle,
+                                &gAppleSmcIoProtocolGuid,
+                                EFI_NATIVE_INTERFACE,
+                                (VOID *)&SmcDevChild->SmcIo
+                                );
 
-                  Status = gBS->InstallProtocolInterface (
-                                  &SmcDevChild->Handle,
-                                  &gAppleSmcIoProtocolGuid,
-                                  EFI_NATIVE_INTERFACE,
-                                  (VOID *)&SmcDevChild->SmcIo
-                                  );
-
-                  if (EFI_ERROR (Status)) {
-                    gBS->FreePool ((VOID *)SmcDevChild);
-                  }
+                if (EFI_ERROR (Status)) {
+                  gBS->FreePool ((VOID *)SmcDevChild);
                 }
               }
             }
-
-            ++Index;
-            SmcIndex = Index;
-          } while (Index < NumberOfSmcDevices);
+          }
         }
       }
     }
   }
+
+  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

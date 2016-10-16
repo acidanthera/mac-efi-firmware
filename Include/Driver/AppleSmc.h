@@ -11,13 +11,13 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#ifndef APPLE_SMC_IO_DRV_H_
-#define APPLE_SMC_IO_DRV_H_
+#ifndef APPLE_SMC_DRV_H_
+#define APPLE_SMC_DRV_H_
 
 // AppleSmcIoMain
 EFI_STATUS
 EFIAPI
-AppleSmcIoMain (
+AppleSmcMain (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   );
