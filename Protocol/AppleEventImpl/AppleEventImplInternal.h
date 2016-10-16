@@ -100,7 +100,7 @@ typedef struct {
   DIMENSION Position;           ///< 
 } POINTER_BUTTON_INFORMATION;
 
-// EventRegisterHandlerImpl
+// EventRegisterHandler
 EFI_STATUS
 EFIAPI
 EventRegisterHandler (
@@ -110,21 +110,21 @@ EventRegisterHandler (
   IN  VOID                         *NotifyContext
   );
 
-// EventUnregisterHandlerImpl
+// EventUnregisterHandler
 EFI_STATUS
 EFIAPI
 EventUnregisterHandler (
   IN APPLE_EVENT_HANDLE  EventHandle
   );
 
-// EventSetCursorPositionImpl
+// EventSetCursorPosition
 EFI_STATUS
 EFIAPI
 EventSetCursorPosition (
   IN DIMENSION  *Position
   );
 
-// EventSetEventNameImpl
+// EventSetEventName
 EFI_STATUS
 EFIAPI
 EventSetEventName (
@@ -132,7 +132,7 @@ EventSetEventName (
   IN     CHAR8               *Name
   );
 
-// EventIsCapsLockOnImpl
+// EventIsCapsLockOn
 EFI_STATUS
 EFIAPI
 EventIsCapsLockOn (

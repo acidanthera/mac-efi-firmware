@@ -150,7 +150,7 @@ EventUnregisterHandler (
   return Status;
 }
 
-// EventSetCursorPositionI
+// EventSetCursorPosition
 /** This function is used to change the position of the cursor on the screen.
 
   @param[in] Position  The position where to position the cursor.
