@@ -54,7 +54,7 @@ UnloadAppleEvent (
   Status = gBS->UninstallProtocolInterface (
                   ImageHandle,
                   &gAppleEventProtocolGuid,
-                  (VOID *)&mAppleEventProtocol
+                  (VOID *)&gAppleEventProtocol
                   );
 
   ASSERT_EFI_ERROR (Status);
@@ -84,7 +84,7 @@ EventImplInitialize (
                        &ImageHandle,
                        &gAppleEventProtocolGuid,
                        EFI_NATIVE_INTERFACE,
-                       (VOID *)&mAppleEventProtocol
+                       (VOID *)&gAppleEventProtocol
                        );
 
   if (!EFI_ERROR (Status)) {
@@ -173,6 +173,8 @@ EventCreatePollEvents (
   ) // sub_F1B
 {
   EFI_STATUS Status;
+
+  ASSERT (mNumberOfEventHandles == 0);
 
   Status = EventCreateSimplePointerPollEvent ();
 

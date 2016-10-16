@@ -20,9 +20,6 @@
 
 #include <Library/AppleDriverLib.h>
 
-// APPLE_EVENT_PROTOCOL_REVISION
-#define APPLE_EVENT_PROTOCOL_REVISION  0x07
-
 // EventImplInitialize
 EFI_STATUS
 EFIAPI
@@ -31,43 +28,7 @@ EventImplInitialize (
   IN EFI_SYSTEM_TABLE  *SystemTable
   );
 
-// EventRegisterHandlerImpl
-EFI_STATUS
-EFIAPI
-EventRegisterHandler (
-  IN  UINT32                       Type,
-  IN  APPLE_EVENT_NOTIFY_FUNCTION  NotifyFunction,
-  OUT APPLE_EVENT_HANDLE           *Handle,
-  IN  VOID                         *NotifyContext
-  );
-
-// EventUnregisterHandlerImpl
-EFI_STATUS
-EFIAPI
-EventUnregisterHandler (
-  IN APPLE_EVENT_HANDLE  EventHandle
-  );
-
-// EventSetCursorPositionImpl
-EFI_STATUS
-EFIAPI
-EventSetCursorPosition (
-  IN DIMENSION  *Position
-  );
-
-// EventSetEventNameImpl
-EFI_STATUS
-EFIAPI
-EventSetEventName (
-  IN OUT APPLE_EVENT_HANDLE  Handle,
-  IN     CHAR8               *Name
-  );
-
-// EventIsCapsLockOnImpl
-EFI_STATUS
-EFIAPI
-EventIsCapsLockOn (
-  IN OUT BOOLEAN  *CapsLockOn
-  );
+// mAppleEventProtocol
+extern APPLE_EVENT_PROTOCOL gAppleEventProtocol;
 
 #endif // APPLE_EVENT_IMPL_H_

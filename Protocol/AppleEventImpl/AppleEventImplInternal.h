@@ -16,7 +16,8 @@
 
 #include APPLE_PROTOCOL_PRODUCER (AppleEventImpl)
 
-#define APPLE_EVENT_HANDLE_PRIVATE_SIGNATURE  SIGNATURE_32 ('A', 'L', 's', 't')
+#define APPLE_EVENT_HANDLE_PRIVATE_SIGNATURE  \
+  EFI_SIGNATURE_32 ('A', 'L', 's', 't')
 
 #define APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY(Handle)  \
   CR (                                                      \
@@ -65,9 +66,6 @@ typedef struct {
   BOOLEAN    Installed;   ///<
 } EFI_PROTOCOL_INSTANCE;
 
-// mAppleEventProtocol
-extern APPLE_EVENT_PROTOCOL mAppleEventProtocol;
-
 // mSimplePointerInstallNotifyEvent
 extern EFI_EVENT mSimplePointerInstallNotifyEvent;
 
@@ -76,6 +74,9 @@ extern EFI_PROTOCOL_INSTANCE *mPointerProtocols;
 
 // mEventHandleList
 extern EFI_LIST mEventHandleList;
+
+// mNumberOfEventHandles
+extern UINTN mNumberOfEventHandles;
 
 // mCLockOn
 extern BOOLEAN mCLockOn;
@@ -98,6 +99,45 @@ typedef struct {
   DIMENSION PreviousPosition;   ///< 
   DIMENSION Position;           ///< 
 } POINTER_BUTTON_INFORMATION;
+
+// EventRegisterHandlerImpl
+EFI_STATUS
+EFIAPI
+EventRegisterHandler (
+  IN  APPLE_EVENT_TYPE             Type,
+  IN  APPLE_EVENT_NOTIFY_FUNCTION  NotifyFunction,
+  OUT APPLE_EVENT_HANDLE           *Handle,
+  IN  VOID                         *NotifyContext
+  );
+
+// EventUnregisterHandlerImpl
+EFI_STATUS
+EFIAPI
+EventUnregisterHandler (
+  IN APPLE_EVENT_HANDLE  EventHandle
+  );
+
+// EventSetCursorPositionImpl
+EFI_STATUS
+EFIAPI
+EventSetCursorPosition (
+  IN DIMENSION  *Position
+  );
+
+// EventSetEventNameImpl
+EFI_STATUS
+EFIAPI
+EventSetEventName (
+  IN OUT APPLE_EVENT_HANDLE  Handle,
+  IN     CHAR8               *Name
+  );
+
+// EventIsCapsLockOnImpl
+EFI_STATUS
+EFIAPI
+EventIsCapsLockOn (
+  IN OUT BOOLEAN  *CapsLockOn
+  );
 
 // EventUnregisterHandlers
 VOID

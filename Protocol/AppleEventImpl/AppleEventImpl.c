@@ -17,13 +17,28 @@
 
 #include "AppleEventImplInternal.h"
 
+// APPLE_EVENT_PROTOCOL_REVISION
+#define APPLE_EVENT_PROTOCOL_REVISION  0x07
+
+// mAppleEventProtocol
+APPLE_EVENT_PROTOCOL gAppleEventProtocol = {
+  APPLE_EVENT_PROTOCOL_REVISION,
+  EventRegisterHandler,
+  EventUnregisterHandler,
+  EventSetCursorPosition,
+  EventSetEventName,
+  EventIsCapsLockOn
+};
+
 // mEventHandleList
-EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (mEventHandleList);
+EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (
+                                    mEventHandleList
+                                    );
 
-// mNoEventHandles
-STATIC UINTN mNoEventHandles = 0;
+// mNumberOfEventHandles
+UINTN mNumberOfEventHandles = 0;
 
-// EventRegisterHandlerImpl
+// EventRegisterHandler
 EFI_STATUS
 EFIAPI
 EventRegisterHandler (
@@ -52,7 +67,7 @@ EventRegisterHandler (
 
     Status = EFI_SUCCESS;
 
-    if (mNoEventHandles == 0) {
+    if (mNumberOfEventHandles == 0) {
       Status = EventCreatePollEvents ();
       
       if (EFI_ERROR (Status)) {
@@ -60,8 +75,8 @@ EventRegisterHandler (
       }
     }
 
-    EventHandle  = EfiLibAllocatePool (sizeof (*EventHandle));
-    Status = EFI_OUT_OF_RESOURCES;
+    EventHandle = EfiLibAllocatePool (sizeof (*EventHandle));
+    Status      = EFI_OUT_OF_RESOURCES;
 
     if (EventHandle != NULL) {
       EventHandle->Signature      = APPLE_EVENT_HANDLE_PRIVATE_SIGNATURE;
@@ -71,7 +86,7 @@ EventRegisterHandler (
       EventHandle->NotifyFunction = NotifyFunction;
       EventHandle->NotifyContext  = NotifyContext;
       EventHandle->Name           = NULL;
-      ++mNoEventHandles;
+      ++mNumberOfEventHandles;
 
       InsertTailList (&mEventHandleList, &EventHandle->This);
 
@@ -87,7 +102,7 @@ Return:
   return Status;
 }
 
-// EventUnregisterHandlerImpl
+// EventUnregisterHandler
 EFI_STATUS
 EFIAPI
 EventUnregisterHandler (
@@ -114,7 +129,7 @@ EventUnregisterHandler (
     if (((UINTN)EventHandle == (UINTN)Handle)
      || ((UINTN)Handle == EFI_MAX_ADDRESS)) {
       EventHandle->Registered = FALSE;
-      --mNoEventHandles;
+      --mNumberOfEventHandles;
 
       Status = EFI_SUCCESS;
 
@@ -126,7 +141,7 @@ EventUnregisterHandler (
     EventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
   }
 
-  if (mNoEventHandles == 0) {
+  if (mNumberOfEventHandles == 0) {
     EventCancelPollEvents ();
   }
 
@@ -135,7 +150,7 @@ EventUnregisterHandler (
   return Status;
 }
 
-// EventSetCursorPositionImpl
+// EventSetCursorPositionI
 /** This function is used to change the position of the cursor on the screen.
 
   @param[in] Position  The position where to position the cursor.
@@ -151,11 +166,11 @@ EventSetCursorPosition (
   return EventInternalSetCursorPosition (Position);
 }
 
-// EventSetEventNameImpl
+// EventSetEventName
 /** This function is used to assign a name to an event.
 
-  @param[in, out] EventHandle  
-  @param[in]      EventName 
+  @param[in, out] Handle  
+  @param[in]      Name 
 
   @retval EFI_SUCCESS            The event name was assigned successfully.
   @retval EFI_INVALID_PARAMETER  EventHandle or EventName is NULL.

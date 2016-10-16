@@ -145,7 +145,7 @@ AddProtocolInstance (
 VOID
 RemoveUninstalledInstances (
   IN OUT EFI_PROTOCOL_INSTANCE  **Instances,
-  IN     UINTN                  *NoInstances,
+  IN     UINTN                  *NumberOfInstances,
   IN     EFI_GUID               *Protocol
   ) // sub_BC6
 {
@@ -155,13 +155,13 @@ RemoveUninstalledInstances (
   EFI_HANDLE            *Buffer;
   EFI_PROTOCOL_INSTANCE *Instance;
   UINTN                 Index;
-  UINTN                 NoMatches;
+  UINTN                 NumberOfMatches;
   UINTN                 Index2;
   EFI_PROTOCOL_INSTANCE *InstanceBuffer;
 
   ASSERT (Instances != NULL);
-  ASSERT (NoInstances != NULL);
-  ASSERT (*NoInstances > 0);
+  ASSERT (NumberOfInstances != NULL);
+  ASSERT (*NumberOfInstances > 0);
   ASSERT (Protocol != NULL);
 
   Status = gBS->LocateHandleBuffer (
@@ -175,16 +175,16 @@ RemoveUninstalledInstances (
   ASSERT_EFI_ERROR (Status);
 
   if (!EFI_ERROR (Status)) {
-    if (*NoInstances > 0) {
-      Instance  = *Instances;
-      Index     = 0;
-      NoMatches = 0;
+    if (*NumberOfInstances > 0) {
+      Instance        = *Instances;
+      Index           = 0;
+      NumberOfMatches = 0;
 
       do {
         if (Instance->Installed) {
           for (Index2 = 0; Index2 < NumberHandles; ++Index2) {
             if (Instance->Handle == Buffer[Index2]) {
-              ++NoMatches;
+              ++NumberOfMatches;
               break;
             }
           }
@@ -196,15 +196,15 @@ RemoveUninstalledInstances (
 
         ++Index;
         ++Instance;
-      } while (Index < *NoInstances);
+      } while (Index < *NumberOfInstances);
 
-      if (NoMatches != *NoInstances) {
+      if (NumberOfMatches != *NumberOfInstances) {
         InstanceBuffer = EfiLibAllocateZeroPool (
-                           NoMatches * sizeof (*InstanceBuffer)
+                           NumberOfMatches * sizeof (*InstanceBuffer)
                            );
 
         if (InstanceBuffer != NULL) {
-          if (*NoInstances > 0) {
+          if (*NumberOfInstances > 0) {
             Instance = *Instances;
             Index2   = 0;
             Index    = 0;
@@ -221,13 +221,13 @@ RemoveUninstalledInstances (
 
               ++Index;
               ++Instance;
-            } while (Index < *NoInstances);
+            } while (Index < *NumberOfInstances);
           }
 
           gBS->FreePool ((VOID *)*Instances);
 
-          *Instances   = InstanceBuffer;
-          *NoInstances = NoMatches;
+          *Instances         = InstanceBuffer;
+          *NumberOfInstances = NumberOfMatches;
         }
       }
     }
@@ -236,8 +236,8 @@ RemoveUninstalledInstances (
   } else {
     gBS->FreePool ((VOID *)*Instances);
 
-    *Instances   = NULL;
-    *NoInstances = 0;
+    *Instances         = NULL;
+    *NumberOfInstances = 0;
   }
 }
 

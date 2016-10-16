@@ -19,16 +19,6 @@
 
 #include <Driver/AppleEvent.h>
 
-// mAppleEventProtocol
-APPLE_EVENT_PROTOCOL mAppleEventProtocol = {
-  APPLE_EVENT_PROTOCOL_REVISION,
-  EventRegisterHandler,
-  EventUnregisterHandler,
-  EventSetCursorPosition,
-  EventSetEventName,
-  EventIsCapsLockOn
-};
-
 // UnloadAppleEventDummy
 EFI_STATUS
 EFIAPI
