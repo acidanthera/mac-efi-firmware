@@ -48,6 +48,7 @@ STATIC KEY_STROKE_INFORMATION mKeyInformation[10];
 STATIC BOOLEAN mPreviouslyCLockOn = FALSE;
 
 // AppleKeyDescriptorFromScanCode
+STATIC
 EFI_STATUS
 AppleKeyEventDataFromInputKey (
   OUT APPLE_EVENT_DATA  *EventData,
@@ -90,7 +91,7 @@ AppleKeyEventDataFromInputKey (
   return Status;
 }
 
-inline
+// GetAndRemoveReleasedKeys
 STATIC
 UINTN
 GetAndRemoveReleasedKeys (
@@ -166,7 +167,7 @@ GetAndRemoveReleasedKeys (
   return NumberOfReleasedKeys;
 }
 
-inline
+// IsCLockOn
 STATIC
 BOOLEAN
 IsCLockOn (
@@ -217,7 +218,7 @@ IsCLockOn (
   return CLockOn;
 }
 
-inline
+// GetCurrentStroke
 STATIC
 KEY_STROKE_INFORMATION *
 GetCurrentStroke (
@@ -339,6 +340,7 @@ GetCurrentKeyStroke (
   // increase number of strokes for all currently held keys
 
   for (NewKeyIndex = 0; NewKeyIndex < *NumberOfKeys; ++NewKeyIndex) {
+    KeyInfo       = NULL;
     KeyInfoWalker = mKeyInformation;
 
     for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyInformation); ++Index2) {
@@ -393,9 +395,11 @@ GetCurrentKeyStroke (
     // verify the timeframe the key has been pressed
 
     if (KeyInfo != NULL) {
-      AcceptStroke = (KeyInfo->NumberOfStrokes < (KEY_STROKE_DELAY * 10))
-                       ? (KeyInfo->NumberOfStrokes == 0)
-                       : ((KeyInfo->NumberOfStrokes % KEY_STROKE_DELAY) == 0);
+      AcceptStroke = (BOOLEAN)(
+                       (KeyInfo->NumberOfStrokes < (KEY_STROKE_DELAY * 10))
+                          ? (KeyInfo->NumberOfStrokes == 0)
+                          : ((KeyInfo->NumberOfStrokes % KEY_STROKE_DELAY) == 0)
+                     );
 
       if (AcceptStroke) {
         *NumberOfKeys = 1;
@@ -404,7 +408,7 @@ GetCurrentKeyStroke (
         Shifted = (BOOLEAN)(
                     (IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
                       != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
-                    );
+                  );
 
         InputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
       }

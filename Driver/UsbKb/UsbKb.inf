@@ -24,6 +24,7 @@
   ApplePkg/ApplePkg.dec
   AppleModulePkg/AppleModulePkg.dec
   EdkBridgePkg/EdkBridgePkg.dec
+  EfiMiscPkg/EfiMiscPkg.dec
 
 [Guids]
   gApplePlatformInfoKeyboardGuid  ## CONSUMES

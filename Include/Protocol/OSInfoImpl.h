@@ -16,23 +16,20 @@
 
 #include APPLE_PROTOCOL_PRODUCER (OSInfo)
 
-// OS_INFO_PROTOCOL_REVISION
+// EFI_OS_INFO_PROTOCOL_REVISION
 #define EFI_OS_INFO_PROTOCOL_REVISION  0x01
 
-// OS_INFO_VENDOR_NAME
-#define OS_INFO_VENDOR_NAME  "Apple Inc."
-
-// OSInfoOSNameImpl
+// OSInfoOSName
 VOID
 EFIAPI
-OSInfoOSNameImpl (
+OSInfoOSName (
   IN CHAR8 *OSName
   );
 
-// OSInfoOSVendorImpl
+// OSInfoOSVendor
 VOID
 EFIAPI
-OSInfoOSVendorImpl (
+OSInfoOSVendor (
   IN CHAR8 *OSVendor
   );
 

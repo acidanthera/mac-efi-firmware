@@ -25,7 +25,7 @@
   EdkBridgePkg/EdkBridgePkg.dec
 
 [Guids]
-  gAppleOsLoadedNamedEventGuid  ## SOMETIMES_PRODUCES # Event
+  gAppleOSLoadedNamedEventGuid  ## SOMETIMES_PRODUCES # Event
 
 [LibraryClasses]
   AppleDriverLib

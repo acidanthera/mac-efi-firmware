@@ -23,6 +23,7 @@
   ApplePkg/ApplePkg.dec
   AppleModulePkg/AppleModulePkg.dec
   EdkBridgePkg/EdkBridgePkg.dec
+  EfiMiscPkg/EfiMiscPkg.dec
 
 [Sources]
   AppleKeyMapLib.c

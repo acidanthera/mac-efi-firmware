@@ -13,7 +13,7 @@
 
 #include <AppleEfi.h>
 
-#include APPLE_GUID_DEFINITION (AppleOsLoaded)
+#include APPLE_GUID_DEFINITION (AppleOSLoaded)
 
 #include <Library/AppleDriverLib.h>
 
@@ -45,6 +45,6 @@ OSInfoOSVendor (
   Result = EfiAsciiStrCmp (OSVendor, OS_INFO_VENDOR_NAME);
 
   if (Result == 0) {
-    EfiLibNamedEventSignal (&gAppleOsLoadedNamedEventGuid);
+    EfiLibNamedEventSignal (&gAppleOSLoadedNamedEventGuid);
   }
 }

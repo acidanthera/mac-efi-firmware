@@ -22,8 +22,8 @@
 // mEfiOSInfo
 STATIC EFI_OS_INFO_PROTOCOL mOSInfo = {
   EFI_OS_INFO_PROTOCOL_REVISION,
-  OSInfoOSVendorImpl,
-  OSInfoOSNameImpl
+  OSInfoOSVendor,
+  OSInfoOSName
 };
 
 EFI_DRIVER_ENTRY_POINT (EfiOSInfoMain);
