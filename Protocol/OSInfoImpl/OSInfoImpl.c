@@ -19,10 +19,10 @@
 
 #include "OSInfoImplInternal.h"
 
-// OSInfoOSNameImpl
+// OSInfoOSName
 VOID
 EFIAPI
-OSInfoOSNameImpl (
+OSInfoOSName (
   IN CHAR8  *OSName
   )
 {
@@ -31,10 +31,10 @@ OSInfoOSNameImpl (
   return;
 }
 
-// OSInfoOSVendorImpl
+// OSInfoOSVendor
 VOID
 EFIAPI
-OSInfoOSVendorImpl (
+OSInfoOSVendor (
   IN CHAR8  *OSVendor
   )
 {

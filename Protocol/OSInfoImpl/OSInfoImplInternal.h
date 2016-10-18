@@ -11,8 +11,8 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#ifndef OS_INFO_IMPL_H_
-#define OS_INFO_IMPL_H_
+#ifndef OS_INFO_IMPL_INTERNAL_H_
+#define OS_INFO_IMPL_INTERNAL_H_
 
 #include APPLE_PROTOCOL_PRODUCER (OSInfoImpl)
 

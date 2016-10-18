@@ -20,10 +20,10 @@
 #include <Driver/EfiOSInfo.h>
 
 // mEfiOSInfo
-STATIC EFI_OS_INFO_PROTOCOL mEfiOSInfo = {
+STATIC EFI_OS_INFO_PROTOCOL mOSInfo = {
   EFI_OS_INFO_PROTOCOL_REVISION,
-  OSInfoOSNameImpl,
-  OSInfoOSVendorImpl
+  OSInfoOSVendorImpl,
+  OSInfoOSNameImpl
 };
 
 EFI_DRIVER_ENTRY_POINT (EfiOSInfoMain);
@@ -45,12 +45,13 @@ EfiOSInfoMain (
   ) // start
 {
   AppleInitializeDriverLib (ImageHandle, SystemTable);
+
   ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gEfiOSInfoProtocolGuid);
 
   return gBS->InstallProtocolInterface (
                 ImageHandle,
                 &gEfiOSInfoProtocolGuid,
                 EFI_NATIVE_INTERFACE,
-                (VOID *)&mEfiOSInfo
+                (VOID *)&mOSInfo
                 );
 }
