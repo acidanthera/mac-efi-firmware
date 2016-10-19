@@ -399,7 +399,7 @@ GetCurrentKeyStroke (
                        (KeyInfo->NumberOfStrokes < (KEY_STROKE_DELAY * 10))
                           ? (KeyInfo->NumberOfStrokes == 0)
                           : ((KeyInfo->NumberOfStrokes % KEY_STROKE_DELAY) == 0)
-                     );
+                       );
 
       if (AcceptStroke) {
         *NumberOfKeys = 1;
@@ -408,7 +408,7 @@ GetCurrentKeyStroke (
         Shifted = (BOOLEAN)(
                     (IS_APPLE_KEY_LETTER (KeyInfo->AppleKey) && CLockOn)
                       != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
-                  );
+                    );
 
         InputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
       }
@@ -495,7 +495,9 @@ AppleEventDataFromCurrentKeyStroke (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
+  if (Status != EFI_NOT_READY) {
+    ASSERT_EFI_ERROR (Status);
+  }
 
   return Status;
 }
@@ -586,6 +588,8 @@ EventCreateKeyStrokePollEvent (
   ) // sub_13AC
 {
   EFI_STATUS Status;
+
+  ASSERT (mKeyStrokePollEvent == NULL);
 
   Status = gBS->LocateProtocol (
                   &gAppleKeyMapAggregatorProtocolGuid,
