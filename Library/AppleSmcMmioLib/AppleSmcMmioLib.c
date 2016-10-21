@@ -663,70 +663,67 @@ SmcFlashWriteMmio (
       TotalSize    = (UINT32)(UINT16)(Size + sizeof (Unknown) + sizeof (Size));
       BytesWritten = 0;
       SizeWritten  = 0;
-      Result       = SmcSuccess;
 
-      do {
-        while (BytesWritten < Size) {
-          RemainingSize      = (TotalSize - SizeWritten);
-          IterartionDataSize = SMC_MAX_DATA_SIZE;
+      Result = SmcSuccess;
 
-          if (RemainingSize < SMC_MAX_DATA_SIZE) {
-            IterartionDataSize = RemainingSize;
-          }
+      while (BytesWritten < Size) {
+        RemainingSize      = (TotalSize - SizeWritten);
+        IterartionDataSize = SMC_MAX_DATA_SIZE;
 
-          while (Offset < IterartionDataSize) {
-            if (((Offset + sizeof (UINT32)) <= IterartionDataSize)
-             && ((UINT32)((UINT16)BytesWritten + sizeof (UINT32)) <= Size)) {
-              MmioWrite32 (
-                (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset),
-                DWORD_PTR (Data, BytesWritten)
-                );
-
-              BytesWritten = (UINT32)((UINT16)BytesWritten + sizeof (UINT32));
-              Offset      += sizeof (UINT32);
-            } else {
-              MmioWrite8 (
-                (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset),
-                BYTE_PTR (Data, BytesWritten)
-                );
-
-              BytesWritten += sizeof (UINT8);
-              Offset       += sizeof (UINT8);
-            }
-
-            Offset = (UINT32)(UINT16)Offset;
-          }
-
-          SmcWriteDataSizeMmio (BaseAddress, IterartionDataSize);
-          SmcWriteCommandMmio (
-            (UINTN)BaseAddress,
-            ((BytesWritten <= SMC_MAX_DATA_SIZE)
-              ? SmcCmdFlashWrite
-              : SmcCmdFlashWriteMoreData)
-            );
-
-          Status = WaitLongForKeyDone (BaseAddress);
-
-          if (EFI_ERROR (Status)) {
-            goto CheckTimeout;
-          }
-
-          Result = (SMC_RESULT)SmcReadResultMmio (BaseAddress);
-
-          if (Result != SmcSuccess) {
-            goto ReturnResult;
-          }
-
-          SizeWritten += (UINT32)(UINT16)IterartionDataSize;
-          Offset       = 0;
+        if (RemainingSize < SMC_MAX_DATA_SIZE) {
+          IterartionDataSize = RemainingSize;
         }
-      } while (TRUE);
 
-    CheckTimeout:
+        while (Offset < IterartionDataSize) {
+          if (((Offset + sizeof (UINT32)) <= IterartionDataSize)
+           && ((UINT32)((UINT16)BytesWritten + sizeof (UINT32)) <= Size)) {
+            MmioWrite32 (
+              (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset),
+              DWORD_PTR (Data, BytesWritten)
+              );
+
+            BytesWritten = (UINT32)((UINT16)BytesWritten + sizeof (UINT32));
+            Offset      += sizeof (UINT32);
+          } else {
+            MmioWrite8 (
+              (UINTN)(BaseAddress + SMC_MMIO_DATA_VARIABLE + Offset),
+              BYTE_PTR (Data, BytesWritten)
+              );
+
+            BytesWritten += sizeof (UINT8);
+            Offset       += sizeof (UINT8);
+          }
+
+          Offset = (UINT32)(UINT16)Offset;
+        }
+
+        SmcWriteDataSizeMmio (BaseAddress, IterartionDataSize);
+        SmcWriteCommandMmio (
+          (UINTN)BaseAddress,
+          ((BytesWritten <= SMC_MAX_DATA_SIZE)
+            ? SmcCmdFlashWrite
+            : SmcCmdFlashWriteMoreData)
+          );
+
+        Status = WaitLongForKeyDone (BaseAddress);
+
+        if (EFI_ERROR (Status)) {
+          break;
+        }
+
+        Result = (SMC_RESULT)SmcReadResultMmio (BaseAddress);
+
+        if (Result != SmcSuccess) {
+          break; // This jumps to the else-branch, though is likely a break.
+        }
+
+        SizeWritten += (UINT32)(UINT16)IterartionDataSize;
+        Offset       = 0;
+      }
+
       if (Status == EFI_TIMEOUT) {
         Status = EFI_SMC_TIMEOUT_ERROR;
       } else {
-      ReturnResult:
         Status = EFI_STATUS_FROM_SMC_RESULT (Result);
       }
     }
