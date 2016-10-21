@@ -205,7 +205,6 @@ IsCLockOn (
         }
       }
 
-      // NOTE: (KeyInfo == NULL) makes no sense.
       if ((Index2 >= ARRAY_LENGTH (mKeyInformation)) || (KeyInfo == NULL)) {
         if ((Keys[Index] == AppleHidUsbKbUsageKeyCLock) && !mPreviouslyCLockOn) {
           CLockOn = !mCLockOn;
@@ -353,7 +352,6 @@ GetCurrentKeyStroke (
       }
     }
 
-    // NOTE: (KeyInfo == NULL) makes no sense.
     // Indicates a key has been pressed which is not part of mKeyInformation.
     if ((Index2 >= ARRAY_LENGTH (mKeyInformation)) || (KeyInfo == NULL)) {
       // if a new key is held down, cancel all previous inputs
