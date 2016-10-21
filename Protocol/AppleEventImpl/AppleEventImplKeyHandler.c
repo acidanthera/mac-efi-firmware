@@ -195,13 +195,14 @@ IsCLockOn (
       KeyInfoWalker = &mKeyInformation[0];
 
       for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyInformation); ++Index2) {
+        KeyInfo = KeyInfoWalker;
+        ++KeyInfoWalker;
+
         if (KeyInfoWalker->AppleKey == Keys[Index]) {
           KeyInfo = KeyInfoWalker;
 
           break;
         }
-
-        ++KeyInfoWalker;
       }
 
       // NOTE: (KeyInfo == NULL) makes no sense.
