@@ -131,7 +131,9 @@ EventRemoveUnregisteredEvents (
     do {
       NextEventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
 
-      EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (EventHandleEntry);
+      EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (
+                      EventHandleEntry
+                      );
 
       if (!EventHandle->Registered) {
         if (EventHandle->Name != NULL) {

@@ -42,7 +42,7 @@ STATIC APPLE_MODIFIER_MAP mModifiers = 0;
 STATIC BOOLEAN mInitialized = FALSE;
 
 // mKeyInformation
-STATIC KEY_STROKE_INFORMATION mKeyInformation[10];
+STATIC KEY_STROKE_INFORMATION mKeyStrokeInfo[10];
 
 // mPreviouslyCLockOn
 STATIC BOOLEAN mPreviouslyCLockOn = FALSE;
@@ -109,22 +109,22 @@ GetAndRemoveReleasedKeys (
 
   NumberOfReleasedKeys = 0;
 
-  for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
+  for (Index = 0; Index < ARRAY_LENGTH (mKeyStrokeInfo); ++Index) {
     for (Index2 = 0; Index2 < *NumberOfKeys; ++Index2) {
-      if (mKeyInformation[Index].AppleKey == Keys[Index2]) {
+      if (mKeyStrokeInfo[Index].AppleKey == Keys[Index2]) {
         break;
       }
     }
 
     if (*NumberOfKeys == Index2) {
-      if (mKeyInformation[Index].AppleKey != 0) {
-        ReleasedKeysBuffer[NumberOfReleasedKeys] = mKeyInformation[Index].AppleKey;
+      if (mKeyStrokeInfo[Index].AppleKey != 0) {
+        ReleasedKeysBuffer[NumberOfReleasedKeys] = mKeyStrokeInfo[Index].AppleKey;
         ++NumberOfReleasedKeys;
       }
 
       EfiZeroMem (
-        &mKeyInformation[Index],
-        sizeof (mKeyInformation[Index])
+        &mKeyStrokeInfo[Index],
+        sizeof (mKeyStrokeInfo[Index])
         );
     }
   }
@@ -192,9 +192,9 @@ IsCLockOn (
 
     for (Index = 0; Index < *NumberOfKeys; ++Index) {
       KeyInfo       = NULL;
-      KeyInfoWalker = &mKeyInformation[0];
+      KeyInfoWalker = &mKeyStrokeInfo[0];
 
-      for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyInformation); ++Index2) {
+      for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyStrokeInfo); ++Index2) {
         KeyInfo = KeyInfoWalker;
         ++KeyInfoWalker;
 
@@ -205,8 +205,9 @@ IsCLockOn (
         }
       }
 
-      if ((Index2 >= ARRAY_LENGTH (mKeyInformation)) || (KeyInfo == NULL)) {
-        if ((Keys[Index] == AppleHidUsbKbUsageKeyCLock) && !mPreviouslyCLockOn) {
+      if ((Index2 >= ARRAY_LENGTH (mKeyStrokeInfo)) || (KeyInfo == NULL)) {
+        if ((Keys[Index] == AppleHidUsbKbUsageKeyCLock)
+         && !mPreviouslyCLockOn) {
           CLockOn = !mCLockOn;
         }
 
@@ -231,9 +232,9 @@ GetCurrentStroke (
   UINTN                  Index;
 
   KeyInfo       = NULL;
-  KeyInfoWalker = &mKeyInformation[0];
+  KeyInfoWalker = &mKeyStrokeInfo[0];
 
-  for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
+  for (Index = 0; Index < ARRAY_LENGTH (mKeyStrokeInfo); ++Index) {
     if (KeyInfo->CurrentStroke) {
       KeyInfo = KeyInfoWalker;
 
@@ -283,14 +284,18 @@ GetCurrentKeyStroke (
   ASSERT (Key != NULL);
 
   if (mModifiers != Modifiers) {
-    KeyInfo = mKeyInformation;
+    KeyInfo = mKeyStrokeInfo;
 
-    for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
-      mKeyInformation[Index].CurrentStroke = FALSE;
+    for (Index = 0; Index < ARRAY_LENGTH (mKeyStrokeInfo); ++Index) {
+      mKeyStrokeInfo[Index].CurrentStroke = FALSE;
     }
   }
 
-  NumberOfReleasedKeys = GetAndRemoveReleasedKeys (NumberOfKeys, Keys, &ReleasedKeys);
+  NumberOfReleasedKeys = GetAndRemoveReleasedKeys (
+                           NumberOfKeys,
+                           Keys,
+                           &ReleasedKeys
+                           );
 
   CLockOn = IsCLockOn (NumberOfKeys, Keys);
 
@@ -341,9 +346,9 @@ GetCurrentKeyStroke (
 
   for (NewKeyIndex = 0; NewKeyIndex < *NumberOfKeys; ++NewKeyIndex) {
     KeyInfo       = NULL;
-    KeyInfoWalker = mKeyInformation;
+    KeyInfoWalker = mKeyStrokeInfo;
 
-    for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyInformation); ++Index2) {
+    for (Index2 = 0; Index2 < ARRAY_LENGTH (mKeyStrokeInfo); ++Index2) {
       KeyInfo = KeyInfoWalker;
       ++KeyInfoWalker;
 
@@ -353,18 +358,18 @@ GetCurrentKeyStroke (
     }
 
     // Indicates a key has been pressed which is not part of mKeyInformation.
-    if ((Index2 >= ARRAY_LENGTH (mKeyInformation)) || (KeyInfo == NULL)) {
+    if ((Index2 >= ARRAY_LENGTH (mKeyStrokeInfo)) || (KeyInfo == NULL)) {
       // if a new key is held down, cancel all previous inputs
 
-      for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
-        mKeyInformation[Index].CurrentStroke = FALSE;
+      for (Index = 0; Index < ARRAY_LENGTH (mKeyStrokeInfo); ++Index) {
+        mKeyStrokeInfo[Index].CurrentStroke = FALSE;
       }
 
       // Overwrite an empty key info with new key
 
-      KeyInfo = mKeyInformation;
+      KeyInfo = mKeyStrokeInfo;
 
-      for (Index = 0; Index < ARRAY_LENGTH (mKeyInformation); ++Index) {
+      for (Index = 0; Index < ARRAY_LENGTH (mKeyStrokeInfo); ++Index) {
         if (KeyInfo->AppleKey == 0) {
           KeyInfo->AppleKey        = Keys[NewKeyIndex];
           KeyInfo->CurrentStroke   = TRUE;
@@ -572,7 +577,7 @@ InitializeKeyHandler (
   if (!mInitialized) {
     mInitialized = TRUE;
 
-    EfiZeroMem ((VOID *)&mKeyInformation[0], sizeof (mKeyInformation));
+    EfiZeroMem ((VOID *)&mKeyStrokeInfo[0], sizeof (mKeyStrokeInfo));
 
     mModifiers         = 0;
     mCLockOn           = FALSE;

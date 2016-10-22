@@ -461,7 +461,9 @@ HandleButtonInteraction (
         Pointer->PreviousPosition = mCursorPosition;
 
         Information = CreatePointerEventQueryInformation (
-                        (APPLE_EVENT_TYPE)(Pointer->Button | APPLE_EVENT_TYPE_MOUSE_DOWN),
+                        (APPLE_EVENT_TYPE)(
+                          Pointer->Button | APPLE_EVENT_TYPE_MOUSE_DOWN
+                          ),
                         Modifiers
                         );
 
@@ -471,7 +473,9 @@ HandleButtonInteraction (
       }
     } else if (!Pointer->CurrentButton) {
       Information = CreatePointerEventQueryInformation (
-                      (APPLE_EVENT_TYPE)(Pointer->Button | APPLE_EVENT_TYPE_MOUSE_UP),
+                      (APPLE_EVENT_TYPE)(
+                        Pointer->Button | APPLE_EVENT_TYPE_MOUSE_UP
+                        ),
                       Modifiers
                       );
 
