@@ -424,6 +424,12 @@ InitUsbKeyboard (
   return Status;
 }
 
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+  #pragma GCC diagnostic push
+#endif
+
+#pragma GCC diagnostic ignored "-Wuninitialized"
+
 // KeyboardHandler
 /** Handler function for USB Keyboard's asynchronous interrupt transfer.
 
@@ -732,6 +738,10 @@ KeyboardHandler (
 
   return Status;
 }
+
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+  #pragma GCC diagnostic pop
+#endif
 
 // UsbParseKey
 /** Retrieves a key character after parsing the raw data in keyboard Buffer.
