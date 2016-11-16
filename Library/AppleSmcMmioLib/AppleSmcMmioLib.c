@@ -666,7 +666,7 @@ SmcFlashWriteMmio (
 
       Result = SmcSuccess;
 
-      while (BytesWritten < Size) {
+      while ((UINT16)BytesWritten < (SMC_FLASH_SIZE)Size) {
         RemainingSize      = (TotalSize - SizeWritten);
         IterartionDataSize = SMC_MAX_DATA_SIZE;
 

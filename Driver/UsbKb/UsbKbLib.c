@@ -428,7 +428,9 @@ InitUsbKeyboard (
   #pragma GCC diagnostic push
 #endif
 
-#pragma GCC diagnostic ignored "-Wuninitialized"
+#ifdef __GNUC__
+  #pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
 
 // KeyboardHandler
 /** Handler function for USB Keyboard's asynchronous interrupt transfer.
