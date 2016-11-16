@@ -20,7 +20,7 @@
 #include <EfiHobLib.h>
 
 // mAppleDriverInitHobData
-STATIC VOID *mAppleDriverInitHobData;
+STATIC VOID *mAppleDriverInitHobData = NULL;
 
 // SaveAppleDriverInitHobData 
 VOID

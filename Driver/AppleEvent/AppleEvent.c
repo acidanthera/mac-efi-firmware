@@ -22,7 +22,7 @@
 // UnloadAppleEventDummy
 EFI_STATUS
 EFIAPI
-UnloadAppleEventDummy (
+AppleEventUnload (
   IN EFI_HANDLE  ImageHandle
   )
 {
@@ -47,19 +47,5 @@ AppleEventMain (
   IN EFI_SYSTEM_TABLE  *SystemTable
   ) // start
 {
-  EFI_STATUS                Status;
-
-  EFI_LOADED_IMAGE_PROTOCOL *Interface;
-
-  Status = SystemTable->BootServices->HandleProtocol (
-                                        ImageHandle,
-                                        &gEfiLoadedImageProtocolGuid,
-                                        (VOID **)&Interface
-                                        );
-
-  ASSERT_EFI_ERROR (Status);
-
-  Interface->Unload = UnloadAppleEventDummy;
-
-  return EventImplInitialize (ImageHandle, SystemTable);
+  return EventImplConstructor (ImageHandle, SystemTable);
 }

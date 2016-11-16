@@ -112,7 +112,8 @@ KeyMapGetKeyStrokes (
 
     Result        = (BOOLEAN)(DbNumberOfKeyStrokes > *NumberOfKeys);
     *NumberOfKeys = DbNumberOfKeyStrokes;
-    Status        = EFI_BUFFER_TOO_SMALL;
+
+    Status = EFI_BUFFER_TOO_SMALL;
 
     if (Result) {
       goto Return;
@@ -121,7 +122,8 @@ KeyMapGetKeyStrokes (
 
   *Modifiers    = DbModifiers;
   *NumberOfKeys = DbNumberOfKeyStrokes;
-  Status        = EFI_SUCCESS;
+
+  Status = EFI_SUCCESS;
 
   if (Keys != NULL) {
     EfiCopyMem (
@@ -189,10 +191,10 @@ KeyMapContainsKeyStrokes (
         KeyMapBubbleSort ((UINT16 *)DbKeys, DbNumberOfKeys);
 
         Result = EfiCompareMem (
-          (VOID *)Keys,
-          (VOID *)DbKeys,
-          (NumberOfKeys * sizeof (*Keys))
-          );
+                   (VOID *)Keys,
+                   (VOID *)DbKeys,
+                   (NumberOfKeys * sizeof (*Keys))
+                   );
 
         if (Result == 0) {
           Status = EFI_SUCCESS;

@@ -22,8 +22,8 @@
 
 #include "AppleEventImplInternal.h"
 
-// mEfiLock
-STATIC EFI_LOCK mEfiLock;
+// mLock
+STATIC EFI_LOCK mLock;
 
 // mQueryEvent
 STATIC EFI_EVENT mQueryEvent = NULL;
@@ -34,10 +34,10 @@ STATIC BOOLEAN mQueryEventCreated = FALSE;
 // mEventQueryList
 STATIC EFI_LIST mQueryList = INITIALIZE_LIST_HEAD_VARIABLE (mQueryList);
 
-// UnloadAppleEvent
+// EventImplUnload
 EFI_STATUS
 EFIAPI
-UnloadAppleEvent (
+EventImplUnload (
   IN EFI_HANDLE  ImageHandle
   ) // sub_945
 {
@@ -62,10 +62,10 @@ UnloadAppleEvent (
   return Status;
 }
 
-// EventImplInitialize
+// EventImplConstructor
 EFI_STATUS
 EFIAPI
-EventImplInitialize (
+EventImplConstructor (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   )
@@ -95,7 +95,7 @@ EventImplInitialize (
                     );
 
     if (!EFI_ERROR (Status)) {
-      LoadedImage->Unload = UnloadAppleEvent;
+      LoadedImage->Unload = EventImplUnload;
 
       EventCreateQueryEvent ();
 
@@ -106,7 +106,7 @@ EventImplInitialize (
       }
     }
 
-    UnloadAppleEvent (ImageHandle);
+    EventImplUnload (ImageHandle);
   }
 
 Return:
@@ -293,7 +293,7 @@ QueryEventNotifyFunction (
 
   if (mQueryEventCreated) {
     do {
-      Status = EfiAcquireLockOrFail (&mEfiLock);
+      Status = EfiAcquireLockOrFail (&mLock);
     } while (Status != EFI_SUCCESS);
 
     FlagAllEventsReady ();
@@ -340,7 +340,7 @@ QueryEventNotifyFunction (
     }
 
     EventRemoveUnregisteredEvents ();
-    EfiReleaseLock (&mEfiLock);
+    EfiReleaseLock (&mLock);
   }
 }
 
@@ -352,7 +352,7 @@ EventCreateQueryEvent (
 {
   EFI_STATUS Status;
 
-  EfiInitializeLock (&mEfiLock, EFI_TPL_NOTIFY);
+  EfiInitializeLock (&mLock, EFI_TPL_NOTIFY);
 
   Status = gBS->CreateEvent (
                   EFI_EVENT_NOTIFY_SIGNAL,
@@ -400,7 +400,7 @@ EventAddEventQuery (
 
   if (mQueryEventCreated) {
     do {
-      Status = EfiAcquireLockOrFail (&mEfiLock);
+      Status = EfiAcquireLockOrFail (&mLock);
     } while (Status != EFI_SUCCESS);
 
     EventQuery = EfiLibAllocatePool (sizeof (*EventQuery));
@@ -412,7 +412,7 @@ EventAddEventQuery (
       InsertTailList (&mQueryList, &EventQuery->This);
     }
 
-    EfiReleaseLock (&mEfiLock);
+    EfiReleaseLock (&mLock);
     gBS->SignalEvent (mQueryEvent);
   }
 }

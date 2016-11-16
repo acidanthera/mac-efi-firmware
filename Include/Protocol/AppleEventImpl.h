@@ -20,10 +20,10 @@
 
 #include <Library/AppleDriverLib.h>
 
-// EventImplInitialize
+// EventImplConstructor
 EFI_STATUS
 EFIAPI
-EventImplInitialize (
+EventImplConstructor (
   IN EFI_HANDLE        ImageHandle,
   IN EFI_SYSTEM_TABLE  *SystemTable
   );
