@@ -32,6 +32,7 @@ KeyMapGetKeyStrokesByIndex (
   while (KeyStrokesInfo->Hdr.Index != Index) {
     if (IsNull (List, &KeyStrokesInfo->Hdr.This)) {
       KeyStrokesInfo = NULL;
+
       break;
     }
 
@@ -43,11 +44,11 @@ KeyMapGetKeyStrokesByIndex (
   return KeyStrokesInfo;
 }
 
-// KeyMapBubbleSort
+// KeyMapMinSort
 VOID
-KeyMapBubbleSort (
-  IN OUT UINT16 *Operand,
-  IN     UINTN  NoChilds
+KeyMapMinSort (
+  IN OUT UINT16  *Operand,
+  IN     UINTN   NumberOfChilds
   ) // sub_72C
 {
   UINTN  NoRemainingChilds;
@@ -57,18 +58,18 @@ KeyMapBubbleSort (
   UINT16 FirstChild;
 
   ASSERT (Operand != NULL);
-  ASSERT (NoChilds > 0);
+  ASSERT (NumberOfChilds > 0);
 
   if (Operand != NULL) {
     ++Operand;
-    NoRemainingChilds = (NoChilds - 1);
+    NoRemainingChilds = (NumberOfChilds - 1);
     Index             = 1;
 
     do {
       NoRemainingChilds2 = NoRemainingChilds;
       OperandPtr         = Operand;
 
-      if (Index < NoChilds) {
+      if (Index < NumberOfChilds) {
         do {
           FirstChild = Operand[-1];
 

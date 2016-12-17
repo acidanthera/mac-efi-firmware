@@ -103,6 +103,8 @@ CancelEvent (
   ASSERT_EFI_ERROR (Status);
 
   if (!EFI_ERROR (Status)) {
-    gBS->CloseEvent (Event);
+    Status = gBS->CloseEvent (Event);
+
+    ASSERT_EFI_ERROR (Status);
   }
 }

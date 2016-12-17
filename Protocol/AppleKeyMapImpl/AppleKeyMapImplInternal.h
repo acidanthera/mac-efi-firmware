@@ -51,9 +51,9 @@ KeyMapGetKeyStrokesByIndex (
   IN UINTN     Index
   );
 
-// KeyMapBubbleSort
+// KeyMapMinSort
 VOID
-KeyMapBubbleSort (
+KeyMapMinSort (
   IN OUT UINT16 *Operand,
   IN     UINTN  NoChilds
   );

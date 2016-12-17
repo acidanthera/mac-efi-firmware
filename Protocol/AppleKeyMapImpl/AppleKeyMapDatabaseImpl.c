@@ -62,14 +62,16 @@ KeyMapCreateKeyStrokesBuffer (
   Aggregator->KeyBuffersSize = BufferSize;
   Memory                     = EfiLibAllocateZeroPool (BufferSize);
   Aggregator->KeyBuffer      = Memory;
-  Status                     = EFI_OUT_OF_RESOURCES;
+
+  Status = EFI_OUT_OF_RESOURCES;
 
   if (Memory != NULL) {
     KeyStrokesInfo = EfiLibAllocateZeroPool (
                        sizeof (*KeyStrokesInfo)
                          + (KeyBufferSize * sizeof (APPLE_KEY))
                        );
-    Status         = EFI_OUT_OF_RESOURCES;
+
+    Status = EFI_OUT_OF_RESOURCES;
 
     if (KeyStrokesInfo != NULL) {
       KeyStrokesInfo->Hdr.Signature     = APPLE_KEY_STROKES_INFO_SIGNATURE;
@@ -110,23 +112,23 @@ KeyMapRemoveKeyStrokesBuffer (
   IN UINTN                            Index
   )
 {
-  EFI_STATUS               Status;
+  EFI_STATUS                       Status;
 
-  APPLE_KEY_MAP_AGGREGATOR_PRIVATE *Aggregator;
-  APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
+  APPLE_KEY_MAP_AGGREGATOR_PRIVATE *Private;
+  APPLE_KEY_STROKES_INFO           *KeyStrokesInfo;
 
   ASSERT (This != NULL);
 
-  Aggregator     = APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_DATABASE_THIS (This);
+  Private     = APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_DATABASE_THIS (This);
   KeyStrokesInfo = KeyMapGetKeyStrokesByIndex (
-                     &Aggregator->KeyStrokesInfoList,
+                     &Private->KeyStrokesInfoList,
                      Index
                      );
 
   Status         = EFI_NOT_FOUND;
 
   if (KeyStrokesInfo != NULL) {
-    Aggregator->KeyBuffersSize -= KeyStrokesInfo->Hdr.KeyBufferSize;
+    Private->KeyBuffersSize -= KeyStrokesInfo->Hdr.KeyBufferSize;
 
     RemoveEntryList (&KeyStrokesInfo->Hdr.This);
     gBS->FreePool ((VOID *)KeyStrokesInfo);
@@ -166,18 +168,22 @@ KeyMapSetKeyStrokeBufferKeys (
   IN APPLE_KEY                        *Keys
   )
 {
-  EFI_STATUS               Status;
+  EFI_STATUS                       Status;
 
-  APPLE_KEY_MAP_AGGREGATOR_PRIVATE *Aggregator;
-  APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
+  APPLE_KEY_MAP_AGGREGATOR_PRIVATE *Private;
+  APPLE_KEY_STROKES_INFO           *KeyStrokesInfo;
 
   ASSERT (This != NULL);
   ASSERT (NumberOfKeys > 0);
   ASSERT (Keys != NULL);
 
-  Aggregator     = APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_DATABASE_THIS (This);
-  KeyStrokesInfo = KeyMapGetKeyStrokesByIndex (&Aggregator->KeyStrokesInfoList, Index);
-  Status         = EFI_NOT_FOUND;
+  Private        = APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_DATABASE_THIS (This);
+  KeyStrokesInfo = KeyMapGetKeyStrokesByIndex (
+                     &Private->KeyStrokesInfoList,
+                     Index
+                     );
+
+  Status = EFI_NOT_FOUND;
 
   if (KeyStrokesInfo != NULL) {
     Status = EFI_OUT_OF_RESOURCES;

@@ -187,8 +187,8 @@ KeyMapContainsKeyStrokes (
       Status = EFI_NOT_FOUND;
 
       if ((DbModifiers == Modifiers) && (DbNumberOfKeys == NumberOfKeys)) {
-        KeyMapBubbleSort ((UINT16 *)Keys, NumberOfKeys);
-        KeyMapBubbleSort ((UINT16 *)DbKeys, DbNumberOfKeys);
+        KeyMapMinSort ((UINT16 *)Keys, NumberOfKeys);
+        KeyMapMinSort ((UINT16 *)DbKeys, DbNumberOfKeys);
 
         Result = EfiCompareMem (
                    (VOID *)Keys,
