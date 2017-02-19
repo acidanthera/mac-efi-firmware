@@ -71,7 +71,7 @@ EventRegisterHandler (
       Status = EventCreatePollEvents ();
       
       if (EFI_ERROR (Status)) {
-        goto Return;
+        goto Done;
       }
     }
 
@@ -96,7 +96,7 @@ EventRegisterHandler (
     }
   }
 
-Return:
+Done:
   ASSERT_EFI_ERROR (Status);
 
   return Status;

@@ -143,7 +143,7 @@ DppDbSetProperty (
     Status         = EFI_OUT_OF_RESOURCES;
 
     if (Node == NULL) {
-      goto Return;
+      goto Done;
     } else {
       Node->Hdr.Signature = EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE;
 
@@ -168,7 +168,7 @@ DppDbSetProperty (
 
       if (Result == 0) {
         Status = EFI_SUCCESS;
-        goto Return;
+        goto Done;
       }
     }
 
@@ -214,7 +214,7 @@ DppDbSetProperty (
     }
   }
 
-Return:
+Done:
   ASSERT_EFI_ERROR (Status);
 
   return Status;

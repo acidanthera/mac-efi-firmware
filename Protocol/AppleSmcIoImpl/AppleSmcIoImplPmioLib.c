@@ -81,7 +81,7 @@ SmcIoSmcWriteCommand (
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
-      goto Return;
+      goto Done;
     }
 
     --Index;
@@ -104,7 +104,7 @@ SmcIoSmcWriteCommand (
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
-      goto Return;
+      goto Done;
     }
 
     --Index;
@@ -114,7 +114,7 @@ SmcIoSmcWriteCommand (
 
   Status = EFI_SUCCESS;
 
-Return:
+Done:
   return Status;
 }
 
@@ -139,7 +139,7 @@ SmcIoSmcReadData8 (
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
-      goto Return;
+      goto Done;
     }
 
     --Index;
@@ -162,7 +162,7 @@ SmcIoSmcReadData8 (
     Status = EFI_NOT_READY;
   }
 
-Return:
+Done:
   return Status;
 }
 
@@ -234,7 +234,7 @@ SmcIoSmcWriteData8 (
 
     if (RemainingIterations == 0) {
       Status = EFI_TIMEOUT;
-      goto Return;
+      goto Done;
     }
 
     --RemainingIterations;
@@ -256,7 +256,7 @@ SmcIoSmcWriteData8 (
     Status = EFI_NOT_READY;
   }
 
-Return:
+Done:
   return Status;
 }
 
@@ -323,7 +323,7 @@ SmcIoSmcTimeoutWaitingForBusyClear (
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
-      goto Return;
+      goto Done;
     }
 
     --Index;
@@ -333,7 +333,7 @@ SmcIoSmcTimeoutWaitingForBusyClear (
 
   Status = EFI_SUCCESS;
 
-Return:
+Done:
   return Status;
 }
 
@@ -356,7 +356,7 @@ SmcIoSmcTimeoutWaitingLongForBusyClear (
 
     if (Index == 0) {
       Status = EFI_TIMEOUT;
-      goto Return;
+      goto Done;
     }
 
     --Index;
@@ -366,7 +366,7 @@ SmcIoSmcTimeoutWaitingLongForBusyClear (
 
   Status = EFI_SUCCESS;
 
-Return:
+Done:
   return Status;
 }
 

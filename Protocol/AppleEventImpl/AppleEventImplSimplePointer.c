@@ -796,7 +796,7 @@ EventInternalSetCursorPosition (
 
     if (EFI_ERROR (Status)) {
       Status = EFI_NOT_READY;
-      goto Return;
+      goto Done;
     }
   }
 
@@ -810,7 +810,7 @@ EventInternalSetCursorPosition (
     Status = EFI_SUCCESS;
   }
 
-Return:
+Done:
   ASSERT_EFI_ERROR (Status);
 
   return Status;

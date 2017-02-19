@@ -221,12 +221,12 @@ SmcIoSmcMakeKeyImpl (
     } while (Index < (sizeof (*Key) / sizeof (Name[0])));
 
     Status = EFI_SUCCESS;
-    goto Return;
+    goto Done;
   }
 
   Status = EFI_INVALID_PARAMETER;
 
-Return:
+Done:
   ASSERT_EFI_ERROR (Status);
 
   return Status;

@@ -102,14 +102,14 @@ EventImplConstructor (
       Status = EventCreateSimplePointerInstallNotifyEvent ();
 
       if (!EFI_ERROR (Status)) {
-        goto Return;
+        goto Done;
       }
     }
 
     EventImplUnload (ImageHandle);
   }
 
-Return:
+Done:
   ASSERT_EFI_ERROR (Status);
 
   return Status;

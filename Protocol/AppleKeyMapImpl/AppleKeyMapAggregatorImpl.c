@@ -116,7 +116,7 @@ KeyMapGetKeyStrokes (
     Status = EFI_BUFFER_TOO_SMALL;
 
     if (Result) {
-      goto Return;
+      goto Done;
     }
   }
 
@@ -133,7 +133,7 @@ KeyMapGetKeyStrokes (
       );
   }
 
-Return:
+Done:
   ASSERT_EFI_ERROR (Status);
 
   return Status;

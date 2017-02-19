@@ -268,7 +268,7 @@ sub_5FB (
         Ukn    = (UINT32)0;
 
         if (StatusMask != 0) {
-          goto Return;
+          goto Done;
         }
       }
 
@@ -285,7 +285,7 @@ sub_5FB (
     SmcReadResultMmio ((UINTN)BaseAddress);
   }
 
-Return:
+Done:
   return Status;
 }
 
@@ -385,7 +385,7 @@ SmcReadValueMmio (
         *Size   = KeySize;
 
         if ((KeySize > SMC_MAX_DATA_SIZE) || (KeySize <= 0)) {
-          goto ReturnInvalidSize;
+          goto DoneInvalidSize;
         }
 
         Index = 0;
@@ -495,7 +495,7 @@ SmcGetKeyFromIndexMmio (
                             );
         }
 
-        goto ReturnResult;
+        goto DoneResult;
       }
     }
 
@@ -563,7 +563,7 @@ SmcGetKeyInfoMmio (
                                               );
         }
 
-        goto ReturnResult;
+        goto DoneResult;
       }
     }
 
@@ -823,7 +823,7 @@ SmcFlashAuthMmio (
           Result = (SMC_RESULT)SmcReadResultMmio (BaseAddress);
 
           if (Result != SmcSuccess) {
-            goto ReturnResult;
+            goto DoneResult;
           }
 
           SizeWritten += (UINT32)(UINT16)IterartionDataSize;

@@ -184,7 +184,7 @@ BootPolicyGetBootFileImpl (
                 gBS->FreePool ((VOID *)Path);
 
                 Status = EFI_SUCCESS;
-                goto Return;
+                goto Done;
               }
 
               gBS->FreePool ((VOID *)FullPath);
@@ -219,7 +219,6 @@ Done:
     Root->Close (Root);
   }
 
-Return:
   ASSERT_EFI_ERROR (Status);
 
   return Status;
