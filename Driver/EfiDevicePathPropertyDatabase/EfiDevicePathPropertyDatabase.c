@@ -36,9 +36,9 @@ EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDevicePathPropertyDatabase = {
   DppDbGetPropertyBuffer
 };
 
-// GetNvramProperties
+// GetVarProperties
 EFI_STATUS
-GetNvramProperties (
+GetVarProperties (
   IN EFI_GUID                           *VendorGuid,
   IN BOOLEAN                            DeleteVariables,
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Private
@@ -192,7 +192,7 @@ GetNvramProperties (
         }
 
         gBS->FreePool ((VOID *)Buffer);
-        goto Return;
+        goto Done;
       }
     }
 
@@ -201,7 +201,7 @@ GetNvramProperties (
     }
   }
 
-Return:
+Done:
   return Status;
 }
 
@@ -269,16 +269,17 @@ EfiDevicePathPropertyDatabaseMain (
 
     InitializeListHead (&Database->Nodes);
 
-    Status = GetNvramProperties (&gAppleVendorVariableGuid, FALSE, Database);
+    Status = GetVarProperties (&gAppleVendorVariableGuid, FALSE, Database);
 
     if (EFI_ERROR (Status)) {
       gBS->FreePool ((VOID *)Database);
     } else {
       Database->Modified = FALSE;
-      Status             = GetNvramProperties (
+      Status             = GetVarProperties (
                              &gAppleBootVariableGuid,
                              TRUE,
-                             Database);
+                             Database
+                             );
 
       if (!EFI_ERROR (Status)) {
         if (Database->Modified) {
@@ -294,7 +295,10 @@ EfiDevicePathPropertyDatabaseMain (
 
             if (Buffer == NULL) {
               Status = EFI_OUT_OF_RESOURCES;
-              goto FreePoolReturn;
+
+              gBS->FreePool ((VOID *)Database);
+
+              goto Done;
             } else {
               Status = DppDbGetPropertyBuffer (
                          &Database->Protocol,
@@ -337,7 +341,8 @@ EfiDevicePathPropertyDatabaseMain (
 
                   if (EFI_ERROR (Status)) {
                     gBS->FreePool ((VOID *)Buffer);
-                    goto FreePoolReturn;
+                    gBS->FreePool ((VOID *)Database);
+                    goto Done;
                   }
 
                   Buffer    = (VOID *)((UINTN)Buffer + VariableSize);
@@ -390,13 +395,14 @@ EfiDevicePathPropertyDatabaseMain (
               gBS->FreePool ((VOID *)Buffer);
 
               if (EFI_ERROR (Status)) {
-                goto FreePoolReturn;
+                gBS->FreePool ((VOID *)Database);
+                goto Done;
               }
             }
           } else {
-          FreePoolReturn:
+          FreePoolDone:
             gBS->FreePool ((VOID *)Database);
-            goto Return;
+            goto Done;
           }
         }
 
@@ -415,6 +421,6 @@ EfiDevicePathPropertyDatabaseMain (
     }
   }
 
-Return:
+Done:
   return Status;
 }
