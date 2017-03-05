@@ -17,6 +17,11 @@
 
 #pragma intrinsic (__mfa)
 
+VOID
+__mfa (
+  VOID
+  );
+
 // MemoryFence
 /** Used to serialize load and store operations.
 

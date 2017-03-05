@@ -13,8 +13,6 @@
 
 #include <AppleEfi.h>
 
-#include "AppleMathLibInternal.h"
-
 // InternalMathDivS64x64
 /** Divides a 64-bit signed integer by a 64-bit signed integer and
     generates a 64-bit signed result.

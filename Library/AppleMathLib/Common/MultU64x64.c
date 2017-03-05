@@ -13,8 +13,6 @@
 
 #include <AppleEfi.h>
 
-#include "AppleMathLibInternal.h"
-
 // InternalMathMultU64x64
 /** Multiplies a 64-bit unsigned integer by a 64-bit unsigned integer and
     generates a 64-bit unsigned result.

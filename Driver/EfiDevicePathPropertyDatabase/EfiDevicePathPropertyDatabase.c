@@ -400,7 +400,6 @@ EfiDevicePathPropertyDatabaseMain (
               }
             }
           } else {
-          FreePoolDone:
             gBS->FreePool ((VOID *)Database);
             goto Done;
           }

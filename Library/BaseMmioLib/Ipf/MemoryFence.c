@@ -15,6 +15,11 @@
 
 #include <Library/MmioLib.h>
 
+VOID
+__mfa (
+  VOID
+  );
+
 // MemoryFence
 /** Used to serialize load and store operations.
 

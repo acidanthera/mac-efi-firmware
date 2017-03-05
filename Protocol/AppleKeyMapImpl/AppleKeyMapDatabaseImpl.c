@@ -14,7 +14,6 @@
 #include <AppleEfi.h>
 
 #include <Library/AppleDriverLib.h>
-#include <Library/AppleKeyMapLib.h>
 
 #include "AppleKeyMapImplInternal.h"
 
@@ -22,9 +21,9 @@
 /** Creates a new key set with a given number of keys allocated.  The index
     within the database is returned.
 
-  @param[in]  This             A pointer to the protocol instance.
-  @param[in]  KeyBufferLength  The amount of keys to allocate for the key set.
-  @param[out] Index            The assigned index of the created key set.
+  @param[in]  This           A pointer to the protocol instance.
+  @param[in]  KeyBufferSize  The amount of keys to allocate for the key set.
+  @param[out] Index          The assigned index of the created key set.
 
   @return                       Returned is the status of the operation.
   @retval EFI_SUCCESS           A key set with the given number of keys

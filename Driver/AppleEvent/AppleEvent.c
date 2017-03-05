@@ -12,14 +12,12 @@
 **/
 
 #include <AppleEfi.h>
-#include <LinkedList.h>
 
-#include EFI_PROTOCOL_CONSUMER (LoadedImage)
 #include APPLE_PROTOCOL_PRODUCER (AppleEventImpl)
 
 #include <Driver/AppleEvent.h>
 
-// UnloadAppleEventDummy
+// AppleEventUnload
 EFI_STATUS
 EFIAPI
 AppleEventUnload (

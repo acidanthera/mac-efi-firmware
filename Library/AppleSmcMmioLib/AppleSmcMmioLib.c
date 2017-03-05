@@ -385,7 +385,9 @@ SmcReadValueMmio (
         *Size   = KeySize;
 
         if ((KeySize > SMC_MAX_DATA_SIZE) || (KeySize <= 0)) {
-          goto DoneInvalidSize;
+          Status = EFI_SMC_INVALID_SIZE;
+
+          goto Done;
         }
 
         Index = 0;
@@ -402,14 +404,14 @@ SmcReadValueMmio (
   }
 
   if (Status == EFI_TIMEOUT) {
-	Status = EFI_SMC_TIMEOUT_ERROR;
+	  Status = EFI_SMC_TIMEOUT_ERROR;
   } else if (Status == SmcInvalidSize) {
-  ReturnInvalidSize:
     Status = EFI_SMC_INVALID_SIZE;
   } else {
     Status = EFI_STATUS_FROM_SMC_RESULT (Status);
   }
 
+Done:
   return Status;
 }
 
@@ -495,7 +497,7 @@ SmcGetKeyFromIndexMmio (
                             );
         }
 
-        goto DoneResult;
+        goto ReturnResult;
       }
     }
 
@@ -563,7 +565,7 @@ SmcGetKeyInfoMmio (
                                               );
         }
 
-        goto DoneResult;
+        goto ReturnResult;
       }
     }
 
@@ -823,7 +825,7 @@ SmcFlashAuthMmio (
           Result = (SMC_RESULT)SmcReadResultMmio (BaseAddress);
 
           if (Result != SmcSuccess) {
-            goto DoneResult;
+            goto ReturnResult;
           }
 
           SizeWritten += (UINT32)(UINT16)IterartionDataSize;
