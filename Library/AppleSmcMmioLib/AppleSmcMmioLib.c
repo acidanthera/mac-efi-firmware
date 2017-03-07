@@ -22,7 +22,7 @@
 #include <Library/AppleMathLib.h>
 #endif
 
-// Delete once implemented!
+// TODO: Delete once implemented!
 #define SwapBytes32(...) 0
 #define IoRead32(...) 0
 

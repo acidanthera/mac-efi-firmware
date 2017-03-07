@@ -118,7 +118,7 @@ UsbKbReadKeyStrokeWorker (
       Status = UsbKbCheckForKey (UsbKbDev);
 
       if (EFI_ERROR (Status)) {
-        goto Return;
+        goto Done;
       }
     }
 
@@ -131,7 +131,7 @@ UsbKbReadKeyStrokeWorker (
     Status = UsbKeyCodeToEfiScanCode (UsbKbDev, KeyChar, &KeyData->Key);
   }
 
-Return:
+Done:
   ASSERT (Status != EFI_INVALID_PARAMETER);
 
   return Status;

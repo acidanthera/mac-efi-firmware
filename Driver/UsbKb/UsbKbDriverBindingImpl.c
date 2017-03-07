@@ -11,6 +11,7 @@
 
 #include <AppleEfi.h>
 
+#include APPLE_GUID_DEFINITION (ApplePlatformInfo)
 #include EFI_GUID_DEFINITION (HotPlugDevice)
 
 #include EFI_PROTOCOL_CONSUMER (UsbIo)

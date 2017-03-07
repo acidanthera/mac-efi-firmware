@@ -149,7 +149,7 @@ STATIC KB_MODIFIER mKeyboardModifierMap[] = {
 
   @param[in] DevicePath  Use this to get Device Path
   @param[in] CodeType    Status Code Type
-  @param[in] CodeValue   Status Code Value
+  @param[in] Value       Status Code Value
 **/
 VOID
 KbdReportStatusCode (
@@ -265,7 +265,7 @@ UsbKbWaitForKey (
     Status = UsbKbCheckForKey (UsbKbDev);
 
     if (EFI_ERROR (Status)) {
-      goto Return;
+      goto Done;
     }
   }
 
@@ -274,7 +274,7 @@ UsbKbWaitForKey (
 
   ASSERT_EFI_ERROR (Status);
 
-Return:
+Done:
   return;
 }
 
@@ -1187,8 +1187,8 @@ UsbKbRepeatHandler (
 // UsbKbRecoveryHandler
 /** Timer handler for Delayed Recovery timer.
 
-  @param[in] Event   The Delayed Recovery event.
-  @param[in] Points  to the USB_KB_DEV instance.
+  @param[in] Event    The Delayed Recovery event.
+  @param[in] Context  to the USB_KB_DEV instance.
 **/
 VOID
 EFIAPI

@@ -33,7 +33,7 @@ UsbKbCheckForKey (
 
   @param[in] DevicePath  Use this to get Device Path
   @param[in] CodeType    Status Code Type
-  @param[in] CodeValue   Status Code Value
+  @param[in] Value       Status Code Value
 **/
 VOID
 KbdReportStatusCode (
@@ -93,8 +93,8 @@ KeyboardHandler (
 // UsbKbRecoveryHandler
 /** Timer handler for Delayed Recovery timer.
 
-  @param[in] Event   The Delayed Recovery event.
-  @param[in] Points  to the USB_KB_DEV instance.
+  @param[in] Event    The Delayed Recovery event.
+  @param[in] Context  to the USB_KB_DEV instance.
 **/
 VOID
 EFIAPI
