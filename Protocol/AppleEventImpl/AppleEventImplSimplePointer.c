@@ -746,7 +746,7 @@ EventCreateSimplePointerPollEvent (
   GetScreenResolution ();
   EfiZeroMem (&mCursorPosition, sizeof (mCursorPosition));
 
-  mSimplePointerPollEvent = CreateNotifyEvent (
+  mSimplePointerPollEvent = CreateNotifyTimerEvent (
                               SimplePointerPollNotifyFunction,
                               NULL,
                               EFI_TIMER_PERIOD_MILLISECONDS (2),

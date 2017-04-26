@@ -604,7 +604,7 @@ EventCreateKeyStrokePollEvent (
   if (!EFI_ERROR (Status)) {
     InitializeKeyHandler ();
 
-    mKeyStrokePollEvent = CreateNotifyEvent (
+    mKeyStrokePollEvent = CreateNotifyTimerEvent (
                             KeyStrokePollNotifyFunction,
                             NULL,
                             EFI_TIMER_PERIOD_MILLISECONDS (10),

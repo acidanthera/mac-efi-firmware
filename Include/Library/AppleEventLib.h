@@ -24,9 +24,9 @@ CreateTimerEvent (
   IN EFI_TPL           NotifyTpl
   );
 
-// CreateNotifyEvent
+// CreateNotifyTimerEvent
 EFI_EVENT
-CreateNotifyEvent (
+CreateNotifyTimerEvent (
   IN EFI_EVENT_NOTIFY  NotifyFunction,
   IN VOID              *NotifyContext,
   IN UINT64            TriggerTime,
