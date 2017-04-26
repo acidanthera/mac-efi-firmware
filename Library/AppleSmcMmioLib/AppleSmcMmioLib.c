@@ -23,8 +23,8 @@
 #endif
 
 // TODO: Delete once implemented!
-#define SwapBytes32(...) 0
-#define IoRead32(...) 0
+#define SwapBytes32(a) 0
+#define IoRead32(a) 0
 
 // SmcReadKeyStatusMmio 
 UINT32
