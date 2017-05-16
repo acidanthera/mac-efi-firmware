@@ -27,10 +27,10 @@
 // mBootFilePaths
 /// An array of file paths to search for in case no file is blessed.
 STATIC CHAR16 *mBootFilePaths[] = {
-  APPLE_BOOTER_FILE_PATH,
+  APPLE_BOOTER_DEFAULT_FILE_PATH,
   APPLE_REMOVABLE_MEDIA_FILE_NAME,
   EFI_REMOVABLE_MEDIA_FILE_NAME,
-  APPLE_BOOTER_FILE_NAME
+  APPLE_BOOTER_ROOT_FILE_PATH
 };
 
 // BootPolicyGetBootFileImpl
@@ -165,14 +165,14 @@ BootPolicyGetBootFileImpl (
 
           if (!EFI_ERROR (Status)) {
             Size     = (EfiStrSize (Path)
-                         + EfiStrSize (APPLE_BOOTER_FILE_NAME)
+                         + EfiStrSize (APPLE_BOOTER_ROOT_FILE_PATH)
                          - sizeof (*Path));
 
             FullPath = EfiLibAllocateZeroPool (Size);
 
             if (FullPath != NULL) {
               EfiStrCpy (FullPath, Path);
-              EfiStrCat (FullPath, APPLE_BOOTER_FILE_NAME);
+              EfiStrCat (FullPath, APPLE_BOOTER_ROOT_FILE_PATH);
 
               if (BootPolicyFileExists (Root, FullPath)) {
                 *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (
