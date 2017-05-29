@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -21,7 +21,7 @@
 #define APPLE_EVENT_PROTOCOL_REVISION  0x07
 
 // mAppleEventProtocol
-APPLE_EVENT_PROTOCOL gAppleEventProtocol = {
+ GLOBAL_REMOVE_IF_UNREFERENCED APPLE_EVENT_PROTOCOL gAppleEventProtocol = {
   APPLE_EVENT_PROTOCOL_REVISION,
   EventRegisterHandler,
   EventUnregisterHandler,
@@ -31,12 +31,13 @@ APPLE_EVENT_PROTOCOL gAppleEventProtocol = {
 };
 
 // mEventHandleList
+GLOBAL_REMOVE_IF_UNREFERENCED
 EFI_LIST_ENTRY mEventHandleList = INITIALIZE_LIST_HEAD_VARIABLE (
                                     mEventHandleList
                                     );
 
 // mNumberOfEventHandles
-UINTN mNumberOfEventHandles = 0;
+GLOBAL_REMOVE_IF_UNREFERENCED UINTN mNumberOfEventHandles = 0;
 
 // EventRegisterHandler
 EFI_STATUS
@@ -163,7 +164,7 @@ EventSetCursorPosition (
   IN DIMENSION  *Position
   ) // sub_84D
 {
-  return EventInternalSetCursorPosition (Position);
+  return EventSetCursorPositionImpl (Position);
 }
 
 // EventSetEventName

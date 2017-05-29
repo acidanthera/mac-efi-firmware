@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -26,9 +26,8 @@
 #define APPLE_PATH_PROPERTIES_VARIABLE_NAME    L"AAPL,PathProperties"
 #define APPLE_PATH_PROPERTY_VARIABLE_MAX_SIZE  768
 
-// mEfiDevicePathPropertyDatabaseProtocol
-STATIC
-EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDevicePathPropertyDatabase = {
+// mDppDbProtocolTemplate
+STATIC EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDppDbProtocolTemplate = {
   EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION,
   DppDbGetPropertyValue,
   DppDbSetProperty,
@@ -36,9 +35,10 @@ EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL mDevicePathPropertyDatabase = {
   DppDbGetPropertyBuffer
 };
 
-// GetVarProperties
+// InternalReadEfiVariableProperties
+STATIC
 EFI_STATUS
-GetVarProperties (
+InternalReadEfiVariableProperties (
   IN EFI_GUID                           *VendorGuid,
   IN BOOLEAN                            DeleteVariables,
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Private
@@ -94,6 +94,7 @@ GetVarProperties (
 
   if (BufferSize > 0) {
     Status = EFI_OUT_OF_RESOURCES;
+
     Buffer = EfiLibAllocatePool (BufferSize);
 
     if (Buffer != NULL) {
@@ -192,6 +193,7 @@ GetVarProperties (
         }
 
         gBS->FreePool ((VOID *)Buffer);
+
         goto Done;
       }
     }
@@ -263,23 +265,28 @@ EfiDevicePathPropertyDatabaseMain (
 
     EfiCopyMem (
       (VOID *)&Database->Protocol,
-      (VOID *)&mDevicePathPropertyDatabase,
-      sizeof (mDevicePathPropertyDatabase)
+      (VOID *)&mDppDbProtocolTemplate,
+      sizeof (mDppDbProtocolTemplate)
       );
 
     InitializeListHead (&Database->Nodes);
 
-    Status = GetVarProperties (&gAppleVendorVariableGuid, FALSE, Database);
+    Status = InternalReadEfiVariableProperties (
+               &gAppleVendorVariableGuid,
+               FALSE,
+               Database
+               );
 
     if (EFI_ERROR (Status)) {
       gBS->FreePool ((VOID *)Database);
     } else {
       Database->Modified = FALSE;
-      Status             = GetVarProperties (
-                             &gAppleBootVariableGuid,
-                             TRUE,
-                             Database
-                             );
+
+      Status = InternalReadEfiVariableProperties (
+                 &gAppleBootVariableGuid,
+                 TRUE,
+                 Database
+                 );
 
       if (!EFI_ERROR (Status)) {
         if (Database->Modified) {

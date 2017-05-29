@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -16,13 +16,13 @@
 
 #include APPLE_PROTOCOL_PRODUCER (KeyboardInfo)
 
-// gKeyboardInfoIdVendor
+// gKbInfoIdVendor
 extern UINT16 gKbInfoIdVendor;
 
-// gKeyboardInfoCountryCode
-extern UINT8 gKeyboardInfoCountryCode;
+// gKbInfoCountryCode
+extern UINT8 gKbInfoCountryCode;
 
-// gKeyboardInfoIdProduct
+// gKbInfoIdProduct
 extern UINT16 gKbInfoIdProduct;
 
 // KbInfoGetInfo

@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -20,7 +20,7 @@
 #include <Driver/EfiOSInfo.h>
 
 // mEfiOSInfo
-STATIC EFI_OS_INFO_PROTOCOL mOSInfo = {
+STATIC EFI_OS_INFO_PROTOCOL mOSInfoProtocol = {
   EFI_OS_INFO_PROTOCOL_REVISION,
   OSInfoOSVendor,
   OSInfoOSName
@@ -52,6 +52,6 @@ EfiOSInfoMain (
                 ImageHandle,
                 &gEfiOSInfoProtocolGuid,
                 EFI_NATIVE_INTERFACE,
-                (VOID *)&mOSInfo
+                (VOID *)&mOSInfoProtocol
                 );
 }

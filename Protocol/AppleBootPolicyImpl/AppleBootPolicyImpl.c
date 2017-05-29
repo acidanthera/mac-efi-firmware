@@ -1,7 +1,7 @@
 /** @file
   Apple protocol to get a volume's bootable file.
 
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -22,8 +22,6 @@
 
 #include <Library/AppleDriverLib.h>
 
-#include "AppleBootPolicyImplInternal.h"
-
 // mBootFilePaths
 /// An array of file paths to search for in case no file is blessed.
 STATIC CHAR16 *mBootFilePaths[] = {
@@ -32,6 +30,42 @@ STATIC CHAR16 *mBootFilePaths[] = {
   EFI_REMOVABLE_MEDIA_FILE_NAME,
   APPLE_BOOTER_ROOT_FILE_PATH
 };
+
+// InternalFileExists
+/** Checks whether the given file exists or not.
+
+  @param[in] Root      The volume's opened root.
+  @param[in] FileName  The path of the file to check.
+
+  @return  Returned is whether the specified file exists or not.
+**/
+STATIC
+BOOLEAN
+InternalFileExists (
+  IN EFI_FILE_HANDLE  Root,
+  IN CHAR16           *FileName
+  )
+{
+  BOOLEAN         Exists;
+
+  EFI_STATUS      Status;
+  EFI_FILE_HANDLE FileHandle;
+
+  ASSERT (Root != NULL);
+  ASSERT (FileName != NULL);
+
+  Status = Root->Open (Root, &FileHandle, FileName, EFI_FILE_MODE_READ, 0);
+
+  if (!EFI_ERROR (Status)) {
+    FileHandle->Close (FileHandle);
+
+    Exists = TRUE;
+  } else {
+    Exists = FALSE;
+  }
+
+  return Exists;
+}
 
 // BootPolicyGetBootFileImpl
 /** Locates the bootable file of the given volume.  Prefered are the values
@@ -174,7 +208,7 @@ BootPolicyGetBootFileImpl (
               EfiStrCpy (FullPath, Path);
               EfiStrCat (FullPath, APPLE_BOOTER_ROOT_FILE_PATH);
 
-              if (BootPolicyFileExists (Root, FullPath)) {
+              if (InternalFileExists (Root, FullPath)) {
                 *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (
                                                           Device,
                                                           FullPath
@@ -200,7 +234,7 @@ BootPolicyGetBootFileImpl (
       for (Index = 0; Index < ARRAY_LENGTH (mBootFilePaths); ++Index) {
         Path = mBootFilePaths[Index];
 
-        if (BootPolicyFileExists (Root, Path)) {
+        if (InternalFileExists (Root, Path)) {
           *BootFilePath = (FILEPATH_DEVICE_PATH *)EfiFileDevicePath (
                                                     Device,
                                                     Path

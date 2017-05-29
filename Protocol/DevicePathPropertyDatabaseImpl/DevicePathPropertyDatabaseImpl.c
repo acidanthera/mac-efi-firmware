@@ -1,7 +1,7 @@
 /** @file
   Apple protocol to manage Device Properties from firmware.
 
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -17,7 +17,206 @@
 
 #include <Library/AppleDriverLib.h>
 
-#include "DevicePathPropertyDatabaseImplInternal.h"
+#include APPLE_PROTOCOL_PRODUCER (DevicePathPropertyDatabaseImpl)
+
+#define EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  \
+  EFI_SIGNATURE_32 ('D', 'p', 'n', '\0')
+
+#define PROPERTY_NODE_FROM_LIST_ENTRY(Entry)   \
+  ((EFI_DEVICE_PATH_PROPERTY_NODE *)(          \
+    CR (                                       \
+      Entry,                                   \
+      EFI_DEVICE_PATH_PROPERTY_NODE_HDR,       \
+      This,                                    \
+      EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE  \
+      )                                        \
+    ))
+
+#define EFI_DEVICE_PATH_PROPERTY_NODE_SIZE(Node)  \
+  (sizeof ((Node)->Hdr) + EfiDevicePathSize (&(Node)->DevicePath))
+
+// EFI_DEVICE_PATH_PROPERTY_NODE_HDR
+typedef struct {
+  UINTN          Signature;           ///< 
+  EFI_LIST_ENTRY This;                ///< 
+  UINTN          NumberOfProperties;  ///< 
+  EFI_LIST       Properties;          ///< 
+} EFI_DEVICE_PATH_PROPERTY_NODE_HDR;
+
+// DEVICE_PATH_PROPERTY_NODE
+typedef struct {
+  EFI_DEVICE_PATH_PROPERTY_NODE_HDR Hdr;         ///< 
+  EFI_DEVICE_PATH_PROTOCOL          DevicePath;  ///< 
+} EFI_DEVICE_PATH_PROPERTY_NODE;
+
+#define EFI_DEVICE_PATH_PROPERTY_SIGNATURE  \
+  EFI_SIGNATURE_32 ('D', 'p', 'p', '\0')
+
+#define EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY(Entry)  \
+  CR (                                                   \
+    (Entry),                                             \
+    EFI_DEVICE_PATH_PROPERTY,                            \
+    This,                                                \
+    EFI_DEVICE_PATH_PROPERTY_SIGNATURE                   \
+    )
+
+#define EFI_DEVICE_PATH_PROPERTY_SIZE(Property)  \
+  ((Property)->Name->Hdr.Size + (Property)->Value->Hdr.Size)
+
+#define EFI_DEVICE_PATH_PROPERTY_VALUE_SIZE(Property)  \
+  ((Property)->Value->Hdr.Size - sizeof ((Property)->Value->Hdr))
+
+#define NEXT_EFI_DEVICE_PATH_PROPERTY(Property)                   \
+  (EFI_DEVICE_PATH_PROPERTY *)(                                   \
+    (UINTN)(Property) + EFI_DEVICE_PATH_PROPERTY_SIZE (Property)  \
+    )
+
+// EFI_DEVICE_PATH_PROPERTY
+typedef struct {
+  UINTN                         Signature;  ///< 
+  EFI_LIST_ENTRY                This;       ///< 
+  EFI_DEVICE_PATH_PROPERTY_DATA *Name;      ///< 
+  EFI_DEVICE_PATH_PROPERTY_DATA *Value;     ///< 
+} EFI_DEVICE_PATH_PROPERTY;
+
+// TODO: Move to own header
+//
+#define UNKNOWN_PROTOCOL_GUID                             \
+  { 0xC649D4F3, 0xD502, 0x4DAA,                           \
+    { 0xA1, 0x39, 0x39, 0x4A, 0xCC, 0xF2, 0xA6, 0x3B } }
+
+EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
+//
+
+// InternalGetPropertyNode
+STATIC
+EFI_DEVICE_PATH_PROPERTY_NODE *
+InternalGetPropertyNode (
+  IN EFI_DEVICE_PATH_PROPERTY_DATABASE  *Database,
+  IN EFI_DEVICE_PATH_PROTOCOL           *DevicePath
+  ) // sub_AC5
+{
+  EFI_DEVICE_PATH_PROPERTY_NODE *Node;
+  UINTN                         DevicePathSize;
+  BOOLEAN                       IsNodeNull;
+  UINTN                         DevicePathSize2;
+  INTN                          Result;
+
+  Node = PROPERTY_NODE_FROM_LIST_ENTRY (
+           GetFirstNode (&Database->Nodes)
+           );
+
+  DevicePathSize = EfiDevicePathSize (DevicePath);
+
+  do {
+    IsNodeNull = IsNull (&Database->Nodes, &Node->Hdr.This);
+
+    if (IsNodeNull) {
+      Node = NULL;
+
+      break;
+    }
+
+    DevicePathSize2 = EfiDevicePathSize (&Node->DevicePath);
+
+    if (DevicePathSize == DevicePathSize2) {
+      Result = EfiCompareMem (DevicePath, &Node->DevicePath, DevicePathSize);
+
+      if (Result == 0) {
+        break;
+      }
+    }
+
+    Node = PROPERTY_NODE_FROM_LIST_ENTRY (
+             GetNextNode (&Database->Nodes, &Node->Hdr.This)
+             );
+  } while (TRUE);
+
+  return Node;
+}
+
+// InternalGetProperty
+STATIC
+EFI_DEVICE_PATH_PROPERTY *
+InternalGetProperty (
+  IN CHAR16                         *Name,
+  IN EFI_DEVICE_PATH_PROPERTY_NODE  *Node
+  )
+{
+  EFI_DEVICE_PATH_PROPERTY *Property;
+
+  BOOLEAN                  IsPropertyNull;
+  INTN                     Result;
+
+  Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+               GetFirstNode (&Node->Hdr.Properties)
+               );
+
+  do {
+    IsPropertyNull = IsNull (&Node->Hdr.Properties, &Property->This);
+
+    if (IsPropertyNull) {
+      Property = NULL;
+
+      break;
+    }
+
+    Result = EfiStrCmp (Name, (CHAR16 *)&Property->Value->Data);
+
+    if (Result == 0) {
+      break;
+    }
+
+    Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                 GetNextNode (&Node->Hdr.Properties, &Property->This)
+                 );
+  } while (TRUE);
+
+  return Property;
+}
+
+// InternalCallProtocol
+STATIC
+VOID
+InternalCallProtocol (
+  VOID
+  ) // sub_BB0
+{
+  EFI_STATUS Status;
+  UINTN      NumberHandles;
+  EFI_HANDLE *Buffer;
+  UINTN      Index;
+  VOID       *Interface;
+
+  Buffer = NULL;
+  Status = gBS->LocateHandleBuffer (
+                  ByProtocol,
+                  &mUnknownProtocolGuid,
+                  NULL,
+                  &NumberHandles,
+                  &Buffer
+                  );
+
+  if (Status == EFI_SUCCESS) {
+    for (Index = 0; Index < NumberHandles; ++Index) {
+      Status = gBS->HandleProtocol (
+                      Buffer[Index],
+                      &mUnknownProtocolGuid,
+                      &Interface
+                      );
+
+      if (Status == EFI_SUCCESS) {
+        if (*(UINT32 *)((UINTN)Interface + sizeof (UINT32)) == 0) {
+          (*(VOID (EFIAPI **)(VOID *))((UINTN)Interface + 232)) (Interface);
+        }
+      }
+    }
+  }
+
+  if (Buffer != NULL) {
+    gBS->FreePool ((VOID *)Buffer);
+  }
+}
 
 // DppDbGetPropertyValueImpl
 /** Locates a device property in the database and returns its value into Value.
@@ -66,18 +265,21 @@ DppDbGetPropertyValue (
   ASSERT ((((*Size > 0) ? 1 : 0) ^ ((Value == NULL) ? 1 : 0)) != 0);
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
-  Node     = DppDbGetPropertyNode (Database, DevicePath);
-  Status   = EFI_NOT_FOUND;
+  Node     = InternalGetPropertyNode (Database, DevicePath);
+
+  Status = EFI_NOT_FOUND;
 
   if (Node != NULL) {
-    Property = DppDbGetProperty (Name, Node);
-    Status   = EFI_NOT_FOUND;
+    Property = InternalGetProperty (Name, Node);
+
+    Status = EFI_NOT_FOUND;
 
     if (Property != NULL) {
       PropertySize   = EFI_DEVICE_PATH_PROPERTY_VALUE_SIZE (Property);
       BufferTooSmall = (BOOLEAN)(PropertySize > *Size);
       *Size          = PropertySize;
-      Status         = EFI_BUFFER_TOO_SMALL;
+
+      Status = EFI_BUFFER_TOO_SMALL;
 
       if (!BufferTooSmall) {
         EfiCopyMem (Value, (VOID *)&Property->Value->Data, PropertySize);
@@ -135,12 +337,13 @@ DppDbSetProperty (
   ASSERT (Size > 0);
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
-  Node     = DppDbGetPropertyNode (Database, DevicePath);
+  Node     = InternalGetPropertyNode (Database, DevicePath);
 
   if (Node == NULL) {
     DevicePathSize = EfiDevicePathSize (DevicePath);
     Node           = EfiLibAllocateZeroPool (sizeof (Node) + DevicePathSize);
-    Status         = EFI_OUT_OF_RESOURCES;
+
+    Status = EFI_OUT_OF_RESOURCES;
 
     if (Node == NULL) {
       goto Done;
@@ -148,6 +351,7 @@ DppDbSetProperty (
       Node->Hdr.Signature = EFI_DEVICE_PATH_PROPERTY_NODE_SIGNATURE;
 
       InitializeListHead (&Node->Hdr.Properties);
+
       EfiCopyMem (
         (VOID *)&Node->DevicePath,
         (VOID *)DevicePath,
@@ -160,7 +364,7 @@ DppDbSetProperty (
     }
   }
 
-  Property = DppDbGetProperty (Name, Node);
+  Property = InternalGetProperty (Name, Node);
 
   if (Property != NULL) {
     if (Property->Value->Hdr.Size == Size) {
@@ -183,7 +387,8 @@ DppDbSetProperty (
 
   Database->Modified = TRUE;
   Property           = EfiLibAllocateZeroPool (sizeof (Property));
-  Status             = EFI_OUT_OF_RESOURCES;
+
+  Status = EFI_OUT_OF_RESOURCES;
 
   if (Property != NULL) {
     PropertyNameSize   = (EfiStrSize (Name) + sizeof (PropertyData->Hdr));
@@ -209,6 +414,7 @@ DppDbSetProperty (
         InsertTailList (&Node->Hdr.Properties, &Property->This);
 
         Status = EFI_SUCCESS;
+
         ++Node->Hdr.NumberOfProperties;
       }
     }
@@ -251,13 +457,14 @@ DppDbRemoveProperty (
   ASSERT (Name != NULL);
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
-  Node     = DppDbGetPropertyNode (Database, DevicePath);
+  Node     = InternalGetPropertyNode (Database, DevicePath);
 
   if (Node == NULL) {
     Status = EFI_NOT_FOUND;
   } else {
-    Property = DppDbGetProperty (Name, Node);
-    Status   = EFI_NOT_FOUND;
+    Property = InternalGetProperty (Name, Node);
+
+    Status = EFI_NOT_FOUND;
 
     if (Property != NULL) {
       Database->Modified = TRUE;
@@ -311,7 +518,7 @@ DppDbGetPropertyBuffer (
 
   EFI_LIST                             *Nodes;
   BOOLEAN                              Result;
-  EFI_DEVICE_PATH_PROPERTY_NODE        *NodeIterator;
+  EFI_DEVICE_PATH_PROPERTY_NODE        *NodeWalker;
   UINTN                                BufferSize;
   EFI_DEVICE_PATH_PROPERTY             *Property;
   UINT32                               NumberOfNodes;
@@ -329,35 +536,36 @@ DppDbGetPropertyBuffer (
     *Size  = 0;
     Status = EFI_SUCCESS;
   } else {
-    DppDbCallProtocol ();
+    InternalCallProtocol ();
 
-    NodeIterator  = PROPERTY_NODE_FROM_LIST_ENTRY (GetFirstNode (Nodes));
-    Result        = IsNull (Nodes, &NodeIterator->Hdr.This);
+    NodeWalker    = PROPERTY_NODE_FROM_LIST_ENTRY (GetFirstNode (Nodes));
+    Result        = IsNull (Nodes, &NodeWalker->Hdr.This);
     BufferSize    = sizeof (Buffer->Hdr);
     NumberOfNodes = 0;
 
     while (!Result) {
       Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
-                   GetFirstNode (&NodeIterator->Hdr.Properties)
+                   GetFirstNode (&NodeWalker->Hdr.Properties)
                    );
 
-      Result = IsNull (&NodeIterator->Hdr.Properties, &Property->This);
+      Result = IsNull (&NodeWalker->Hdr.Properties, &Property->This);
 
       while (!Result) {
         BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
-        Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
-                        GetNextNode (&NodeIterator->Hdr.Properties, &Property->This)
-                        );
 
-        Result = IsNull (&NodeIterator->Hdr.Properties, &Property->This);
+        Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                     GetNextNode (&NodeWalker->Hdr.Properties, &Property->This)
+                     );
+
+        Result = IsNull (&NodeWalker->Hdr.Properties, &Property->This);
       }
 
-      NodeIterator = PROPERTY_NODE_FROM_LIST_ENTRY (
-               GetNextNode (Nodes, &NodeIterator->Hdr.This)
-               );
+      NodeWalker = PROPERTY_NODE_FROM_LIST_ENTRY (
+                     GetNextNode (Nodes, &NodeWalker->Hdr.This)
+                     );
 
-      Result      = IsNull (Nodes, &NodeIterator->Hdr.This);
-      BufferSize += EFI_DEVICE_PATH_PROPERTY_NODE_SIZE (NodeIterator);
+      Result      = IsNull (Nodes, &NodeWalker->Hdr.This);
+      BufferSize += EFI_DEVICE_PATH_PROPERTY_NODE_SIZE (NodeWalker);
       ++NumberOfNodes;
     }
 
@@ -369,32 +577,33 @@ DppDbGetPropertyBuffer (
       Buffer->Hdr.Size          = (UINT32)BufferSize;
       Buffer->Hdr.MustBe1       = 1;
       Buffer->Hdr.NumberOfNodes = NumberOfNodes;
-      NodeIterator              = PROPERTY_NODE_FROM_LIST_ENTRY (
-                                    GetFirstNode (Nodes)
-                                    );
 
-      Result = IsNull (&NodeIterator->Hdr.This, &NodeIterator->Hdr.This);
+      NodeWalker = PROPERTY_NODE_FROM_LIST_ENTRY (
+                     GetFirstNode (Nodes)
+                     );
+
+      Result = IsNull (&NodeWalker->Hdr.This, &NodeWalker->Hdr.This);
       Status = EFI_SUCCESS;
 
       if (!Result) {
         BufferNode = &Buffer->Node;
 
         do {
-          BufferSize = EfiDevicePathSize (&NodeIterator->DevicePath);
+          BufferSize = EfiDevicePathSize (&NodeWalker->DevicePath);
 
           EfiCopyMem (
             (VOID *)&BufferNode->DevicePath,
-            (VOID *)&NodeIterator->DevicePath,
+            (VOID *)&NodeWalker->DevicePath,
             BufferSize
             );
 
-          BufferNode->Hdr.NumberOfProperties = (UINT32)NodeIterator->Hdr.NumberOfProperties;
+          BufferNode->Hdr.NumberOfProperties = (UINT32)NodeWalker->Hdr.NumberOfProperties;
 
           Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
-                       GetFirstNode (&NodeIterator->Hdr.Properties)
+                       GetFirstNode (&NodeWalker->Hdr.Properties)
                        );
 
-          Result      = IsNull (&NodeIterator->Hdr.Properties, &Property->This);
+          Result      = IsNull (&NodeWalker->Hdr.Properties, &Property->This);
           BufferSize += sizeof (BufferNode->Hdr);
           BufferPtr   = (VOID *)((UINTN)Buffer + BufferSize);
 
@@ -420,12 +629,12 @@ DppDbGetPropertyBuffer (
             BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
             Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
                             GetNextNode (
-                              &NodeIterator->Hdr.Properties,
+                              &NodeWalker->Hdr.Properties,
                               &Property->This
-                            )
+                              )
                             );
 
-            Result = IsNull (&NodeIterator->Hdr.Properties, &Property->This);
+            Result = IsNull (&NodeWalker->Hdr.Properties, &Property->This);
           }
 
           BufferNode->Hdr.Size = (UINT32)BufferSize;
@@ -433,10 +642,10 @@ DppDbGetPropertyBuffer (
                                     (UINTN)BufferNode + BufferSize
                                     );
 
-          NodeIterator = PROPERTY_NODE_FROM_LIST_ENTRY (
-                   GetNextNode (Nodes, &NodeIterator->Hdr.This)
-                   );
-        } while (!IsNull (&NodeIterator->Hdr.This, &NodeIterator->Hdr.This));
+          NodeWalker = PROPERTY_NODE_FROM_LIST_ENTRY (
+                         GetNextNode (Nodes, &NodeWalker->Hdr.This)
+                         );
+        } while (!IsNull (&NodeWalker->Hdr.This, &NodeWalker->Hdr.This));
       }
     }
   }

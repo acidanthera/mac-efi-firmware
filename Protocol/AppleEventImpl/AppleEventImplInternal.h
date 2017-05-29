@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -139,27 +139,9 @@ EventIsCapsLockOn (
   IN OUT BOOLEAN  *CapsLockOn
   );
 
-// EventUnregisterHandlers
-VOID
-EventUnregisterHandlers (
-  VOID
-  );
-
-// EventSignalAndCloseQueryEvent
-VOID
-EventSignalAndCloseQueryEvent (
-  VOID
-  );
-
 // EventCancelPollEvents
 VOID
 EventCancelPollEvents (
-  VOID
-  );
-
-// EventCreateQueryEvent
-VOID
-EventCreateQueryEvent (
   VOID
   );
 
@@ -216,9 +198,9 @@ EventCreateEventQuery (
   IN APPLE_MODIFIER_MAP  Modifiers
   );
 
-// EventInternalSetCursorPosition
+// EventSetCursorPositionImpl
 EFI_STATUS
-EventInternalSetCursorPosition (
+EventSetCursorPositionImpl (
   IN DIMENSION  *Position
   );
 

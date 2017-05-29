@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -25,7 +25,8 @@
 #include <Driver/ApplePlatformInfoDatabaseDxe.h>
 
 // mApplePlatformInfoDatabaseDxe
-STATIC APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDatabase = {
+STATIC
+APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDbProtocolTemplate = {
   APPLE_PLATFORM_INFO_DATABASE_PROTOCOL_REVISION,
   PlatformInfoDbGetFirstDataImpl,
   PlatformInfoDbGetFirstDataSizeImpl,
@@ -67,7 +68,7 @@ ApplePlatformInfoDatabaseDxeMain (
   EFI_FV_FILETYPE              FoundType;
   EFI_FV_FILE_ATTRIBUTES       FileAttributes;
   UINT32                       AuthenticationStatus;
-  APPLE_PLATFORM_INFO_DATABASE *PlatformInfoDatabase;
+  APPLE_PLATFORM_INFO_DATABASE *PlatformInfoDb;
 
   AppleInitializeDriverLib (ImageHandle, SystemTable);
 
@@ -110,7 +111,7 @@ ApplePlatformInfoDatabaseDxeMain (
 
       for (Index = 0; Index < NumberHandles; ++Index) {
         if (FirmwareVolumeFound) {
-
+          //
         }
 
         Status = gBS->HandleProtocol (
@@ -192,25 +193,26 @@ ApplePlatformInfoDatabaseDxeMain (
     }
   }
 
-  PlatformInfoDatabase = EfiLibAllocatePool (sizeof (*PlatformInfoDatabase));
-  Status               = EFI_OUT_OF_RESOURCES;
+  PlatformInfoDb = EfiLibAllocatePool (sizeof (*PlatformInfoDb));
 
-  if (PlatformInfoDatabase != NULL) {
-    PlatformInfoDatabase->Signature            = APPLE_PLATFORM_INFO_DATABASE_SIGNATURE;
-    PlatformInfoDatabase->FirmwareVolumeHandle = NULL; ////
-    PlatformInfoDatabase->FirmwareVolume       = FirmwareVolume;
+  Status = EFI_OUT_OF_RESOURCES;
+
+  if (PlatformInfoDb != NULL) {
+    PlatformInfoDb->Signature            = APPLE_PLATFORM_INFO_DATABASE_SIGNATURE;
+    PlatformInfoDb->FirmwareVolumeHandle = NULL; ////
+    PlatformInfoDb->FirmwareVolume       = FirmwareVolume;
 
     EfiCopyMem (
-      (VOID *)&PlatformInfoDatabase->Protocol,
-      (VOID *)&mApplePlatformInfoDatabase,
-      sizeof (mApplePlatformInfoDatabase)
+      (VOID *)&PlatformInfoDb->Protocol,
+      (VOID *)&mApplePlatformInfoDbProtocolTemplate,
+      sizeof (mApplePlatformInfoDbProtocolTemplate)
       );
     
     Status = gBS->InstallProtocolInterface (
-                    PlatformInfoDatabase->FirmwareVolumeHandle,
+                    PlatformInfoDb->FirmwareVolumeHandle,
                     &gApplePlatformInfoDatabaseProtocolGuid,
                     EFI_NATIVE_INTERFACE,
-                    (VOID *)&PlatformInfoDatabase->Protocol
+                    (VOID *)&PlatformInfoDb->Protocol
                     );
   }
 

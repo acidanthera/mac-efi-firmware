@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -34,6 +34,43 @@ STATIC BOOLEAN mQueryEventCreated = FALSE;
 // mEventQueryList
 STATIC EFI_LIST mQueryList = INITIALIZE_LIST_HEAD_VARIABLE (mQueryList);
 
+// InternalUnregisterHandlers
+STATIC
+VOID
+InternalUnregisterHandlers (
+  VOID
+  ) // sub_A31
+{
+  if (mPointerProtocols != NULL) {
+    gBS->FreePool ((VOID *)mPointerProtocols);
+  }
+
+  // BUG: Memory leak, currently active events are not freed.
+
+  EventRemoveUnregisteredEvents ();
+
+  if (!IsListEmpty (&mEventHandleList)) {
+    EventUnregisterHandler ((APPLE_EVENT_HANDLE_PRIVATE *)EFI_MAX_ADDRESS);
+  }
+}
+
+// InternalSgnalAndCloseQueryEvent
+STATIC
+VOID
+InternalSgnalAndCloseQueryEvent (
+  VOID
+  ) // sub_E54
+{
+  ASSERT (mQueryEventCreated);
+  ASSERT (mQueryEvent != NULL);
+
+  gBS->SignalEvent (mQueryEvent);
+
+  if (mQueryEventCreated && (mQueryEvent != NULL)) {
+    gBS->CloseEvent (mQueryEvent);
+  }
+}
+
 // EventImplUnload
 EFI_STATUS
 EFIAPI
@@ -47,8 +84,8 @@ EventImplUnload (
     gBS->CloseEvent (mSimplePointerInstallNotifyEvent);
   }
 
-  EventSignalAndCloseQueryEvent ();
-  EventUnregisterHandlers ();
+  InternalSgnalAndCloseQueryEvent ();
+  InternalUnregisterHandlers ();
   EventCancelPollEvents ();
 
   Status = gBS->UninstallProtocolInterface (
@@ -60,6 +97,128 @@ EventImplUnload (
   ASSERT_EFI_ERROR (Status);
 
   return Status;
+}
+
+// InternalFlagAllEventsReady
+STATIC
+VOID
+InternalFlagAllEventsReady (
+  VOID
+  ) // sub_B96
+{
+  EFI_LIST_ENTRY             *EventHandleEntry;
+  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
+
+  EventHandleEntry = GetFirstNode (&mEventHandleList);
+
+  if (!IsListEmpty (&mEventHandleList)) {
+    do {
+      EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (
+                      EventHandleEntry
+                      );
+
+      EventHandle->Ready = TRUE;
+
+      EventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
+    } while (!IsNull (&mEventHandleList, EventHandleEntry));
+  }
+}
+
+// InternalQueryEventNotifyFunction
+STATIC
+VOID
+EFIAPI
+InternalQueryEventNotifyFunction (
+  IN EFI_EVENT  Event,
+  IN VOID       *Context
+) // sub_D56
+{
+  EFI_STATUS                 Status;
+
+  EFI_LIST_ENTRY             *EventQueryEntry;
+  APPLE_EVENT_QUERY          *EventQuery;
+  EFI_LIST_ENTRY             *EventHandleEntry;
+  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
+  EFI_LIST_ENTRY             *NextEventQueryEntry;
+
+  ASSERT (Event != NULL);
+
+  if (mQueryEventCreated) {
+    do {
+      Status = EfiAcquireLockOrFail (&mLock);
+    } while (Status != EFI_SUCCESS);
+
+    InternalFlagAllEventsReady ();
+
+    EventQueryEntry = GetFirstNode (&mQueryList);
+
+    while (!IsNull (&mQueryList, EventQueryEntry)) {
+      EventQuery = APPLE_EVENT_QUERY_FROM_LIST_ENTRY (EventQueryEntry);
+
+      EventHandleEntry = GetFirstNode (&mEventHandleList);
+
+      while (!IsNull (&mEventHandleList, EventHandleEntry)) {
+        EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (
+                        EventHandleEntry
+                        );
+
+        if (EventHandle->Registered
+         && EventHandle->Ready
+         && ((EventQuery->Information->EventType & EventHandle->EventType) != 0)
+         && (EventHandle->NotifyFunction != NULL)) {
+          EventHandle->NotifyFunction (
+                         EventQuery->Information,
+                         EventHandle->NotifyContext
+                         );
+        }
+
+        EventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
+      }
+
+      if (((EventQuery->Information->EventType & APPLE_ALL_KEYBOARD_EVENTS) != 0)
+        && (EventQuery->Information->EventData.KeyData != NULL)) {
+        gBS->FreePool (
+               (VOID *)EventQuery->Information->EventData.KeyData
+               );
+      }
+
+      NextEventQueryEntry = GetNextNode (&mQueryList, &EventQuery->This);
+
+      RemoveEntryList (EventQueryEntry);
+      gBS->FreePool ((VOID *)EventQuery->Information);
+      gBS->FreePool ((VOID *)EventQuery);
+
+      EventQueryEntry = NextEventQueryEntry;
+    }
+
+    EventRemoveUnregisteredEvents ();
+    EfiReleaseLock (&mLock);
+  }
+}
+
+// InternalCreateQueryEvent
+VOID
+InternalCreateQueryEvent (
+  VOID
+  ) // sub_D01
+{
+  EFI_STATUS Status;
+
+  EfiInitializeLock (&mLock, EFI_TPL_NOTIFY);
+
+  Status = gBS->CreateEvent (
+                  EFI_EVENT_NOTIFY_SIGNAL,
+                  EFI_TPL_NOTIFY,
+                  InternalQueryEventNotifyFunction,
+                  NULL,
+                  &mQueryEvent
+                  );
+
+  ASSERT_EFI_ERROR (Status);
+
+  if (!EFI_ERROR (Status)) {
+    mQueryEventCreated = TRUE;
+  }
 }
 
 // EventImplConstructor
@@ -97,7 +256,7 @@ EventImplConstructor (
     if (!EFI_ERROR (Status)) {
       LoadedImage->Unload = EventImplUnload;
 
-      EventCreateQueryEvent ();
+      InternalCreateQueryEvent ();
 
       Status = EventCreateSimplePointerInstallNotifyEvent ();
 
@@ -146,25 +305,6 @@ EventRemoveUnregisteredEvents (
 
       EventHandleEntry = NextEventHandleEntry;
     } while (!IsNull (&mEventHandleList, NextEventHandleEntry));
-  }
-}
-
-// EventUnregisterHandlers
-VOID
-EventUnregisterHandlers (
-  VOID
-  ) // sub_A31
-{
-  if (mPointerProtocols != NULL) {
-    gBS->FreePool ((VOID *)mPointerProtocols);
-  }
-
-  // BUG: Memory leak, currently active events are not freed.
-
-  EventRemoveUnregisteredEvents ();
-
-  if (!IsListEmpty (&mEventHandleList)) {
-    EventUnregisterHandler ((APPLE_EVENT_HANDLE_PRIVATE *)EFI_MAX_ADDRESS);
   }
 }
 
@@ -247,142 +387,6 @@ EventCreateAppleEventQueryInfo (
   ASSERT (QueryInfo != NULL);
 
   return QueryInfo;
-}
-
-// FlagAllEventsReady
-VOID
-FlagAllEventsReady (
-  VOID
-  ) // sub_B96
-{
-  EFI_LIST_ENTRY             *EventHandleEntry;
-  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
-
-  EventHandleEntry = GetFirstNode (&mEventHandleList);
-
-  if (!IsListEmpty (&mEventHandleList)) {
-    do {
-      EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (
-                      EventHandleEntry
-                      );
-
-      EventHandle->Ready = TRUE;
-
-      EventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
-    } while (!IsNull (&mEventHandleList, EventHandleEntry));
-  }
-}
-
-// QueryEventNotifyFunction
-VOID
-EFIAPI
-QueryEventNotifyFunction (
-  IN EFI_EVENT  Event,
-  IN VOID       *Context
-) // sub_D56
-{
-  EFI_STATUS                 Status;
-
-  EFI_LIST_ENTRY             *EventQueryEntry;
-  APPLE_EVENT_QUERY          *EventQuery;
-  EFI_LIST_ENTRY             *EventHandleEntry;
-  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
-  EFI_LIST_ENTRY             *NextEventQueryEntry;
-
-  ASSERT (Event != NULL);
-
-  if (mQueryEventCreated) {
-    do {
-      Status = EfiAcquireLockOrFail (&mLock);
-    } while (Status != EFI_SUCCESS);
-
-    FlagAllEventsReady ();
-
-    EventQueryEntry = GetFirstNode (&mQueryList);
-
-    while (!IsNull (&mQueryList, EventQueryEntry)) {
-      EventQuery = APPLE_EVENT_QUERY_FROM_LIST_ENTRY (EventQueryEntry);
-
-      EventHandleEntry = GetFirstNode (&mEventHandleList);
-
-      while (!IsNull (&mEventHandleList, EventHandleEntry)) {
-        EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (
-                        EventHandleEntry
-                        );
-
-        if (EventHandle->Registered
-         && EventHandle->Ready
-         && ((EventQuery->Information->EventType & EventHandle->EventType) != 0)
-         && (EventHandle->NotifyFunction != NULL)) {
-          EventHandle->NotifyFunction (
-                         EventQuery->Information,
-                         EventHandle->NotifyContext
-                         );
-        }
-
-        EventHandleEntry = GetNextNode (&mEventHandleList, EventHandleEntry);
-      }
-
-      if (((EventQuery->Information->EventType & APPLE_ALL_KEYBOARD_EVENTS) != 0)
-        && (EventQuery->Information->EventData.KeyData != NULL)) {
-        gBS->FreePool (
-               (VOID *)EventQuery->Information->EventData.KeyData
-               );
-      }
-
-      NextEventQueryEntry = GetNextNode (&mQueryList, &EventQuery->This);
-
-      RemoveEntryList (EventQueryEntry);
-      gBS->FreePool ((VOID *)EventQuery->Information);
-      gBS->FreePool ((VOID *)EventQuery);
-
-      EventQueryEntry = NextEventQueryEntry;
-    }
-
-    EventRemoveUnregisteredEvents ();
-    EfiReleaseLock (&mLock);
-  }
-}
-
-// EventCreateQueryEvent
-VOID
-EventCreateQueryEvent (
-  VOID
-  ) // sub_D01
-{
-  EFI_STATUS Status;
-
-  EfiInitializeLock (&mLock, EFI_TPL_NOTIFY);
-
-  Status = gBS->CreateEvent (
-                  EFI_EVENT_NOTIFY_SIGNAL,
-                  EFI_TPL_NOTIFY,
-                  QueryEventNotifyFunction,
-                  NULL,
-                  &mQueryEvent
-                  );
-
-  ASSERT_EFI_ERROR (Status);
-
-  if (!EFI_ERROR (Status)) {
-    mQueryEventCreated = TRUE;
-  }
-}
-
-// EventSignalAndCloseQueryEvent
-VOID
-EventSignalAndCloseQueryEvent (
-  VOID
-  ) // sub_E54
-{
-  ASSERT (mQueryEventCreated);
-  ASSERT (mQueryEvent != NULL);
-
-  gBS->SignalEvent (mQueryEvent);
-
-  if (mQueryEventCreated && (mQueryEvent != NULL)) {
-    gBS->CloseEvent (mQueryEvent);
-  }
 }
 
 // EventAddEventQuery

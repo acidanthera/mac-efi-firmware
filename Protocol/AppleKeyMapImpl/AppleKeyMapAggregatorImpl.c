@@ -180,7 +180,12 @@ KeyMapContainsKeyStrokes (
   ASSERT (Keys != NULL);
 
   DbNumberOfKeys = ARRAY_LENGTH (DbKeys);
-  Status   = This->GetKeyStrokes (This, &DbModifiers, &DbNumberOfKeys, DbKeys);
+  Status         = This->GetKeyStrokes (
+                           This,
+                           &DbModifiers,
+                           &DbNumberOfKeys,
+                           DbKeys
+                           );
 
   if (!EFI_ERROR (Status)) {
     if (ExactMatch) {

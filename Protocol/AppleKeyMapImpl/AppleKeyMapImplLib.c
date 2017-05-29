@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -51,9 +51,9 @@ KeyMapMinSort (
   IN     UINTN   NumberOfChilds
   ) // sub_72C
 {
-  UINTN  NoRemainingChilds;
+  UINTN  TotalNumberOfRemainingChilds;
   UINTN  Index;
-  UINTN  NoRemainingChilds2;
+  UINTN  NumberOfRemainingChilds;
   UINT16 *OperandPtr;
   UINT16 FirstChild;
 
@@ -62,12 +62,15 @@ KeyMapMinSort (
 
   if (Operand != NULL) {
     ++Operand;
-    NoRemainingChilds = (NumberOfChilds - 1);
-    Index             = 1;
+
+    TotalNumberOfRemainingChilds = (NumberOfChilds - 1);
+
+    Index = 1;
 
     do {
-      NoRemainingChilds2 = NoRemainingChilds;
-      OperandPtr         = Operand;
+      NumberOfRemainingChilds = TotalNumberOfRemainingChilds;
+
+      OperandPtr = Operand;
 
       if (Index < NumberOfChilds) {
         do {
@@ -79,12 +82,12 @@ KeyMapMinSort (
           }
 
           ++OperandPtr;
-          --NoRemainingChilds2;
-        } while (NoRemainingChilds2 > 0);
+          --NumberOfRemainingChilds;
+        } while (NumberOfRemainingChilds > 0);
       }
 
       ++Index;
       ++Operand;
-    } while ((NoRemainingChilds--) > 0);
+    } while ((TotalNumberOfRemainingChilds--) > 0);
   }
 }

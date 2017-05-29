@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -17,7 +17,8 @@
 
 #include <Library/AppleDriverLib.h>
 
-#include "OSInfoImplInternal.h"
+// OS_INFO_VENDOR_NAME
+#define OS_INFO_VENDOR_NAME  "Apple Inc."
 
 // OSInfoOSName
 VOID
@@ -27,6 +28,7 @@ OSInfoOSName (
   )
 {
   ASSERT (OSName != NULL);
+  ASSERT (OSName[0] != '\0');
 
   return;
 }
@@ -41,6 +43,7 @@ OSInfoOSVendor (
   INTN Result;
 
   ASSERT (OSVendor != NULL);
+  ASSERT (OSVendor[0] != '\0');
 
   Result = EfiAsciiStrCmp (OSVendor, OS_INFO_VENDOR_NAME);
 

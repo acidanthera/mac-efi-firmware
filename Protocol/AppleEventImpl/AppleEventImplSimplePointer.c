@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -26,15 +26,13 @@
 #include <Library/AppleDriverLib.h>
 #include <Library/AppleEventLib.h>
 #include <Library/AppleKeyMapAggregatorLib.h>
-#ifdef CPU_IA32
-#include <Library/AppleMathLib.h>
-#endif // ifdef CPU_IA32
 
 #include "AppleEventImplInternal.h"
 
 // UI_SCALE_VARIABLE_NAME
 #define UI_SCALE_VARIABLE_NAME  L"UIScale"
 
+// POINTER_POLL_FREQUENCY
 #define POINTER_POLL_FREQUENCY  EFI_TIMER_PERIOD_MILLISECONDS (2)
 
 // MINIMAL_DOUBLE_CLICK_SPEED
@@ -45,16 +43,18 @@
 /// (EFI_TIMER_PERIOD_MILLISECONDS (148) / POINTER_POLL_FREQUENCY)
 #define MAXIMAL_CLICK_DURATION  74
 
+// MINIMAL_MOVEMENT
 #define MINIMAL_MOVEMENT  5
 
 // mSimplePointerInstallNotifyEvent
+GLOBAL_REMOVE_IF_UNREFERENCED
 EFI_EVENT mSimplePointerInstallNotifyEvent = NULL;
 
 // mSimplePointerInstallNotifyRegistration
 STATIC VOID *mSimplePointerInstallNotifyRegistration = NULL;
 
 // mSimplePointerInstances
-EFI_PROTOCOL_INSTANCE *mPointerProtocols = NULL;
+GLOBAL_REMOVE_IF_UNREFERENCED EFI_PROTOCOL_INSTANCE *mPointerProtocols = NULL;
 
 // mNoSimplePointerInstances
 STATIC UINTN mNumberOfPointerProtocols = 0;
@@ -101,9 +101,10 @@ STATIC BOOLEAN mScreenResolutionSet;
 // mScreenResolution
 STATIC DIMENSION mResolution;
 
-// AddProtocolInstance
+// InternalAddProtocolInstance
+STATIC
 VOID
-AddProtocolInstance (
+InternalAddProtocolInstance (
   IN EFI_HANDLE  Handle,
   IN VOID        *Interface
   )
@@ -141,9 +142,10 @@ AddProtocolInstance (
   }
 }
 
-// RemoveUninstalledInstances
+// InternalRemoveUninstalledInstances
+STATIC
 VOID
-RemoveUninstalledInstances (
+InternalRemoveUninstalledInstances (
   IN OUT EFI_PROTOCOL_INSTANCE  **Instances,
   IN     UINTN                  *NumberOfInstances,
   IN     EFI_GUID               *Protocol
@@ -241,10 +243,11 @@ RemoveUninstalledInstances (
   }
 }
 
-// SimplePointerInstallNotifyFunction
+// InternalSimplePointerInstallNotifyFunction
+STATIC
 VOID
 EFIAPI
-SimplePointerInstallNotifyFunction (
+InternalSimplePointerInstallNotifyFunction (
   IN EFI_EVENT  Event,
   IN VOID       *Context
   ) // sub_A76
@@ -289,7 +292,7 @@ SimplePointerInstallNotifyFunction (
         ASSERT_EFI_ERROR (Status);
 
         if (!EFI_ERROR (Status)) {
-          AddProtocolInstance (Buffer[Index], (VOID *)SimplePointer);
+          InternalAddProtocolInstance (Buffer[Index], (VOID *)SimplePointer);
         }
 
         ++Index;
@@ -311,7 +314,7 @@ EventCreateSimplePointerInstallNotifyEvent (
   Status = gBS->CreateEvent (
                   EFI_EVENT_NOTIFY_SIGNAL,
                   EFI_TPL_NOTIFY,
-                  SimplePointerInstallNotifyFunction,
+                  InternalSimplePointerInstallNotifyFunction,
                   NULL,
                   &mSimplePointerInstallNotifyEvent
                   );
@@ -328,7 +331,7 @@ EventCreateSimplePointerInstallNotifyEvent (
 
       mSimplePointerInstallNotifyEvent = NULL;
     } else {
-      SimplePointerInstallNotifyFunction (NULL, NULL);
+      InternalSimplePointerInstallNotifyFunction (NULL, NULL);
     }
   }
 
@@ -337,9 +340,10 @@ EventCreateSimplePointerInstallNotifyEvent (
   return Status;
 }
 
-// GetScreenResolution
+// InternalGetScreenResolution
+STATIC
 EFI_STATUS
-GetScreenResolution (
+InternalGetScreenResolution (
   VOID
   )
 {
@@ -373,9 +377,10 @@ GetScreenResolution (
   return Status;
 }
 
-// GetUiScaleData
+// InternalGetUiScaleData
+STATIC
 INT64
-GetUiScaleData (
+InternalGetUiScaleData (
   IN INT64  Movement
   ) // sub_1FC0
 {
@@ -406,9 +411,10 @@ GetUiScaleData (
                    ));
 }
 
-// CreatePointerEventQueryInformation
+// InternalCreatePointerEventQueryInformation
+STATIC
 APPLE_EVENT_QUERY_INFORMATION *
-CreatePointerEventQueryInformation (
+InternalCreatePointerEventQueryInformation (
   IN APPLE_EVENT_TYPE    EventType,
   IN APPLE_MODIFIER_MAP  Modifiers
   ) // sub_1F96
@@ -438,9 +444,10 @@ CreatePointerEventQueryInformation (
            );
 }
 
-// HandleButtonInteraction
+// InternalHandleButtonInteraction
+STATIC
 VOID
-HandleButtonInteraction (
+InternalHandleButtonInteraction (
   IN     EFI_STATUS                  PointerStatus,
   IN OUT POINTER_BUTTON_INFORMATION  *Pointer,
   IN     APPLE_MODIFIER_MAP          Modifiers
@@ -460,7 +467,7 @@ HandleButtonInteraction (
         Pointer->NumberOfStrokes  = 0;
         Pointer->PreviousPosition = mCursorPosition;
 
-        Information = CreatePointerEventQueryInformation (
+        Information = InternalCreatePointerEventQueryInformation (
                         (APPLE_EVENT_TYPE)(
                           Pointer->Button | APPLE_EVENT_TYPE_MOUSE_DOWN
                           ),
@@ -472,7 +479,7 @@ HandleButtonInteraction (
         }
       }
     } else if (!Pointer->CurrentButton) {
-      Information = CreatePointerEventQueryInformation (
+      Information = InternalCreatePointerEventQueryInformation (
                       (APPLE_EVENT_TYPE)(
                         Pointer->Button | APPLE_EVENT_TYPE_MOUSE_UP
                         ),
@@ -524,7 +531,7 @@ HandleButtonInteraction (
             }
           }
 
-          Information = CreatePointerEventQueryInformation (
+          Information = InternalCreatePointerEventQueryInformation (
                           ((UINT32)Pointer->Button | EventType),
                           Modifiers
                           );
@@ -556,10 +563,11 @@ HandleButtonInteraction (
   ++Pointer->Polls;
 }
 
-// SimplePointerPollNotifyFunction
+// InternalSimplePointerPollNotifyFunction
+STATIC
 VOID
 EFIAPI
-SimplePointerPollNotifyFunction (
+InternalSimplePointerPollNotifyFunction (
   IN EFI_EVENT  Event,
   IN VOID       *Context
   ) // sub_1A9B
@@ -581,9 +589,9 @@ SimplePointerPollNotifyFunction (
 
   ASSERT (Event != NULL);
 
-  Modifiers = GetModifierStrokes ();
+  Modifiers = KeyMapAggrLibGetModifierStrokes ();
 
-  RemoveUninstalledInstances (
+  InternalRemoveUninstalledInstances (
     &mPointerProtocols,
     &mNumberOfPointerProtocols,
     &gEfiSimplePointerProtocolGuid
@@ -598,8 +606,8 @@ SimplePointerPollNotifyFunction (
       Status        = SimplePointer->GetState (SimplePointer, &State);
 
       if (!EFI_ERROR (Status)) {
-        UiScaleX = GetUiScaleData ((INT64)State.RelativeMovementX);
-        UiScaleY = GetUiScaleData ((INT64)State.RelativeMovementY);
+        UiScaleX = InternalGetUiScaleData ((INT64)State.RelativeMovementX);
+        UiScaleY = InternalGetUiScaleData ((INT64)State.RelativeMovementY);
 
         MovementY = DIV_S64_X64 (
                       UiScaleY,
@@ -673,12 +681,12 @@ SimplePointerPollNotifyFunction (
       ++Instance;
     } while (Index < mNumberOfPointerProtocols);
 
-    HandleButtonInteraction (Status, &mLeftButtonInfo, Modifiers);
-    HandleButtonInteraction (Status, &mRightButtonInfo, Modifiers);
+    InternalHandleButtonInteraction (Status, &mLeftButtonInfo, Modifiers);
+    InternalHandleButtonInteraction (Status, &mRightButtonInfo, Modifiers);
 
     if (EFI_ERROR (Status)) {
       if (Status == EFI_UNSUPPORTED) {
-        CancelEvent (mSimplePointerPollEvent);
+        EventLibCancelEvent (mSimplePointerPollEvent);
 
         mSimplePointerPollEvent = NULL;
       }
@@ -723,7 +731,7 @@ EventCreateSimplePointerPollEvent (
          (VOID *)&mUiScale
          );
 
-  RemoveUninstalledInstances (
+  InternalRemoveUninstalledInstances (
     &mPointerProtocols,
     &mNumberOfPointerProtocols,
     &gEfiSimplePointerProtocolGuid
@@ -743,11 +751,11 @@ EventCreateSimplePointerPollEvent (
     } while (Index < mNumberOfPointerProtocols);
   }
 
-  GetScreenResolution ();
+  InternalGetScreenResolution ();
   EfiZeroMem (&mCursorPosition, sizeof (mCursorPosition));
 
-  mSimplePointerPollEvent = CreateNotifyTimerEvent (
-                              SimplePointerPollNotifyFunction,
+  mSimplePointerPollEvent = EventLibCreateNotifyTimerEvent (
+                              InternalSimplePointerPollNotifyFunction,
                               NULL,
                               EFI_TIMER_PERIOD_MILLISECONDS (2),
                               TRUE
@@ -776,12 +784,12 @@ EventCancelSimplePointerPollEvent (
   VOID
   ) // sub_1CE4
 {
-  CancelEvent (mSimplePointerPollEvent);
+  EventLibCancelEvent (mSimplePointerPollEvent);
 }
 
-// EventInternalSetCursorPosition 
+// EventSetCursorPositionImpl 
 EFI_STATUS
-EventInternalSetCursorPosition (
+EventSetCursorPositionImpl (
   IN DIMENSION  *Position
   ) // sub_1D09
 {
@@ -792,7 +800,7 @@ EventInternalSetCursorPosition (
        && (Position->Vertical < mResolution.Vertical));
 
   if (!mScreenResolutionSet) {
-    Status = GetScreenResolution ();
+    Status = InternalGetScreenResolution ();
 
     if (EFI_ERROR (Status)) {
       Status = EFI_NOT_READY;

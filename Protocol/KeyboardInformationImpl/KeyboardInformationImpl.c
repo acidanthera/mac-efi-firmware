@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -16,13 +16,13 @@
 #include APPLE_PROTOCOL_PRODUCER (KeyboardInformationImpl)
 
 // gKeyboardInfoIdVendor
-UINT16 gKbInfoIdVendor = 0;
+GLOBAL_REMOVE_IF_UNREFERENCED UINT16 gKbInfoIdVendor = 0;
 
-// gKeyboardInfoCountryCode
-UINT8 gKeyboardInfoCountryCode = 0;
+// gKbInfoCountryCode
+GLOBAL_REMOVE_IF_UNREFERENCED UINT8 gKbInfoCountryCode = 0;
 
 // gKeyboardInfoIdProduct
-UINT16 gKbInfoIdProduct = 0;
+GLOBAL_REMOVE_IF_UNREFERENCED UINT16 gKbInfoIdProduct = 0;
 
 // KbInfoGetInfo
 EFI_STATUS
@@ -35,11 +35,11 @@ KbInfoGetInfo (
 {
   ASSERT (IdVendor != NULL);
   ASSERT (IdProduct != NULL);
-  ASSERT (CountryCode);
+  ASSERT (CountryCode != NULL);
 
   *IdVendor    = gKbInfoIdVendor;
   *IdProduct   = gKbInfoIdProduct;
-  *CountryCode = gKeyboardInfoCountryCode;
+  *CountryCode = gKbInfoCountryCode;
 
   return EFI_SUCCESS;
 }

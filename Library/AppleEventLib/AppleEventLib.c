@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -16,9 +16,9 @@
 
 #include <Library/AppleDriverLib.h>
 
-// CreateTimerEvent
+// EventLibCreateTimerEvent
 EFI_EVENT
-CreateTimerEvent (
+EventLibCreateTimerEvent (
   IN EFI_EVENT_NOTIFY  NotifyFunction,
   IN VOID              *NotifyContext,
   IN UINT64            TriggerTime,
@@ -67,16 +67,16 @@ CreateTimerEvent (
   return Event;
 }
 
-// CreateNotifyTimerEvent 
+// EventLibCreateNotifyTimerEvent 
 EFI_EVENT
-CreateNotifyTimerEvent (
+EventLibCreateNotifyTimerEvent (
   IN EFI_EVENT_NOTIFY  NotifyFunction,
   IN VOID              *NotifyContext,
   IN UINT64            TriggerTime,
   IN BOOLEAN           SignalPeriodic
   )
 {
-  return CreateTimerEvent (
+  return EventLibCreateTimerEvent (
            NotifyFunction,
            NotifyContext,
            TriggerTime,
@@ -85,9 +85,9 @@ CreateNotifyTimerEvent (
            );
 }
 
-// CancelEvent 
+// EventLibCancelEvent 
 VOID
-CancelEvent (
+EventLibCancelEvent (
   IN EFI_EVENT  Event
   ) // sub_309
 {

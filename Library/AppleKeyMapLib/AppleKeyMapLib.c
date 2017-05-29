@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -114,9 +114,9 @@ GLOBAL_REMOVE_IF_UNREFERENCED APPLE_KEY_DESCRIPTOR gAppleKeyMap[] = {
   { AppleHidUsbKbUsageKeyPadEquals,      { AppleScanKeypadEquals,   L'='                 }, { AppleScanKeypadEquals,   L'=' } }
 };
 
-// InputKeyFromAppleKey
+// KeyMapLibInputKeyFromAppleKey
 VOID
-InputKeyFromAppleKey (
+KeyMapLibInputKeyFromAppleKey (
   IN  APPLE_KEY     AppleKey,
   OUT EFI_INPUT_KEY *InputKey,
   IN  BOOLEAN       Shifted
@@ -132,6 +132,7 @@ InputKeyFromAppleKey (
   for (Index = 0; Index < ARRAY_LENGTH (gAppleKeyMap); ++Index) {
     if (Key->AppleKey == AppleKey) {
       *InputKey = (Shifted ? Key->ShiftedInputKey : Key->InputKey);
+
       return;
     }
 

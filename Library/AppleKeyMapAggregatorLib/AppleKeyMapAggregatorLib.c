@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -24,9 +24,9 @@
 GLOBAL_REMOVE_IF_UNREFERENCED
 APPLE_KEY_MAP_AGGREGATOR_PROTOCOL *mAppleKeyMapAggregator = NULL;
 
-// GetAppleKeyStrokes
+// KeyMapAggrLibGetAppleKeyStrokes
 EFI_STATUS
-GetAppleKeyStrokes (
+KeyMapAggrLibGetAppleKeyStrokes (
   OUT APPLE_MODIFIER_MAP  *Modifiers,
   OUT UINTN               *NumberOfKeys,
   OUT APPLE_KEY           **Keys
@@ -88,9 +88,9 @@ GetAppleKeyStrokes (
   return Status;
 }
 
-// GetModifierStrokes
+// KeyMapAggrLibGetModifierStrokes
 APPLE_MODIFIER_MAP
-GetModifierStrokes (
+KeyMapAggrLibGetModifierStrokes (
   VOID
   ) // sub_FDA
 {
@@ -100,7 +100,7 @@ GetModifierStrokes (
   UINTN              NumberOfKeys;
   APPLE_KEY          *Keys;
 
-  Status = GetAppleKeyStrokes (&Modifiers, &NumberOfKeys, &Keys);
+  Status = KeyMapAggrLibGetAppleKeyStrokes (&Modifiers, &NumberOfKeys, &Keys);
 
   if (!EFI_ERROR (Status)) {
     if (Keys != NULL) {

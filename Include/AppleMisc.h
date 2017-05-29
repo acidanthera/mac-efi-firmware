@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -33,6 +33,8 @@
   #define SHR_U64(Operand, Count)  \
     ((Operand) >> (Count))
 #else
+  #include <Library/AppleMathLib.h>
+
   #define MULT_U64_X32(Multiplicand, Multiplier)  \
     MultU64x32 ((Multiplicand), (Multiplier))
 

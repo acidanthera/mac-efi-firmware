@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -14,15 +14,31 @@
 #include <AppleEfi.h>
 #include <EfiImageFormat.h>
 
+#include APPLE_PROTOCOL_PRODUCER (ApplePlatformInfoDatabaseImpl)
+
 #include <Library/AppleDriverLib.h>
 
-#include "ApplePlatformInfoDatabaseImplInternal.h"
+// EFI_APPLE_SECTION_IDENTIFIER
+typedef PACKED struct {
+  EFI_RAW_SECTION Hdr;    ///< 
+  UINT32          Ukn_4;  ///< 
+} EFI_APPLE_SECTION_IDENTIFIER;
+
+// EFI_APPLE_SECTION
+typedef PACKED struct {
+  EFI_APPLE_SECTION_IDENTIFIER Hdr;    ///< 
+  UINT64                       int_8;  ///< 
+  UINT32                       Size;   ///< 
+  UINT8                        Data;   ///< 
+} EFI_APPLE_SECTION;
+
+#pragma pack ()
 
 // mD20Data
-EFI_APPLE_SECTION_IDENTIFIER mD20Data = { { { { 0, 0, 0 }, 0 } }, 0 };
+STATIC EFI_APPLE_SECTION_IDENTIFIER mD20Data = { { { { 0, 0, 0 }, 0 } }, 0 };
 
 // mD30Data
-EFI_APPLE_SECTION_IDENTIFIER mD30Data = { { { { 0, 0, 0 }, 0 } }, 0 };
+STATIC EFI_APPLE_SECTION_IDENTIFIER mD30Data = { { { { 0, 0, 0 }, 0 } }, 0 };
 
 // PlatformInfoDbGetFirstDataSizeImpl
 EFI_STATUS

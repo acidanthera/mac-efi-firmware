@@ -22,7 +22,7 @@
   { 0xBD7B48F2, 0x15EE, 0x48F4,                           \
     { 0x8F, 0xCD, 0x0A, 0x9B, 0xF0, 0x2D, 0x4D, 0x92 } }  \
 
-EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
+STATIC EFI_GUID mUnknownProtocolGuid = UNKNOWN_PROTOCOL_GUID;
 //
 
 // mRegistration

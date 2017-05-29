@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -30,7 +30,7 @@
 #define KEY_STROKE_DELAY  5
 
 // mCLockOn
-BOOLEAN mCLockOn = FALSE;
+GLOBAL_REMOVE_IF_UNREFERENCED BOOLEAN mCLockOn = FALSE;
 
 // mKeyStrokePollEvent
 STATIC EFI_EVENT mKeyStrokePollEvent = NULL;
@@ -50,7 +50,7 @@ STATIC BOOLEAN mPreviouslyCLockOn = FALSE;
 // AppleKeyDescriptorFromScanCode
 STATIC
 EFI_STATUS
-AppleKeyEventDataFromInputKey (
+InternalAppleKeyEventDataFromInputKey (
   OUT APPLE_EVENT_DATA  *EventData,
   IN  APPLE_KEY         *AppleKey,
   IN  EFI_INPUT_KEY     *InputKey
@@ -91,10 +91,10 @@ AppleKeyEventDataFromInputKey (
   return Status;
 }
 
-// GetAndRemoveReleasedKeys
+// InternalGetAndRemoveReleasedKeys
 STATIC
 UINTN
-GetAndRemoveReleasedKeys (
+InternalGetAndRemoveReleasedKeys (
   IN  UINTN      *NumberOfKeys,
   IN  APPLE_KEY  *Keys,
   OUT APPLE_KEY  **ReleasedKeys
@@ -139,7 +139,8 @@ GetAndRemoveReleasedKeys (
     }
 
     if (*NumberOfKeys == Index) {
-      mPreviouslyCLockOn                       = FALSE;
+      mPreviouslyCLockOn = FALSE;
+
       ReleasedKeysBuffer[NumberOfReleasedKeys] = AppleHidUsbKbUsageKeyCLock;
       ++NumberOfReleasedKeys;
     }
@@ -158,7 +159,7 @@ GetAndRemoveReleasedKeys (
         (VOID *)*ReleasedKeys,
         (VOID *)&ReleasedKeysBuffer[0],
         ReleasedKeysSize
-      );
+        );
     } else {
       NumberOfReleasedKeys = 0;
     }
@@ -167,10 +168,10 @@ GetAndRemoveReleasedKeys (
   return NumberOfReleasedKeys;
 }
 
-// IsCLockOn
+// InternalIsCLockOn
 STATIC
 BOOLEAN
-IsCLockOn (
+InternalIsCLockOn (
   IN UINTN      *NumberOfKeys,
   IN APPLE_KEY  *Keys
   )
@@ -219,10 +220,10 @@ IsCLockOn (
   return CLockOn;
 }
 
-// GetCurrentStroke
+// InternalGetCurrentStroke
 STATIC
 KEY_STROKE_INFORMATION *
-GetCurrentStroke (
+InternalGetCurrentStroke (
   VOID
   )
 {
@@ -247,10 +248,10 @@ GetCurrentStroke (
   return KeyInfo;
 }
 
-// GetCurrentKeyStroke
+// InternalGetCurrentKeyStroke
 STATIC
 EFI_STATUS
-GetCurrentKeyStroke (
+InternalGetCurrentKeyStroke (
   IN     APPLE_MODIFIER_MAP  Modifiers,
   IN OUT UINTN               *NumberOfKeys,
   IN OUT APPLE_KEY           *Keys,
@@ -284,20 +285,18 @@ GetCurrentKeyStroke (
   ASSERT (Key != NULL);
 
   if (mModifiers != Modifiers) {
-    KeyInfo = mKeyStrokeInfo;
-
     for (Index = 0; Index < ARRAY_LENGTH (mKeyStrokeInfo); ++Index) {
       mKeyStrokeInfo[Index].CurrentStroke = FALSE;
     }
   }
 
-  NumberOfReleasedKeys = GetAndRemoveReleasedKeys (
+  NumberOfReleasedKeys = InternalGetAndRemoveReleasedKeys (
                            NumberOfKeys,
                            Keys,
                            &ReleasedKeys
                            );
 
-  CLockOn = IsCLockOn (NumberOfKeys, Keys);
+  CLockOn = InternalIsCLockOn (NumberOfKeys, Keys);
 
   AppleModifiers = Modifiers;
 
@@ -309,10 +308,10 @@ GetCurrentKeyStroke (
   ReleasedKeyWalker = ReleasedKeys;
 
   for (Index = 0; Index < NumberOfReleasedKeys; ++Index) {
-    InputKeyFromAppleKey (*ReleasedKeyWalker, &InputKey, ShiftPressed);
+    KeyMapLibInputKeyFromAppleKey (*ReleasedKeyWalker, &InputKey, ShiftPressed);
 
     AppleEventData.KeyData = NULL;
-    Status                 = AppleKeyEventDataFromInputKey (
+    Status                 = InternalAppleKeyEventDataFromInputKey (
                                &AppleEventData,
                                ReleasedKeyWalker,
                                &InputKey
@@ -389,7 +388,7 @@ GetCurrentKeyStroke (
     ++KeyInfo->NumberOfStrokes;
   }
 
-  KeyInfo = GetCurrentStroke ();
+  KeyInfo = InternalGetCurrentStroke ();
 
   Status = EFI_NOT_READY;
 
@@ -414,7 +413,7 @@ GetCurrentKeyStroke (
                       != ((mModifiers & APPLE_MODIFIERS_SHIFT) != 0)
                     );
 
-        InputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
+        KeyMapLibInputKeyFromAppleKey (KeyInfo->AppleKey, Key, Shifted);
       }
     } else {
       *NumberOfKeys = 0;
@@ -433,7 +432,7 @@ GetCurrentKeyStroke (
 // CreateAppleKeyDescriptorsFromKeyStrokes
 STATIC
 EFI_STATUS
-AppleEventDataFromCurrentKeyStroke (
+InternalAppleEventDataFromCurrentKeyStroke (
   IN OUT APPLE_EVENT_DATA    *EventData,
   IN OUT APPLE_MODIFIER_MAP  *Modifiers
   ) // sub_1119
@@ -463,7 +462,7 @@ AppleEventDataFromCurrentKeyStroke (
     AppleModifiers = 0;
     NumberOfKeys   = 0;
 
-    GetAppleKeyStrokes (&AppleModifiers, &NumberOfKeys, &Keys);
+    KeyMapAggrLibGetAppleKeyStrokes (&AppleModifiers, &NumberOfKeys, &Keys);
 
     Mode   = EfiConsoleControlScreenGraphics;
     Status = gBS->LocateProtocol (
@@ -487,7 +486,7 @@ AppleEventDataFromCurrentKeyStroke (
     }
 
     *Modifiers = AppleModifiers;
-    Status     = GetCurrentKeyStroke (
+    Status     = InternalGetCurrentKeyStroke (
                    AppleModifiers,
                    &NumberOfKeys,
                    Keys,
@@ -495,7 +494,7 @@ AppleEventDataFromCurrentKeyStroke (
                    );
 
     if (!EFI_ERROR (Status) && (NumberOfKeys > 0)) {
-      AppleKeyEventDataFromInputKey (EventData, Keys, &InputKey);
+      InternalAppleKeyEventDataFromInputKey (EventData, Keys, &InputKey);
     }
   }
 
@@ -506,11 +505,11 @@ AppleEventDataFromCurrentKeyStroke (
   return Status;
 }
 
-// KeyStrokePollNotifyFunction
+// InternalKeyStrokePollNotifyFunction
 STATIC
 VOID
 EFIAPI
-KeyStrokePollNotifyFunction (
+InternalKeyStrokePollNotifyFunction (
   IN EFI_EVENT  Event,
   IN VOID       *Context
   ) // sub_12CE
@@ -525,7 +524,7 @@ KeyStrokePollNotifyFunction (
 
   EventData.KeyData = NULL;
   Modifiers         = 0;
-  Status            = AppleEventDataFromCurrentKeyStroke (
+  Status            = InternalAppleEventDataFromCurrentKeyStroke (
                         &EventData,
                         &Modifiers
                         );
@@ -565,10 +564,10 @@ KeyStrokePollNotifyFunction (
   }
 }
 
-// InitializeKeyHandler
+// InternalInitializeKeyHandler
 STATIC
 VOID
-InitializeKeyHandler (
+InternalInitializeKeyHandler (
   VOID
   ) // sub_143C
 {
@@ -602,10 +601,10 @@ EventCreateKeyStrokePollEvent (
                   );
 
   if (!EFI_ERROR (Status)) {
-    InitializeKeyHandler ();
+    InternalInitializeKeyHandler ();
 
-    mKeyStrokePollEvent = CreateNotifyTimerEvent (
-                            KeyStrokePollNotifyFunction,
+    mKeyStrokePollEvent = EventLibCreateNotifyTimerEvent (
+                            InternalKeyStrokePollNotifyFunction,
                             NULL,
                             EFI_TIMER_PERIOD_MILLISECONDS (10),
                             TRUE
@@ -629,7 +628,7 @@ EventCancelKeyStrokePollEvent (
 {
   ASSERT (mKeyStrokePollEvent != NULL);
 
-  CancelEvent (mKeyStrokePollEvent);
+  EventLibCancelEvent (mKeyStrokePollEvent);
 
   mKeyStrokePollEvent = NULL;
 }

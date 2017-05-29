@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -22,9 +22,10 @@
 // mAppleDriverInitHobData
 STATIC VOID *mAppleDriverInitHobData = NULL;
 
-// SaveAppleDriverInitHobData 
+// InternalSaveAppleDriverInitHobData 
+STATIC
 VOID
-SaveAppleDriverInitHobData (
+InternalSaveAppleDriverInitHobData (
   IN VOID  *Data
   )
 {
@@ -67,7 +68,7 @@ AppleInitializeDriverLib (
         if (Match) {
           Table = GET_NEXT_HOB (TableIterator);
 
-          SaveAppleDriverInitHobData (
+          InternalSaveAppleDriverInitHobData (
             (VOID *)((UINTN)TableIterator.Raw + sizeof (*TableIterator.Guid))
             );
 

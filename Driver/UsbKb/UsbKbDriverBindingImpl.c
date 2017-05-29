@@ -119,7 +119,7 @@ UsbKbBindingStart (
   UINT8                           PollingInterval;
   UINT8                           PacketSize;
   BOOLEAN                         Found;
-  APPLE_KEY_MAP_DATABASE_PROTOCOL *AppleKeyMapDb;
+  APPLE_KEY_MAP_DATABASE_PROTOCOL *KeyMapDb;
   EFI_DEV_PATH_PTR                DevicePath;
   UINTN                           Length;
   EFI_GUID                        NameGuid;
@@ -149,7 +149,7 @@ UsbKbBindingStart (
     Status = gBS->LocateProtocol (
       &gAppleKeyMapDatabaseProtocolGuid,
       NULL,
-      (VOID **)&AppleKeyMapDb
+      (VOID **)&KeyMapDb
       );
 
     if (EFI_ERROR (Status)) {
@@ -209,12 +209,13 @@ UsbKbBindingStart (
           // Initialize UsbKbDev
 
           UsbKbDev->UsbIo    = UsbIo;
-          UsbKbDev->KeyMapDb = AppleKeyMapDb;
-          Status             = AppleKeyMapDb->CreateKeyStrokesBuffer (
-                                                AppleKeyMapDb,
-                                                6,
-                                                &UsbKbDev->KeyMapDbIndex
-                                                );
+          UsbKbDev->KeyMapDb = KeyMapDb;
+
+          Status = KeyMapDb->CreateKeyStrokesBuffer (
+                               KeyMapDb,
+                               6,
+                               &UsbKbDev->KeyMapDbIndex
+                               );
 
           if (EFI_ERROR (Status)) {
             gBS->FreePool ((VOID *)UsbKbDev);
@@ -368,7 +369,7 @@ UsbKbBindingStart (
                                      );
 
                           if (Status == EFI_SUCCESS) {
-                            gKeyboardInfoCountryCode = HidDescriptor.CountryCode;
+                            gKbInfoCountryCode = HidDescriptor.CountryCode;
                           }
 
                           gKbInfoIdVendor  = UsbKbDev->DeviceDescriptor.IdVendor;

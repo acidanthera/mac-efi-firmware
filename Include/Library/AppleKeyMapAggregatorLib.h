@@ -1,5 +1,5 @@
 /** @file
-  Copyright (C) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+  Copyright (C) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -16,17 +16,17 @@
 
 #include APPLE_PROTOCOL_CONSUMER (AppleKeyMapAggregator)
 
-// GetAppleKeyStrokes
+// KeyMapAggrLibGetAppleKeyStrokes
 EFI_STATUS
-GetAppleKeyStrokes (
+KeyMapAggrLibGetAppleKeyStrokes (
   OUT APPLE_MODIFIER_MAP  *Modifiers,
   OUT UINTN               *NumberOfKeys,
   OUT APPLE_KEY           **Keys
   );
 
-// GetModifierStrokes
+// KeyMapAggrLibGetModifierStrokes
 APPLE_MODIFIER_MAP
-GetModifierStrokes (
+KeyMapAggrLibGetModifierStrokes (
   VOID
   );
 
