@@ -18,8 +18,6 @@
 
 #include <Library/AppleDriverLib.h>
 
-#include <Driver/AppleSmc.h>
-
 // NEXT_SMC_ADDRESS
 #define NEXT_SMC_ADDRESS(Address)                         \
   ((((Address) & 0xFF0000) | (((Address) >> 16) >> 8))    \

@@ -19,8 +19,6 @@
 
 #include <Library/AppleDriverLib.h>
 
-#include <Driver/AppleBootPolicy.h>
-
 // mAppleBootPolicyProtocol
 /// The APPLE_BOOT_POLICY_PROTOCOL instance to get installed.
 STATIC APPLE_BOOT_POLICY_PROTOCOL mAppleBootPolicyProtocol = {

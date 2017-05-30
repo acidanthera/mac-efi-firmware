@@ -15,8 +15,6 @@
 
 #include APPLE_PROTOCOL_PRODUCER (AppleEventImpl)
 
-#include <Driver/AppleEvent.h>
-
 // AppleEventUnload
 EFI_STATUS
 EFIAPI

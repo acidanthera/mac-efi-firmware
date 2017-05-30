@@ -22,8 +22,6 @@
 #include <Library/AppleDriverLib.h>
 #include <EfiHobLib.h>
 
-#include <Driver/ApplePlatformInfoDatabaseDxe.h>
-
 // mApplePlatformInfoDatabaseDxe
 STATIC
 APPLE_PLATFORM_INFO_DATABASE_PROTOCOL mApplePlatformInfoDbProtocolTemplate = {

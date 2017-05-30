@@ -20,8 +20,6 @@
 
 #include <Library/AppleDriverLib.h>
 
-#include <Driver/AppleKeyMapAggregator.h>
-
 EFI_DRIVER_ENTRY_POINT (AppleKeyMapAggregatorMain);
 
 // AppleKeyMapAggregatorMain

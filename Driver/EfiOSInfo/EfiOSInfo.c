@@ -17,8 +17,6 @@
 
 #include <Library/AppleDriverLib.h>
 
-#include <Driver/EfiOSInfo.h>
-
 // mEfiOSInfo
 STATIC EFI_OS_INFO_PROTOCOL mOSInfoProtocol = {
   EFI_OS_INFO_PROTOCOL_REVISION,

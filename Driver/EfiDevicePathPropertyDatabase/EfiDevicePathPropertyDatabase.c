@@ -21,8 +21,6 @@
 
 #include <Library/AppleDriverLib.h>
 
-#include <Driver/EfiDevicePathPropertyDatabase.h>
-
 #define APPLE_PATH_PROPERTIES_VARIABLE_NAME    L"AAPL,PathProperties"
 #define APPLE_PATH_PROPERTY_VARIABLE_MAX_SIZE  768
 
