@@ -21,17 +21,17 @@
 
 // APPLE_KEY_DESCRIPTOR
 typedef struct {
-  APPLE_KEY     AppleKey;         ///< The Apple key identifier for the key.
-  EFI_INPUT_KEY InputKey;         ///< 
-  EFI_INPUT_KEY ShiftedInputKey;  ///< 
+  APPLE_KEY_CODE AppleKeyCode;     ///< The Apple key identifier for the key.
+  EFI_INPUT_KEY  InputKey;         ///< 
+  EFI_INPUT_KEY  ShiftedInputKey;  ///< 
 } APPLE_KEY_DESCRIPTOR;
 
-// KeyMapLibInputKeyFromAppleKey
+// KeyMapLibInputKeyFromAppleKeyCode
 VOID
-KeyMapLibInputKeyFromAppleKey (
-  IN  APPLE_KEY      AppleKey,
-  OUT EFI_INPUT_KEY  *InputKey,
-  IN  BOOLEAN        Shifted
+KeyMapLibInputKeyFromAppleKeyCode (
+  IN  APPLE_KEY_CODE  AppleKeyCode,
+  OUT EFI_INPUT_KEY   *InputKey,
+  IN  BOOLEAN         Shifted
   );
 
 // gAppleHidUsbKbKeyMap

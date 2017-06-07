@@ -83,9 +83,9 @@ extern BOOLEAN mCLockOn;
 
 // KEY_STROKE_INFORMATION
 typedef struct {
-  APPLE_KEY AppleKey;         ///< 
-  UINTN     NumberOfStrokes;  ///< 
-  BOOLEAN   CurrentStroke;    ///< 
+  APPLE_KEY_CODE AppleKeyCode;     ///< 
+  UINTN          NumberOfStrokes;  ///< 
+  BOOLEAN        CurrentStroke;    ///< 
 } KEY_STROKE_INFORMATION;
 
 // POINTER_BUTTON_INFORMATION

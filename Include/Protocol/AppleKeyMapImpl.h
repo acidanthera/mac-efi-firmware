@@ -50,7 +50,7 @@
 typedef struct {
   UINTN                             Signature;           ///< 
   UINTN                             NextKeyStrokeIndex;  ///< 
-  APPLE_KEY                         *KeyBuffer;          ///< 
+  APPLE_KEY_CODE                    *KeyCodeBuffer;      ///< 
   UINTN                             KeyBuffersSize;      ///< 
   EFI_LIST                          KeyStrokesInfoList;  ///< 
   APPLE_KEY_MAP_DATABASE_PROTOCOL   Database;            ///< 
@@ -99,13 +99,15 @@ KeyMapRemoveKeyStrokesBuffer (
   );
 
 // KeyMapSetKeyStrokeBufferKeys
-/** Sets the keys of a key set specified by its index to the given Keys Buffer.
+/** Sets the keys of a key set specified by its index to the given KeyCodes
+    Buffer.
 
-  @param[in] This          A pointer to the protocol instance.
-  @param[in] Index         The index of the key set to edit.
-  @param[in] Modifiers     The key modifiers manipulating the given keys.
-  @param[in] NumberOfKeys  The number of keys contained in Keys.
-  @param[in] Keys          An array of keys to add to the specified key set.
+  @param[in] This              A pointer to the protocol instance.
+  @param[in] Index             The index of the key set to edit.
+  @param[in] Modifiers         The key modifiers manipulating the given keys.
+  @param[in] NumberOfKeyCodes  The number of keys contained in KeyCodes.
+  @param[in] KeyCodes          An array of keys to add to the specified key
+                               set.
 
   @return                       Returned is the status of the operation.
   @retval EFI_SUCCESS           The given keys were set for the specified key
@@ -121,26 +123,28 @@ KeyMapSetKeyStrokeBufferKeys (
   IN APPLE_KEY_MAP_DATABASE_PROTOCOL  *This,
   IN UINTN                            Index,
   IN APPLE_MODIFIER_MAP               Modifiers,
-  IN UINTN                            NumberOfKeys,
-  IN APPLE_KEY                        *Keys
+  IN UINTN                            NumberOfKeyCodes,
+  IN APPLE_KEY_CODE                   *KeyCodes
   );
 
 // KeyMapGetKeyStrokes
 /** Returns all pressed keys and key modifiers into the appropiate buffers.
 
-  @param[in]  This          A pointer to the protocol instance.
-  @param[out] Modifiers     The modifiers manipulating the given keys.
-  @param[out] NumberOfKeys  On input the number of keys allocated.
-                            On output the number of keys returned into Keys.
-  @param[out] Keys          A Pointer to a caller-allocated the pressed keys
-                            get returned in.
+  @param[in]  This              A pointer to the protocol instance.
+  @param[out] Modifiers         The modifiers manipulating the given keys.
+  @param[out] NumberOfKeyCodes  On input the number of keys allocated.
+                                On output the number of keys returned into
+                                KeyCodes.
+  @param[out] KeyCodes          A Pointer to a caller-allocated the pressed
+                                keys get returned in.
 
-  @retval EFI_SUCCESS           The pressed keys have been returned into Keys.
+  @retval EFI_SUCCESS           The pressed keys have been returned into
+                                KeyCodes.
   @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds
                                 the size of the allocated Buffer.
                                 The required number of keys to allocate to
                                 complete the operation has been returned into
-                                NumberOfKeys.
+                                NumberOfKeyCodes.
   @retval other                 An error returned by a sub-operation.
 **/
 EFI_STATUS
@@ -148,21 +152,21 @@ EFIAPI
 KeyMapGetKeyStrokes (
   IN  APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   OUT APPLE_MODIFIER_MAP                 *Modifiers,
-  OUT UINTN                              *NumberOfKeys,
-  OUT APPLE_KEY                          *Keys OPTIONAL
+  OUT UINTN                              *NumberOfKeyCodes,
+  OUT APPLE_KEY_CODE                     *KeyCodes OPTIONAL
   );
 
 // KeyMapContainsKeyStrokes
 /** Returns whether or not a list of keys and their modifiers are part of the
     database of pressed keys.
 
-  @param[in]      This          A pointer to the protocol instance.
-  @param[in]      Modifiers     The modifiers manipulating the given keys.
-  @param[in]      NumberOfKeys  The number of keys present in Keys.
-  @param[in, out] Keys          The list of keys to check for.  The children
-                                may be sorted in the process.
-  @param[in]      ExactMatch    Specifies whether Modifiers and Keys should be
-                                exact matches or just contained.
+  @param[in]      This              A pointer to the protocol instance.
+  @param[in]      Modifiers         The modifiers manipulating the given keys.
+  @param[in]      NumberOfKeyCodes  The number of keys present in KeyCodes.
+  @param[in, out] KeyCodes          The list of keys to check for.  The
+                                    children may be sorted in the process.
+  @param[in]      ExactMatch        Specifies whether Modifiers and KeyCodes
+                                    should be exact matches or just contained.
 
   @return                Returns whether or not a list of keys and their
                          modifiers are part of the database of pressed keys.
@@ -174,8 +178,8 @@ EFIAPI
 KeyMapContainsKeyStrokes (
   IN     APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   IN     APPLE_MODIFIER_MAP                 Modifiers,
-  IN     UINTN                              NumberOfKeys,
-  IN OUT APPLE_KEY                          *Keys,
+  IN     UINTN                              NumberOfKeyCodes,
+  IN OUT APPLE_KEY_CODE                     *KeyCodes,
   IN     BOOLEAN                            ExactMatch
   );
 

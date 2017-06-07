@@ -114,12 +114,12 @@ GLOBAL_REMOVE_IF_UNREFERENCED APPLE_KEY_DESCRIPTOR gAppleKeyMap[] = {
   { AppleHidUsbKbUsageKeyPadEquals,      { AppleScanKeypadEquals,   L'='                 }, { AppleScanKeypadEquals,   L'=' } }
 };
 
-// KeyMapLibInputKeyFromAppleKey
+// KeyMapLibInputKeyFromAppleKeyCode
 VOID
-KeyMapLibInputKeyFromAppleKey (
-  IN  APPLE_KEY     AppleKey,
-  OUT EFI_INPUT_KEY *InputKey,
-  IN  BOOLEAN       Shifted
+KeyMapLibInputKeyFromAppleKeyCode (
+  IN  APPLE_KEY_CODE  AppleKeyCode,
+  OUT EFI_INPUT_KEY   *InputKey,
+  IN  BOOLEAN         Shifted
   ) // sub_18D2
 {
   UINTN                Index;
@@ -130,7 +130,7 @@ KeyMapLibInputKeyFromAppleKey (
   Key = &gAppleKeyMap[0];
 
   for (Index = 0; Index < ARRAY_LENGTH (gAppleKeyMap); ++Index) {
-    if (Key->AppleKey == AppleKey) {
+    if (Key->AppleKeyCode == AppleKeyCode) {
       *InputKey = (Shifted ? Key->ShiftedInputKey : Key->InputKey);
 
       return;

@@ -21,19 +21,21 @@
 // KeyMapGetKeyStrokesImpl
 /** Returns all pressed keys and key modifiers into the appropiate buffers.
 
-  @param[in]  This          A pointer to the protocol instance.
-  @param[out] Modifiers     The modifiers manipulating the given keys.
-  @param[out] NumberOfKeys  On input the number of keys allocated.
-                            On output the number of keys returned into Keys.
-  @param[out] Keys          A Pointer to a caller-allocated the pressed keys
-                            get returned in.
+  @param[in]  This              A pointer to the protocol instance.
+  @param[out] Modifiers         The modifiers manipulating the given keys.
+  @param[out] NumberOfKeyCodes  On input the number of keys allocated.
+                                On output the number of keys returned into
+                                KeyCodes.
+  @param[out] KeyCodes          A Pointer to a caller-allocated the pressed
+                                keys get returned in.
 
-  @retval EFI_SUCCESS           The pressed keys have been returned into Keys.
+  @retval EFI_SUCCESS           The pressed keys have been returned into
+                                KeyCodes.
   @retval EFI_BUFFER_TOO_SMALL  The memory required to return the value exceeds
                                 the size of the allocated Buffer.
                                 The required number of keys to allocate to
                                 complete the operation has been returned into
-                                NumberOfKeys.
+                                NumberOfKeyCodes.
   @retval other                 An error returned by a sub-operation.
 **/
 EFI_STATUS
@@ -41,8 +43,8 @@ EFIAPI
 KeyMapGetKeyStrokes (
   IN     APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   OUT    APPLE_MODIFIER_MAP                 *Modifiers,
-  OUT    UINTN                              *NumberOfKeys,
-  IN OUT APPLE_KEY                          *Keys OPTIONAL
+  OUT    UINTN                              *NumberOfKeyCodes,
+  IN OUT APPLE_KEY_CODE                     *KeyCodes OPTIONAL
   ) // sub_51B
 {
   EFI_STATUS               Status;
@@ -51,15 +53,15 @@ KeyMapGetKeyStrokes (
   APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
   APPLE_MODIFIER_MAP       DbModifiers;
   BOOLEAN                  Result;
-  UINTN                    DbNumberOfKeyStrokes;
+  UINTN                    DbNumberOfKeyCodestrokes;
   UINTN                    Index;
   UINTN                    Index2;
-  APPLE_KEY                Key;
+  APPLE_KEY_CODE                Key;
 
   ASSERT (This != NULL);
   ASSERT (Modifiers != NULL);
-  ASSERT (NumberOfKeys != NULL);
-  ASSERT ((((*NumberOfKeys > 0) ? 1 : 0) ^ ((Keys == NULL) ? 1 : 0)) != 0);
+  ASSERT (NumberOfKeyCodes != NULL);
+  ASSERT ((((*NumberOfKeyCodes > 0) ? 1 : 0) ^ ((KeyCodes == NULL) ? 1 : 0)) != 0);
 
   Aggregator     = APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_AGGREGATOR_THIS (This);
   KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (
@@ -67,34 +69,34 @@ KeyMapGetKeyStrokes (
                      );
 
   if (IsNull (&Aggregator->KeyStrokesInfoList, &KeyStrokesInfo->Hdr.This)) {
-    *NumberOfKeys        = 0;
-    DbNumberOfKeyStrokes = 0;
+    *NumberOfKeyCodes        = 0;
+    DbNumberOfKeyCodestrokes = 0;
     DbModifiers          = 0;
   } else {
     DbModifiers          = 0;
-    DbNumberOfKeyStrokes = 0;
+    DbNumberOfKeyCodestrokes = 0;
 
     do {
       DbModifiers |= KeyStrokesInfo->Hdr.Modifiers;
 
-      if (KeyStrokesInfo->Hdr.NumberOfKeys > 0) {
+      if (KeyStrokesInfo->Hdr.NumberOfKeyCodes > 0) {
         Index = 0;
 
         do {
-          Key = (&KeyStrokesInfo->Keys)[Index];
+          Key = (&KeyStrokesInfo->KeyCodes)[Index];
           ++Index;
 
-          for (Index2 = 0; Index2 < DbNumberOfKeyStrokes; ++Index2) {
-            if (Aggregator->KeyBuffer[Index2] == Key) {
+          for (Index2 = 0; Index2 < DbNumberOfKeyCodestrokes; ++Index2) {
+            if (Aggregator->KeyCodeBuffer[Index2] == Key) {
               break;
             }
           }
 
-          if (DbNumberOfKeyStrokes == Index2) {
-            Aggregator->KeyBuffer[DbNumberOfKeyStrokes] = Key;
-            ++DbNumberOfKeyStrokes;
+          if (DbNumberOfKeyCodestrokes == Index2) {
+            Aggregator->KeyCodeBuffer[DbNumberOfKeyCodestrokes] = Key;
+            ++DbNumberOfKeyCodestrokes;
           }
-        } while (Index < KeyStrokesInfo->Hdr.NumberOfKeys);
+        } while (Index < KeyStrokesInfo->Hdr.NumberOfKeyCodes);
       }
 
       KeyStrokesInfo = APPLE_KEY_STROKES_INFO_FROM_LIST_ENTRY (
@@ -110,8 +112,8 @@ KeyMapGetKeyStrokes (
                   );
     } while (Result);
 
-    Result        = (BOOLEAN)(DbNumberOfKeyStrokes > *NumberOfKeys);
-    *NumberOfKeys = DbNumberOfKeyStrokes;
+    Result        = (BOOLEAN)(DbNumberOfKeyCodestrokes > *NumberOfKeyCodes);
+    *NumberOfKeyCodes = DbNumberOfKeyCodestrokes;
 
     Status = EFI_BUFFER_TOO_SMALL;
 
@@ -121,15 +123,15 @@ KeyMapGetKeyStrokes (
   }
 
   *Modifiers    = DbModifiers;
-  *NumberOfKeys = DbNumberOfKeyStrokes;
+  *NumberOfKeyCodes = DbNumberOfKeyCodestrokes;
 
   Status = EFI_SUCCESS;
 
-  if (Keys != NULL) {
+  if (KeyCodes != NULL) {
     EfiCopyMem (
-      (VOID *)Keys,
-      (VOID *)Aggregator->KeyBuffer,
-      (DbNumberOfKeyStrokes * sizeof (*Keys))
+      (VOID *)KeyCodes,
+      (VOID *)Aggregator->KeyCodeBuffer,
+      (DbNumberOfKeyCodestrokes * sizeof (*KeyCodes))
       );
   }
 
@@ -145,10 +147,10 @@ Done:
 
   @param[in]      This          A pointer to the protocol instance.
   @param[in]      Modifiers     The modifiers manipulating the given keys.
-  @param[in]      NumberOfKeys  The number of keys present in Keys.
-  @param[in, out] Keys          The list of keys to check for.  The children
+  @param[in]      NumberOfKeyCodes  The number of keys present in KeyCodes.
+  @param[in, out] KeyCodes          The list of keys to check for.  The children
                                 may be sorted in the process.
-  @param[in]      ExactMatch    Specifies whether Modifiers and Keys should be
+  @param[in]      ExactMatch    Specifies whether Modifiers and KeyCodes should be
                                 exact matches or just contained.
 
   @return                Returns whether or not a list of keys and their
@@ -161,44 +163,45 @@ EFIAPI
 KeyMapContainsKeyStrokes (
   IN     APPLE_KEY_MAP_AGGREGATOR_PROTOCOL  *This,
   IN     APPLE_MODIFIER_MAP                 Modifiers,
-  IN     UINTN                              NumberOfKeys,
-  IN OUT APPLE_KEY                          *Keys,
+  IN     UINTN                              NumberOfKeyCodes,
+  IN OUT APPLE_KEY_CODE                          *KeyCodes,
   IN     BOOLEAN                            ExactMatch
   ) // sub_638
 {
   EFI_STATUS         Status;
 
-  UINTN              DbNumberOfKeys;
-  APPLE_KEY          DbKeys[8];
+  UINTN              DbNumberOfKeyCodes;
+  APPLE_KEY_CODE     DbKeyCodes[8];
   APPLE_MODIFIER_MAP DbModifiers;
   INTN               Result;
   UINTN              Index;
   UINTN              DbIndex;
 
   ASSERT (This != NULL);
-  ASSERT (NumberOfKeys > 0);
-  ASSERT (Keys != NULL);
+  ASSERT (NumberOfKeyCodes > 0);
+  ASSERT (KeyCodes != NULL);
 
-  DbNumberOfKeys = ARRAY_LENGTH (DbKeys);
-  Status         = This->GetKeyStrokes (
-                           This,
-                           &DbModifiers,
-                           &DbNumberOfKeys,
-                           DbKeys
-                           );
+  DbNumberOfKeyCodes = ARRAY_LENGTH (DbKeyCodes);
+  Status             = This->GetKeyStrokes (
+                               This,
+                               &DbModifiers,
+                               &DbNumberOfKeyCodes,
+                               DbKeyCodes
+                               );
 
   if (!EFI_ERROR (Status)) {
     if (ExactMatch) {
       Status = EFI_NOT_FOUND;
 
-      if ((DbModifiers == Modifiers) && (DbNumberOfKeys == NumberOfKeys)) {
-        KeyMapMinSort ((UINT16 *)Keys, NumberOfKeys);
-        KeyMapMinSort ((UINT16 *)DbKeys, DbNumberOfKeys);
+      if ((DbModifiers == Modifiers)
+       && (DbNumberOfKeyCodes == NumberOfKeyCodes)) {
+        KeyMapMinSort ((UINT16 *)KeyCodes, NumberOfKeyCodes);
+        KeyMapMinSort ((UINT16 *)DbKeyCodes, DbNumberOfKeyCodes);
 
         Result = EfiCompareMem (
-                   (VOID *)Keys,
-                   (VOID *)DbKeys,
-                   (NumberOfKeys * sizeof (*Keys))
+                   (VOID *)KeyCodes,
+                   (VOID *)DbKeyCodes,
+                   (NumberOfKeyCodes * sizeof (*KeyCodes))
                    );
 
         if (Result == 0) {
@@ -209,14 +212,14 @@ KeyMapContainsKeyStrokes (
       Status = EFI_NOT_FOUND;
 
       if ((DbModifiers & Modifiers) != 0) {
-        for (Index = 0; Index < NumberOfKeys; ++Index) {
-          for (DbIndex = 0; DbIndex < DbNumberOfKeys; ++DbIndex) {
-            if (Keys[Index] == DbKeys[DbIndex]) {
+        for (Index = 0; Index < NumberOfKeyCodes; ++Index) {
+          for (DbIndex = 0; DbIndex < DbNumberOfKeyCodes; ++DbIndex) {
+            if (KeyCodes[Index] == DbKeyCodes[DbIndex]) {
               break;
             }
           }
 
-          if (DbNumberOfKeys == DbIndex) {
+          if (DbNumberOfKeyCodes == DbIndex) {
             break;
           }
 

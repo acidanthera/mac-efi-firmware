@@ -34,14 +34,14 @@ typedef struct {
   EFI_LIST_ENTRY     This;           ///< 
   UINTN              Index;          ///< 
   UINTN              KeyBufferSize;  ///< 
-  UINTN              NumberOfKeys;         ///< 
+  UINTN              NumberOfKeyCodes;         ///< 
   APPLE_MODIFIER_MAP Modifiers;      ///<
 } APPLE_KEY_STROKES_INFO_HDR;
 
 // APPLE_KEY_STROKES_INFO
 typedef struct {
-  APPLE_KEY_STROKES_INFO_HDR Hdr;   ///< 
-  APPLE_KEY                  Keys;  ///< 
+  APPLE_KEY_STROKES_INFO_HDR Hdr;       ///< 
+  APPLE_KEY_CODE             KeyCodes;  ///< 
 } APPLE_KEY_STROKES_INFO;
 
 // KeyMapGetKeyStrokesByIndex
@@ -54,8 +54,8 @@ KeyMapGetKeyStrokesByIndex (
 // KeyMapMinSort
 VOID
 KeyMapMinSort (
-  IN OUT UINT16 *Operand,
-  IN     UINTN  NoChilds
+  IN OUT UINT16  *Operand,
+  IN     UINTN   NumberOfChilds
   );
 
 #endif // APPLE_KEY_MAP_IMPL_INTERNAL_H_

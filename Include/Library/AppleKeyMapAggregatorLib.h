@@ -20,8 +20,8 @@
 EFI_STATUS
 KeyMapAggrLibGetAppleKeyStrokes (
   OUT APPLE_MODIFIER_MAP  *Modifiers,
-  OUT UINTN               *NumberOfKeys,
-  OUT APPLE_KEY           **Keys
+  OUT UINTN               *NumberOfKeyCodes,
+  OUT APPLE_KEY_CODE      **KeyCodes
   );
 
 // KeyMapAggrLibGetModifierStrokes

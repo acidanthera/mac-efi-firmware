@@ -40,12 +40,12 @@ KeyMapCreateKeyStrokesBuffer (
   OUT UINTN                            *Index
   )
 {
-  EFI_STATUS               Status;
+  EFI_STATUS                       Status;
 
   APPLE_KEY_MAP_AGGREGATOR_PRIVATE *Aggregator;
-  UINTN                    BufferSize;
-  APPLE_KEY                *Memory;
-  APPLE_KEY_STROKES_INFO   *KeyStrokesInfo;
+  UINTN                            BufferSize;
+  APPLE_KEY_CODE                   *Memory;
+  APPLE_KEY_STROKES_INFO           *KeyStrokesInfo;
 
   ASSERT (This != NULL);
   ASSERT (KeyBufferSize > 0);
@@ -53,21 +53,21 @@ KeyMapCreateKeyStrokesBuffer (
 
   Aggregator = APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_DATABASE_THIS (This);
 
-  if (Aggregator->KeyBuffer != NULL) {
-    gBS->FreePool ((VOID *)Aggregator->KeyBuffer);
+  if (Aggregator->KeyCodeBuffer != NULL) {
+    gBS->FreePool ((VOID *)Aggregator->KeyCodeBuffer);
   }
 
   BufferSize                 = (Aggregator->KeyBuffersSize + KeyBufferSize);
   Aggregator->KeyBuffersSize = BufferSize;
   Memory                     = EfiLibAllocateZeroPool (BufferSize);
-  Aggregator->KeyBuffer      = Memory;
+  Aggregator->KeyCodeBuffer      = Memory;
 
   Status = EFI_OUT_OF_RESOURCES;
 
   if (Memory != NULL) {
     KeyStrokesInfo = EfiLibAllocateZeroPool (
                        sizeof (*KeyStrokesInfo)
-                         + (KeyBufferSize * sizeof (APPLE_KEY))
+                         + (KeyBufferSize * sizeof (APPLE_KEY_CODE))
                        );
 
     Status = EFI_OUT_OF_RESOURCES;
@@ -141,13 +141,15 @@ KeyMapRemoveKeyStrokesBuffer (
 }
 
 // KeyMapSetKeyStrokeBufferKeysImpl
-/** Sets the keys of a key set specified by its index to the given Keys Buffer.
+/** Sets the keys of a key set specified by its index to the given KeyCodes
+    Buffer.
 
-  @param[in] This          A pointer to the protocol instance.
-  @param[in] Index         The index of the key set to edit.
-  @param[in] Modifiers     The key modifiers manipulating the given keys.
-  @param[in] NumberOfKeys  The number of keys contained in Keys.
-  @param[in] Keys          An array of keys to add to the specified key set.
+  @param[in] This              A pointer to the protocol instance.
+  @param[in] Index             The index of the key set to edit.
+  @param[in] Modifiers         The key modifiers manipulating the given keys.
+  @param[in] NumberOfKeyCodes  The number of keys contained in KeyCodes.
+  @param[in] KeyCodes          An array of keys to add to the specified key
+                               set.
 
   @return                       Returned is the status of the operation.
   @retval EFI_SUCCESS           The given keys were set for the specified key
@@ -163,8 +165,8 @@ KeyMapSetKeyStrokeBufferKeys (
   IN APPLE_KEY_MAP_DATABASE_PROTOCOL  *This,
   IN UINTN                            Index,
   IN APPLE_MODIFIER_MAP               Modifiers,
-  IN UINTN                            NumberOfKeys,
-  IN APPLE_KEY                        *Keys
+  IN UINTN                            NumberOfKeyCodes,
+  IN APPLE_KEY_CODE                   *KeyCodes
   )
 {
   EFI_STATUS                       Status;
@@ -173,8 +175,8 @@ KeyMapSetKeyStrokeBufferKeys (
   APPLE_KEY_STROKES_INFO           *KeyStrokesInfo;
 
   ASSERT (This != NULL);
-  ASSERT (NumberOfKeys > 0);
-  ASSERT (Keys != NULL);
+  ASSERT (NumberOfKeyCodes > 0);
+  ASSERT (KeyCodes != NULL);
 
   Private        = APPLE_KEY_MAP_AGGREGATOR_PRIVATE_FROM_DATABASE_THIS (This);
   KeyStrokesInfo = KeyMapGetKeyStrokesByIndex (
@@ -187,13 +189,13 @@ KeyMapSetKeyStrokeBufferKeys (
   if (KeyStrokesInfo != NULL) {
     Status = EFI_OUT_OF_RESOURCES;
 
-    if (KeyStrokesInfo->Hdr.KeyBufferSize >= NumberOfKeys) {
-      KeyStrokesInfo->Hdr.NumberOfKeys = NumberOfKeys;
+    if (KeyStrokesInfo->Hdr.KeyBufferSize >= NumberOfKeyCodes) {
+      KeyStrokesInfo->Hdr.NumberOfKeyCodes = NumberOfKeyCodes;
       KeyStrokesInfo->Hdr.Modifiers    = Modifiers;
 
       EfiCopyMem (
-        (VOID *)&KeyStrokesInfo->Keys,
-        (VOID *)Keys, (NumberOfKeys * sizeof (*Keys))
+        (VOID *)&KeyStrokesInfo->KeyCodes,
+        (VOID *)KeyCodes, (NumberOfKeyCodes * sizeof (*KeyCodes))
         );
 
       Status = EFI_SUCCESS;
