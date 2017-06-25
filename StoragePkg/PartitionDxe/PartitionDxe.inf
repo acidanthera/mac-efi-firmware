@@ -1,0 +1,78 @@
+#/*++
+#
+# Copyright (c) 2004, Intel Corporation     
+# Portions Copyright (c) 2005 - 2017, Apple Inc.
+# All rights reserved. This program and the accompanying materials                          
+# are licensed and made available under the terms and conditions of the BSD License         
+# which accompanies this distribution.  The full text of the license may be found at        
+# http://opensource.org/licenses/bsd-license.php                                            
+#                                                                                           
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
+# 
+#  Module Name:
+#
+#    PartitionDxe.inf
+#
+#  Abstract:
+#
+#    Component description file for Partition module.
+#
+#--*/
+
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = PartitionDxe
+  FILE_GUID      = 43B93232-AFBE-11D4-BD0F-0080C73C8881
+  MODULE_TYPE    = UEFI_DRIVER
+  VERSION_STRING = 1.0
+  ENTRY_POINT    = PartitionEntryPoint
+
+[Sources]
+  ComponentName.c
+  Mbr.c
+  Mbr.h
+  Gpt.c
+  Apm.c
+  Apm.h
+  ElTorito.c
+  ElTorito.h
+  Partition.c
+  Partition.h
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EfiPkg/EfiPkg.dec
+
+
+[LibraryClasses]
+  DevicePathLib
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  UefiLib
+  BaseLib
+  UefiDriverEntryPoint
+  DebugLib
+
+
+[Guids]
+  gEfiPartTypeUnusedGuid                        ## SOMETIMES_CONSUMES ## GUID
+  ## SOMETIMES_CONSUMES ## GUID
+  ## SOMETIMES_CONSUMES ## GUID # Install protocol
+  gEfiPartTypeSystemPartGuid
+
+
+[Protocols]
+  ## BY_START
+  ## TO_START
+  gEfiBlockIoProtocolGuid
+  ## BY_START
+  ## TO_START
+  gEfiBlockIo2ProtocolGuid
+  ## BY_START
+  ## TO_START
+  gEfiDevicePathProtocolGuid
+  gEfiDiskIoProtocolGuid                        ## TO_START
+  gApplePartitionInfoProtocolGuid               ## SOMETIMES_PRODUCES

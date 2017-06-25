@@ -1,0 +1,51 @@
+## @file
+# Copyright (c) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
+#
+# This program and the accompanying materials have not been licensed.
+# Neither is its usage, its redistribution, in source or binary form,
+# licensed, nor implicitely or explicitely permitted, except when
+# required by applicable law.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND, either express or implied.
+#
+#  
+##
+
+[Defines]
+  BASE_NAME   = AppleSmcDxe
+  FILE_GUID   = DB8AF09A-34E3-4A7B-8225-8C5B0C059EB8
+  MODULE_TYPE = DXE_DRIVER
+  ENTRY_POINT = AppleSmcMain
+  INF_VERSION = 0x00010005
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EfiPkg/EfiPkg.dec
+
+[Guids]
+  gAppleSmcMmioAddressHobGuid  ## SOMETIMES_CONSUMES
+
+[Protocols]
+  gAppleSmcIoProtocolGuid  ## PRODUCES
+
+[LibraryClasses]
+  BaseMemoryLib
+  DebugLib
+  MemoryAllocationLib
+  HobLib
+  IoLib
+  TimerLib
+  UefiLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+
+[Sources]
+  SmcIo.c
+  SmcPmio.c
+  SmcMmio.c
+  VirtualSmc.c
+
+[Depex]
+  gEfiPcdProtocolGuid

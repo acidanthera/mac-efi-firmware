@@ -1,0 +1,260 @@
+/** @file
+  Copyright (c) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
+
+  This program and the accompanying materials have not been licensed.
+  Neither is its usage, its redistribution, in source or binary form,
+  licensed, nor implicitely or explicitely permitted, except when
+  required by applicable law.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied.
+**/
+
+#include <AppleMacEfi.h>
+
+#include <Library/BaseLib.h>
+#include <Library/BaseMemoryLib.h>
+#include <Library/DebugLib.h>
+#include <Library/MemoryAllocationLib.h>
+#include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiLib.h>
+#include <Library/UefiRuntimeServicesTableLib.h>
+
+#include "AppleEventInternal.h"
+
+// APPLE_EVENT_QUEUE_SIGNATURE
+#define APPLE_EVENT_QUEUE_SIGNATURE  SIGNATURE_32 ('A', 'E', 'v', 'Q')
+
+// APPLE_EVENT_QUEUE_FROM_LIST_ENTRY
+#define APPLE_EVENT_QUEUE_FROM_LIST_ENTRY(ListEntry) \
+  CR ((ListEntry), APPLE_EVENT_QUEUE, Link, APPLE_EVENT_QUEUE_SIGNATURE)
+
+// APPLE_EVENT_QUEUE
+typedef struct {
+  UINT32                  Signature;     ///< 
+  LIST_ENTRY              Link;          ///< 
+  APPLE_EVENT_INFORMATION *Information;  ///< 
+} APPLE_EVENT_QUEUE;
+
+// mQueueEvent
+STATIC EFI_EVENT mQueueEvent = NULL;
+
+// mQueueEventCreated
+STATIC BOOLEAN mQueueEventCreated = FALSE;
+
+// mEventQueueList
+STATIC LIST_ENTRY mQueue = INITIALIZE_LIST_HEAD_VARIABLE (mQueue);
+
+// mQueueLock
+STATIC EFI_LOCK mQueueLock = {
+  0,
+  0,
+  FALSE
+};
+
+// InternalSignalAndCloseQueueEvent
+VOID
+InternalSignalAndCloseQueueEvent (
+  VOID
+  )
+{
+  ASSERT (mQueueEventCreated);
+  ASSERT (mQueueEvent != NULL);
+
+  gBS->SignalEvent (mQueueEvent);
+
+  if (mQueueEventCreated && (mQueueEvent != NULL)) {
+    gBS->CloseEvent (mQueueEvent);
+  }
+}
+
+// InternalQueueEventNotifyFunction
+STATIC
+VOID
+EFIAPI
+InternalQueueEventNotifyFunction (
+  IN EFI_EVENT  Event,
+  IN VOID       *Context
+  )
+{
+  EFI_STATUS        Status;
+
+  LIST_ENTRY        *EventQueueEntry;
+  APPLE_EVENT_QUEUE *EventQueue;
+
+  ASSERT (Event != NULL);
+
+  if (mQueueEventCreated) {
+    do {
+      Status = EfiAcquireLockOrFail (&mQueueLock);
+
+      // BUG: Should use EFI_ERROR().
+    } while (Status != EFI_SUCCESS);
+
+    InternalFlagAllEventsReady ();
+
+    EventQueueEntry = GetFirstNode (&mQueue);
+
+    while (!IsNull (&mQueue, EventQueueEntry)) {
+      EventQueue = APPLE_EVENT_QUEUE_FROM_LIST_ENTRY (EventQueueEntry);
+
+      if (((EventQueue->Information->EventType & APPLE_ALL_KEYBOARD_EVENTS) != 0)
+       && (EventQueue->Information->EventData.KeyData != NULL)) {
+        FreePool (
+          (VOID *)EventQueue->Information->EventData.KeyData
+          );
+      }
+
+      EventQueueEntry = RemoveEntryList (EventQueueEntry);
+      FreePool ((VOID *)EventQueue->Information);
+      FreePool ((VOID *)EventQueue);
+    }
+
+    InternalRemoveUnregisteredEvents ();
+    EfiReleaseLock (&mQueueLock);
+  }
+}
+
+// InternalCreateQueueEvent
+VOID
+InternalCreateQueueEvent (
+  VOID
+  )
+{
+  EFI_STATUS Status;
+
+  EfiInitializeLock (&mQueueLock, TPL_NOTIFY);
+
+  Status = gBS->CreateEvent (
+                  EVT_NOTIFY_SIGNAL,
+                  TPL_NOTIFY,
+                  InternalQueueEventNotifyFunction,
+                  NULL,
+                  &mQueueEvent
+                  );
+
+  ASSERT_EFI_ERROR (Status);
+
+  if (!EFI_ERROR (Status)) {
+    mQueueEventCreated = TRUE;
+  }
+}
+
+
+// EventCreateAppleEventQueueInfo
+APPLE_EVENT_INFORMATION *
+EventCreateAppleEventQueueInfo (
+  IN APPLE_EVENT_DATA    EventData,
+  IN APPLE_EVENT_TYPE    EventType,
+  IN DIMENSION           *PointerPosition,
+  IN APPLE_MODIFIER_MAP  Modifiers
+  )
+{
+  APPLE_EVENT_INFORMATION *QueueInfo;
+
+  EFI_TIME                      CreationTime;
+
+  ASSERT (EventData.Raw != 0);
+  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
+
+  QueueInfo = AllocateZeroPool (sizeof (*QueueInfo));
+
+  if (QueueInfo != NULL) {
+    gRT->GetTime (&CreationTime, NULL);
+
+    QueueInfo->EventType           = EventType;
+    QueueInfo->EventData           = EventData;
+    QueueInfo->Modifiers           = Modifiers;
+    QueueInfo->CreationTime.Year   = CreationTime.Year;
+    QueueInfo->CreationTime.Month  = CreationTime.Month;
+    QueueInfo->CreationTime.Day    = CreationTime.Day;
+    QueueInfo->CreationTime.Hour   = CreationTime.Hour;
+    QueueInfo->CreationTime.Minute = CreationTime.Minute;
+    QueueInfo->CreationTime.Second = CreationTime.Second;
+    QueueInfo->CreationTime.Pad1   = CreationTime.Pad1;
+
+    if (PointerPosition != NULL) {
+      CopyMem (
+        (VOID *)&QueueInfo->PointerPosition,
+        (VOID *)PointerPosition,
+        sizeof (*PointerPosition)
+        );
+    }
+  }
+
+  ASSERT (QueueInfo != NULL);
+
+  return QueueInfo;
+}
+
+// EventAddEventToQueue
+VOID
+EventAddEventToQueue (
+  IN APPLE_EVENT_INFORMATION  *Information
+  )
+{
+  EFI_STATUS        Status;
+
+  APPLE_EVENT_QUEUE *EventQueue;
+
+  ASSERT (mQueueEventCreated);
+  ASSERT (mQueueEvent != NULL);
+
+  if (mQueueEventCreated) {
+    do {
+      Status = EfiAcquireLockOrFail (&mQueueLock);
+    } while (Status != EFI_SUCCESS);
+
+    EventQueue = AllocatePool (sizeof (*EventQueue));
+
+    if (EventQueue != NULL) {
+      EventQueue->Signature   = APPLE_EVENT_QUEUE_SIGNATURE;
+      EventQueue->Information = Information;
+
+      InsertTailList (&mQueue, &EventQueue->Link);
+    }
+
+    EfiReleaseLock (&mQueueLock);
+    gBS->SignalEvent (mQueueEvent);
+  }
+}
+
+// EventCreateEventQueue
+EFI_STATUS
+EventCreateEventQueue (
+  IN APPLE_EVENT_DATA    EventData,
+  IN APPLE_EVENT_TYPE    EventType,
+  IN APPLE_MODIFIER_MAP  Modifiers
+  )
+{
+  EFI_STATUS                    Status;
+
+  APPLE_EVENT_INFORMATION *Information;
+
+  ASSERT (EventData.Raw != 0);
+  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
+
+  Status = EFI_INVALID_PARAMETER;
+
+  if (EventData.Raw != 0) {
+    Information = EventCreateAppleEventQueueInfo (
+                    EventData,
+                    EventType,
+                    NULL,
+                    Modifiers
+                    );
+
+    Status = EFI_OUT_OF_RESOURCES;
+
+    if (Information != NULL) {
+      EventAddEventToQueue (Information);
+
+      Status = EFI_SUCCESS;
+    }
+  }
+
+  ASSERT_EFI_ERROR (Status);
+
+  return Status;
+}

@@ -1,0 +1,41 @@
+## @file
+# Copyright (c) 2005 - 2015, Apple Inc.  All rights reserved.<BR>
+#
+# This program and the accompanying materials have not been licensed.
+# Neither is its usage, its redistribution, in source or binary form,
+# licensed, nor implicitely or explicitely permitted, except when
+# required by applicable law.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND, either express or implied.
+#
+#  
+##
+
+[Defines]
+  BASE_NAME   = AppleKeyMapAggregatorDxe
+  FILE_GUID   = 1612CCDF-2549-466A-BF6F-D06DAAE60958
+  MODULE_TYPE = UEFI_DRIVER
+  ENTRY_POINT = AppleKeyMapAggregatorMain
+  INF_VERSION = 0x00010005
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EfiPkg/EfiPkg.dec
+  EfiMiscPkg/EfiMiscPkg.dec
+
+[Protocols]
+  gAppleKeyMapAggregatorProtocolGuid  ## PRODUCES
+  gAppleKeyMapDatabaseProtocolGuid    ## PRODUCES
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  MemoryAllocationLib
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+
+[Sources]
+  AppleKeyMapAggregator.c

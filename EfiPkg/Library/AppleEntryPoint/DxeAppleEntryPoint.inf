@@ -1,0 +1,37 @@
+## @file
+# Copyright (c) 2017, Apple Inc.  All rights reserved.<BR>
+#
+# This program and the accompanying materials have not been licensed.
+# Neither is its usage, its redistribution, in source or binary form,
+# licensed, nor implicitely or explicitely permitted, except when
+# required by applicable law.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND, either express or implied.
+#
+#
+##
+
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = DxeAppleEntryPoint
+  MODULE_TYPE    = UEFI_DRIVER
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS  = AppleEntryPoint|DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SAL_DRIVER UEFI_DRIVER SMM_CORE DXE_SMM_DRIVER UEFI_APPLICATION
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EfiPkg/EfiPkg.dec
+
+[Sources]
+  DxeAppleEntryPoint.c
+
+[Sources.IA32, Sources.X64]
+  Ia32X64/AppleEnableSseAvx.c
+  Ia32X64/EnableSseAvx.nasm
+  Ia32X64/StackVerification.c
+
+[Sources.ARM, Sources.AARCH64, Sources.IPF, Sources.EBC]
+  AppleEnableSseAvx.c
+  StackVerification.c

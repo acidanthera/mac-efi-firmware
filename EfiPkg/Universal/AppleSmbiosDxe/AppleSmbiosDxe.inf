@@ -1,0 +1,85 @@
+## @file
+# Copyright (c) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
+#
+# This program and the accompanying materials have not been licensed.
+# Neither is its usage, its redistribution, in source or binary form,
+# licensed, nor implicitely or explicitely permitted, except when
+# required by applicable law.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND, either express or implied.
+#
+#  
+##
+
+[Defines]
+  BASE_NAME   = AppleSmbios
+  FILE_GUID   = 92C6033D-A685-BB41-AA2F-6F6E2CD374A2
+  MODULE_TYPE = DXE_DRIVER
+  ENTRY_POINT = AppleSmbiosMain
+  INF_VERSION = 0x00010005
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EfiPkg/EfiPkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+
+[Guids]
+  gApplePlatformProducerNameGuid              ## SOMETIMES_CONSUMES
+  gAppleFsbFrequencyPlatformInfoGuid          ## SOMETIMES_CONSUMES
+  gAppleRomDataRecordGuid                     ## SOMETIMES_PRODUCES
+  gAppleRomProducerNameGuid                   ## SOMETIMES_PRODUCES
+  gAppleSystemSerialNumbrDataRecordGuid       ## SOMETIMES_PRODUCES
+  gAppleSystemIdDataRecordGuid                ## SOMETIMES_PRODUCES
+  gAppleMachinePersonalityDataRecordGuid      ## SOMETIMES_PRODUCES
+  gAppleFsbFrequencyDataRecordGuid            ## SOMETIMES_PRODUCES
+  gAppleModelDataRecordGuid                   ## SOMETIMES_PRODUCES
+  gAppleDevicePathsSupportedDataRecordGuid    ## SOMETIMES_PRODUCES
+  gAppleBoardIdDataRecordGuid                 ## SOMETIMES_PRODUCES
+  gAppleBoardRevisionDataRecordGuid           ## SOMETIMES_PRODUCES
+  gAppleStartupPowerEventsDataRecordGuid      ## SOMETIMES_PRODUCES
+  gAppleInitialTscDataRecordGuid              ## SOMETIMES_PRODUCES
+  gAppleCoprocessorVersionDataRecordGuid      ## SOMETIMES_PRODUCES
+  gAppleRomInfoGuid                           ## SOMETIMES_CONSUMES
+  gAppleVendorVariableGuid                    ## SOMETIMES_CONSUMES
+  gAppleFsbFrequencyPlatformInfoIndexHobGuid  ## SOMETIMES_CONSUMES
+
+[Protocols]
+  gAppleDiagAccessProtocolGuid            ## SOMETIMES_CONSUMES
+  gApplePlatformInfoDatabaseProtocolGuid  ## SOMETIMES_CONSUMES
+  gAppleSmcIoProtocolGuid                 ## SOMETIMES_CONSUMES
+
+[LibraryClasses]
+  AppleDataHubLib
+  AppleSmbiosLib
+  BaseLib
+  BaseMemoryLib
+  BiosIdLib
+  HobLib
+  MemoryAllocationLib
+  PrintLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiRuntimeServicesTableLib
+
+[Sources]
+  AppleSmbios.c
+  AppleSmbiosInternal.h
+
+[Sources.IA32, Sources.X64]
+  Ia32X64/InternalGetProcessorClass.c
+
+[Sources.ARM, Sources.AARCH64, Sources.IPF, Sources.EBC]
+  InternalGetProcessorClass.c
+
+[Depex]
+  gEfiDataHubProtocolGuid AND
+  gApplePlatformInfoDatabaseProtocolGuid AND
+  gEfiFirmwareVolumeProtocolGuid AND
+  gEfiVariableArchProtocolGuid AND
+  gAppleDiagAccessProtocolGuid AND
+  gAppleSmcIoProtocolGuid AND
+# TODO: 10562B2B-B6E0-43EC-95DE-EB411EDB64B0 AND
+  gEfiPcdProtocolGuid

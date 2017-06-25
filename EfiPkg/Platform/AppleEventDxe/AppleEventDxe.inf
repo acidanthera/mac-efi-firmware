@@ -1,0 +1,52 @@
+## @file
+# Copyright (c) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
+#
+# This program and the accompanying materials have not been licensed.
+# Neither is its usage, its redistribution, in source or binary form,
+# licensed, nor implicitely or explicitely permitted, except when
+# required by applicable law.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND, either express or implied.
+#
+#  
+##
+
+[Defines]
+  BASE_NAME   = AppleEventDxe
+  FILE_GUID   = 0650F140-439A-2D4F-9807-C92669339399
+  MODULE_TYPE = UEFI_DRIVER
+  ENTRY_POINT = AppleEventMain
+  INF_VERSION = 0x00010005
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EfiPkg/EfiPkg.dec
+  EfiMiscPkg/EfiMiscPkg.dec
+
+[Guids]
+  gAppleVendorVariableGuid
+
+[Protocols]
+  gAppleEventProtocolGuid  ## PRODUCES
+  gAppleKeyMapAggregatorProtocolGuid
+  gEfiConsoleControlProtocolGuid
+  gEfiSimplePointerProtocolGuid
+
+[LibraryClasses]
+  AppleEventLib
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiLib
+  UefiRuntimeServicesTableLib
+
+[Sources]
+  AppleEvent.c
+  EventQueue.c
+  KeyHandler.c
+  PointerHandler.c
+  AppleKeyMap.c
