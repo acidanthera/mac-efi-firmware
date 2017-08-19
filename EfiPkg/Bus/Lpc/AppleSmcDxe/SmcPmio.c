@@ -213,7 +213,7 @@ SmcIoSmcWriteData8 (
   }
 
   if ((SmcStatus & SMC_STATUS_BUSY) != 0) {
-    Data = IoRead8 (SmcDev->SmcIo.Address + SMC_PORT_OFFSET_DATA);
+    IoWrite8 ((SmcDev->SmcIo.Address + SMC_PORT_OFFSET_DATA), Data);
 
     Status = EFI_SUCCESS;
   } else {
