@@ -352,7 +352,7 @@ SmcIoSmcSmcInABadState (
 
   Status = SmcIoSmcTimeoutWaitingForBusyClear (SmcDev);
 
-  if (!EFI_ERROR (Status)) {
+  if (EFI_ERROR (Status)) {
     Status = SmcIoSmcWriteCommand (SmcDev, SmcCmdReadValue);
 
     if (!EFI_ERROR (Status)) {
