@@ -378,7 +378,7 @@ EFI_STATUS
 EFIAPI
 InternalSmcGetKeyFromIndex (
   IN  APPLE_SMC_IO_PROTOCOL  *This,
-  IN  SMC_INDEX              Index,
+  IN  SMC_KEY_INDEX          Index,
   OUT SMC_KEY                *Key
   )
 {
@@ -941,16 +941,16 @@ AppleSmcMain (
     InternalSmcUnknown5
   };
 
-  EFI_STATUS  Status;
+  EFI_STATUS       Status;
 
-  SMC_DEV     *SmcDev;
-  UINT8       NumberOfSmcDevices;
-  UINT8       Index;
-  SMC_INDEX   SmcIndex;
-  SMC_ADDRESS SmcAddress;
-  VOID        *SmcHob;
-  UINT16      Value;
-  SMC_DEV     *SmcDevChild;
+  SMC_DEV          *SmcDev;
+  UINT8            NumberOfSmcDevices;
+  UINT8            Index;
+  SMC_DEVICE_INDEX SmcIndex;
+  SMC_ADDRESS      SmcAddress;
+  VOID             *SmcHob;
+  UINT16           Value;
+  SMC_DEV          *SmcDevChild;
 
   SmcDev = AllocateZeroPool (sizeof (*SmcDev));
 

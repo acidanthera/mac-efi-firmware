@@ -449,9 +449,9 @@ SmcWriteValueMmio (
 // SmcGetKeyFromIndexMmio
 EFI_STATUS
 SmcGetKeyFromIndexMmio (
-  IN SMC_ADDRESS  BaseAddress,
-  IN SMC_INDEX    Index,
-  IN SMC_KEY      *Key
+  IN SMC_ADDRESS    BaseAddress,
+  IN SMC_KEY_INDEX  Index,
+  IN SMC_KEY        *Key
   )
 {
   EFI_STATUS Status;

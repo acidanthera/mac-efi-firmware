@@ -188,7 +188,7 @@ SmcIoVirtualSmcGetKeyCount (
 EFI_STATUS
 SmcIoVirtualSmcGetKeyFromIndex (
   IN  APPLE_SMC_IO_PROTOCOL  *This,
-  IN  SMC_INDEX              Index,
+  IN  SMC_KEY_INDEX          Index,
   OUT SMC_KEY                *Key
   )
 {
