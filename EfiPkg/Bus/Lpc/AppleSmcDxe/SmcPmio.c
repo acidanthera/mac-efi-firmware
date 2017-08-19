@@ -46,8 +46,8 @@ SmcIoSmcReadResult (
 // SmcIoSmcWriteCommand
 EFI_STATUS
 SmcIoSmcWriteCommand (
-  IN  SMC_DEV  *SmcDev,
-  OUT UINT32   Command
+  IN SMC_DEV      *SmcDev,
+  IN SMC_COMMAND  Command
   )
 {
   EFI_STATUS  Status;
@@ -71,7 +71,7 @@ SmcIoSmcWriteCommand (
     gBS->Stall (ITERATION_STALL);
   }
 
-  Command = IoRead8 (SmcDev->SmcIo.Address + SMC_PORT_OFFSET_COMMAND);
+  IoWrite8 ((SmcDev->SmcIo.Address + SMC_PORT_OFFSET_COMMAND), Command);
 
   Index = 20000;
 

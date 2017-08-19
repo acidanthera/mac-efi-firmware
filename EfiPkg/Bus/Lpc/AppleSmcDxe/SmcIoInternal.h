@@ -55,8 +55,8 @@ SmcIoSmcReadResult (
 // SmcIoSmcWriteCommand
 EFI_STATUS
 SmcIoSmcWriteCommand (
-  IN  SMC_DEV  *SmcDev,
-  OUT UINT32   Command
+  IN SMC_DEV      *SmcDev,
+  IN SMC_COMMAND  Command
   );
 
 // SmcIoSmcReadData8
