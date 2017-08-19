@@ -186,8 +186,6 @@ InternalAppleKeyEventDataFromInputKey (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -374,15 +372,6 @@ InternalGetCurrentKeyStroke (
   BOOLEAN                AcceptStroke;
   BOOLEAN                Shifted;
 
-  ASSERT (NumberOfKeyCodes != NULL);
-
-  if (NumberOfKeyCodes != NULL) {
-    ASSERT ((((*NumberOfKeyCodes > 0) ? 1 : 0)
-                ^ ((KeyCodes == NULL) ? 1 : 0)) != 0);
-  }
-
-  ASSERT (Key != NULL);
-
   if (mModifiers != Modifiers) {
     for (Index = 0; Index < ARRAY_SIZE (mKeyStrokeInfo); ++Index) {
       mKeyStrokeInfo[Index].CurrentStroke = FALSE;
@@ -525,10 +514,6 @@ InternalGetCurrentKeyStroke (
     Status = EFI_SUCCESS;
   }
 
-  if (Status != EFI_NOT_READY) {
-    ASSERT_EFI_ERROR (Status);
-  }
-
   return Status;
 }
 
@@ -549,10 +534,6 @@ InternalAppleEventDataFromCurrentKeyStroke (
   EFI_CONSOLE_CONTROL_PROTOCOL    *ConsoleControl;
   EFI_CONSOLE_CONTROL_SCREEN_MODE Mode;
   UINTN                           Index;
-
-  ASSERT (EventData != NULL);
-  ASSERT (Modifiers != NULL);
-  ASSERT (mKeyMapAggregator != NULL);
 
   ZeroMem (&InputKey, sizeof (InputKey));
 
@@ -604,10 +585,6 @@ InternalAppleEventDataFromCurrentKeyStroke (
     if (!EFI_ERROR (Status) && (NumberOfKeyCodes > 0)) {
       InternalAppleKeyEventDataFromInputKey (EventData, KeyCodes, &InputKey);
     }
-  }
-
-  if (Status != EFI_NOT_READY) {
-    ASSERT_EFI_ERROR (Status);
   }
 
   return Status;
@@ -677,8 +654,6 @@ InternalInitializeKeyHandler (
   VOID
   )
 {
-  ASSERT (!mInitialized);
-
   if (!mInitialized) {
     mInitialized = TRUE;
 
@@ -697,8 +672,6 @@ EventCreateKeyStrokePollEvent (
   )
 {
   EFI_STATUS Status;
-
-  ASSERT (mKeyStrokePollEvent == NULL);
 
   Status = gBS->LocateProtocol (
                   &gAppleKeyMapAggregatorProtocolGuid,
@@ -721,8 +694,6 @@ EventCreateKeyStrokePollEvent (
                : EFI_SUCCESS);
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -732,8 +703,6 @@ EventCancelKeyStrokePollEvent (
   VOID
   )
 {
-  ASSERT (mKeyStrokePollEvent != NULL);
-
   EventLibCancelEvent (mKeyStrokePollEvent);
 
   mKeyStrokePollEvent = NULL;
@@ -757,8 +726,6 @@ EventIsCapsLockOnImpl (
 {
   EFI_STATUS Status;
 
-  ASSERT (CLockOn != NULL);
-
   Status = EFI_INVALID_PARAMETER;
 
   if (CLockOn != NULL) {
@@ -766,8 +733,6 @@ EventIsCapsLockOnImpl (
 
     Status = EFI_SUCCESS;
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

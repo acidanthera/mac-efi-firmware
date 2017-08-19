@@ -821,17 +821,17 @@ AppleSmbiosMain (
     GetBiosVersionDateTime (&BiosVersion, &BiosReleaseDate);
     GetRomInfo (&RomInfo);
 
-    SmbiosTable.Hdr = SmbiosGetFirstHandle (
+    SmbiosTable.Standard.Hdr = SmbiosGetFirstHandle (
                         EFI_SMBIOS_TYPE_BIOS_INFORMATION,
                         &SmbiosHandle
                         );
 
-    if (SmbiosTable.Hdr != NULL) {
-      SmbiosTable.Type0->BiosSize = 0xFF;
+    if (SmbiosTable.Standard.Hdr != NULL) {
+      SmbiosTable.Standard.Type0->BiosSize = 0xFF;
 
       SmbiosUpdateString (
         &SmbiosHandle,
-        SmbiosTable.Type0->BiosVersion,
+        SmbiosTable.Standard.Type0->BiosVersion,
         BiosVersion
         );
 
@@ -839,20 +839,20 @@ AppleSmbiosMain (
 
       SmbiosUpdateString (
         &SmbiosHandle,
-        SmbiosTable.Type0->BiosReleaseDate,
+        SmbiosTable.Standard.Type0->BiosReleaseDate,
         BiosReleaseDate
         );
     }
 
-    SmbiosTable.Hdr = SmbiosGetFirstHandle (
+    SmbiosTable.Standard.Hdr = SmbiosGetFirstHandle (
                         EFI_SMBIOS_TYPE_SYSTEM_INFORMATION,
                         &SmbiosHandle
                         );
 
-    if (SmbiosTable.Hdr != NULL) {
+    if (SmbiosTable.Standard.Hdr != NULL) {
       SmbiosUpdateString (
         &SmbiosHandle,
-        SmbiosTable.Type1->ProductName,
+        SmbiosTable.Standard.Type1->ProductName,
         &ProductName[0]
         );
 
@@ -860,7 +860,7 @@ AppleSmbiosMain (
 
       SmbiosUpdateString (
         &SmbiosHandle,
-        SmbiosTable.Type1->Family,
+        SmbiosTable.Standard.Type1->Family,
         &Family[0]
         );
 
@@ -868,24 +868,24 @@ AppleSmbiosMain (
 
       SmbiosUpdateString (
         &SmbiosHandle,
-        SmbiosTable.Type1->SerialNumber,
+        SmbiosTable.Standard.Type1->SerialNumber,
         AsciiSerialNumber
         );
 
       SmbiosGetRecord (SmbiosHandle);
 
-      SmbiosTable.Type1->Uuid = SystemId;
+      SmbiosTable.Standard.Type1->Uuid = SystemId;
     }
 
-    SmbiosTable.Hdr = SmbiosGetFirstHandle (
+    SmbiosTable.Standard.Hdr = SmbiosGetFirstHandle (
                         EFI_SMBIOS_TYPE_SYSTEM_ENCLOSURE,
                         &ChassisSmbiosHandle
                         );
 
-    if (SmbiosTable.Hdr != NULL) {
+    if (SmbiosTable.Standard.Hdr != NULL) {
       SmbiosUpdateString (
         &ChassisSmbiosHandle,
-        SmbiosTable.Type3->SerialNumber,
+        SmbiosTable.Standard.Type3->SerialNumber,
         AsciiSerialNumber
         );
 
@@ -893,22 +893,22 @@ AppleSmbiosMain (
 
       SmbiosUpdateString (
         &ChassisSmbiosHandle,
-        SmbiosTable.Type3->Version,
+        SmbiosTable.Standard.Type3->Version,
         BoardId
         );
     }
 
-    SmbiosTable.Hdr = SmbiosGetFirstHandle (
+    SmbiosTable.Standard.Hdr = SmbiosGetFirstHandle (
                         EFI_SMBIOS_TYPE_BASEBOARD_INFORMATION,
                         &SmbiosHandle
                         );
 
-    if (SmbiosTable.Hdr != NULL) {
-      SmbiosTable.Type2->ChassisHandle = ChassisSmbiosHandle;
+    if (SmbiosTable.Standard.Hdr != NULL) {
+      SmbiosTable.Standard.Type2->ChassisHandle = ChassisSmbiosHandle;
 
       SmbiosUpdateString (
         &SmbiosHandle,
-        SmbiosTable.Type2->Version,
+        SmbiosTable.Standard.Type2->Version,
         &ProductName[0]
         );
 
@@ -916,24 +916,24 @@ AppleSmbiosMain (
 
       SmbiosUpdateString (
         &SmbiosHandle,
-        SmbiosTable.Type2->ProductName,
+        SmbiosTable.Standard.Type2->ProductName,
         BoardId
         );
 
       SmbiosUpdateString (
         &SmbiosHandle,
-        SmbiosTable.Type2->SerialNumber,
+        SmbiosTable.Standard.Type2->SerialNumber,
         BoardSerialNumber
         );
     }
 
     if (RomInfo != NULL) {
-      SmbiosTable.Hdr = SmbiosGetFirstHandle (
+      SmbiosTable.Standard.Hdr = SmbiosGetFirstHandle (
                           APPLE_SMBIOS_TYPE_FIRMWARE_INFORMATION,
                           &SmbiosHandle
                           );
 
-      if (SmbiosTable.Hdr != NULL) {
+      if (SmbiosTable.Standard.Hdr != NULL) {
         SmbiosUpdateString (
           &SmbiosHandle,
           1,
@@ -945,12 +945,12 @@ AppleSmbiosMain (
     InternalGetFirmwareInfo (&FirmwareInfo);
     SmbiosAdd (&FirmwareInfo.Hdr);
 
-    SmbiosTable.Hdr = SmbiosGetFirstHandle (
+    SmbiosTable.Standard.Hdr = SmbiosGetFirstHandle (
                         APPLE_SMBIOS_TYPE_PROCESSOR_TYPE,
                         &SmbiosHandle
                         );
 
-    if (SmbiosTable.Hdr != NULL) {
+    if (SmbiosTable.Standard.Hdr != NULL) {
       InternalGetProcessorClass (&SmbiosTable.Type131->ProcessorType[1]);
     }
 

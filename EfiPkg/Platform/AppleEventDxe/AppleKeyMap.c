@@ -348,7 +348,7 @@ STATIC APPLE_KEY_DESCRIPTOR mAppleKeyMap[] = {
     { SCAN_F12, CHAR_NULL },
     { SCAN_F12, CHAR_NULL }
   },
-  // BUG: UsbHidUsageIdKbKpKeyPrint, UsbHidUsageIdKbKpKeySLock, UsbHidUsageIdKbKpKeyPause missing.
+  // BUG: AppleHidUsbKbUsageKeyPrint, AppleHidUsbKbUsageKeySLock, AppleHidUsbKbUsageKeyPause missing.
   {
     AppleHidUsbKbUsageKeyIns,
     { SCAN_INSERT, CHAR_NULL },
@@ -497,8 +497,6 @@ EventInputKeyFromAppleKeyCode (
 {
   UINTN                Index;
   APPLE_KEY_DESCRIPTOR *Key;
-
-  ASSERT (InputKey != NULL);
 
   Key = &mAppleKeyMap[0];
 

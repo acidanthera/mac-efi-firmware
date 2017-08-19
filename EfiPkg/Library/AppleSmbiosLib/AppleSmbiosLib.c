@@ -13,6 +13,8 @@
 
 #include <AppleMacEfi.h>
 
+#include <IndustryStandard/SmBios.h>
+
 #include <Protocol/ApplePlatformInfoDatabase.h>
 #include <Protocol/Smbios.h>
 
@@ -48,12 +50,12 @@ InternalGetSmbiosProtocol (
 }
 
 // SmbiosGetRecord
-EFI_SMBIOS_TABLE_HEADER *
+SMBIOS_STRUCTURE *
 SmbiosGetRecord (
   IN EFI_SMBIOS_HANDLE  Handle
   )
 {
-  EFI_SMBIOS_TABLE_HEADER *Record;
+  SMBIOS_STRUCTURE        *Record;
 
   EFI_STATUS              Status;
   EFI_SMBIOS_HANDLE       SmbiosHandle;
@@ -79,7 +81,7 @@ SmbiosGetRecord (
                                   );
 
       if ((SmbiosHandle == Handle) && !EFI_ERROR (Status)) {
-        Record = RecordWalker;
+        Record = (SMBIOS_STRUCTURE *)RecordWalker;
 
         break;
       }
@@ -92,7 +94,7 @@ SmbiosGetRecord (
 // SmbiosAdd
 VOID
 SmbiosAdd (
-  IN EFI_SMBIOS_TABLE_HEADER  *Record
+  IN SMBIOS_STRUCTURE  *Record
   )
 {
   EFI_STATUS              Status;
@@ -103,6 +105,7 @@ SmbiosAdd (
   Status = InternalGetSmbiosProtocol ();
 
   if (!EFI_ERROR (Status)) {
+    // BUG: Use AllocatePool () and manually set the two zeros.
     SmbiosRecord = AllocateZeroPool (Record->Length + 2);
 
     if (SmbiosRecord != NULL) {
@@ -116,7 +119,7 @@ SmbiosAdd (
                                 SmbiosRecord
                                 );
 
-      ASSERT_EFI_ERROR (Status); // By Apple
+      ASSERT_EFI_ERROR (Status);
 
       FreePool ((VOID *)SmbiosRecord);
 
@@ -145,19 +148,19 @@ SmbiosUpdateString (
 }
 
 // SmbiosGetFirstHandle
-EFI_SMBIOS_TABLE_HEADER *
+SMBIOS_STRUCTURE *
 SmbiosGetFirstHandle (
   IN     EFI_SMBIOS_TYPE    Type,
   IN OUT EFI_SMBIOS_HANDLE  *Handle
   )
 {
-  EFI_SMBIOS_TABLE_HEADER *Record;
+  SMBIOS_STRUCTURE        *SmbiosRecord;
 
   EFI_STATUS              Status;
   EFI_HANDLE              ProducerHandle;
   EFI_SMBIOS_TABLE_HEADER *TempRecord;
 
-  Record = NULL;
+  SmbiosRecord = NULL;
 
   Status = InternalGetSmbiosProtocol ();
 
@@ -173,11 +176,11 @@ SmbiosGetFirstHandle (
                         );
 
     if (!EFI_ERROR (Status)) {
-      Record = TempRecord;
+      SmbiosRecord = (SMBIOS_STRUCTURE *)TempRecord;
     }
   }
 
-  return Record;
+  return SmbiosRecord;
 }
 
 // SmbiosInstallTables

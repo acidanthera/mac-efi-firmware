@@ -26,9 +26,6 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
 
-// EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION
-#define EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL_REVISION  0x010000
-
 #define DEVICE_PATH_PROPERTY_DATA_SIGNATURE  \
   SIGNATURE_32 ('D', 'p', 'p', 'P')
 
@@ -43,10 +40,10 @@
 
 // DEVICE_PATH_PROPERTY_DATABASE
 typedef struct {
-  UINTN                                      Signature;  ///< 
-  LIST_ENTRY                                 Nodes;      ///< 
-  EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL Protocol;   ///< 
-  BOOLEAN                                    Modified;   ///< 
+  UINTN                                      Signature;
+  LIST_ENTRY                                 Nodes;
+  EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL Protocol;
+  BOOLEAN                                    Modified;
 } DEVICE_PATH_PROPERTY_DATA;
 
 #define APPLE_PATH_PROPERTIES_VARIABLE_NAME    L"AAPL,PathProperties"
@@ -251,7 +248,7 @@ InternalCallProtocol (
   }
 }
 
-// DppDbGetPropertyValueImpl
+// DppDbGetPropertyValue
 /** Locates a device property in the database and returns its value into Value.
 
   @param[in]      This        A pointer to the protocol instance.
@@ -291,12 +288,6 @@ DppDbGetPropertyValue (
   UINTN                             PropertySize;
   BOOLEAN                           BufferTooSmall;
 
-  ASSERT (This != NULL);
-  ASSERT (DevicePath != NULL);
-  ASSERT (Name != NULL);
-  ASSERT (Size != NULL);
-  ASSERT ((((*Size > 0) ? 1 : 0) ^ ((Value == NULL) ? 1 : 0)) != 0);
-
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
   Node     = InternalGetPropertyNode (Database, DevicePath);
 
@@ -322,12 +313,10 @@ DppDbGetPropertyValue (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
-// DppDbSetPropertyImpl
+// DppDbSetProperty
 /** Sets the sepcified property of the given device path to the provided Value.
 
   @param[in] This        A pointer to the protocol instance.
@@ -362,12 +351,6 @@ DppDbSetProperty (
   UINTN                         PropertyNameSize;
   UINTN                         PropertyDataSize;
   EFI_DEVICE_PATH_PROPERTY_DATA *PropertyData;
-
-  ASSERT (This != NULL);
-  ASSERT (DevicePath != NULL);
-  ASSERT (Name != NULL);
-  ASSERT (Value != NULL);
-  ASSERT (Size > 0);
 
   Database = PROPERTY_DATABASE_FROM_PROTOCOL (This);
   Node     = InternalGetPropertyNode (Database, DevicePath);
@@ -454,12 +437,10 @@ DppDbSetProperty (
   }
 
 Done:
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
-// DppDbRemovePropertyImpl
+// DppDbRemoveProperty
 /** Removes the sepcified property from the given device path.
 
   @param[in] This        A pointer to the protocol instance.
@@ -484,10 +465,6 @@ DppDbRemoveProperty (
   DEVICE_PATH_PROPERTY_DATA     *DevicePathPropertyData;
   EFI_DEVICE_PATH_PROPERTY_NODE *Node;
   EFI_DEVICE_PATH_PROPERTY      *Property;
-
-  ASSERT (This != NULL);
-  ASSERT (DevicePath != NULL);
-  ASSERT (Name != NULL);
 
   DevicePathPropertyData = PROPERTY_DATABASE_FROM_PROTOCOL (This);
 
@@ -520,8 +497,6 @@ DppDbRemoveProperty (
       }
     }
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -560,10 +535,6 @@ DppDbGetPropertyBuffer (
   UINT32                               NumberOfNodes;
   EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *BufferNode;
   VOID                                 *BufferPtr;
-
-  ASSERT (This != NULL);
-  ASSERT (Buffer != NULL);
-  ASSERT (Size != NULL);
 
   Nodes  = &(PROPERTY_DATABASE_FROM_PROTOCOL (This))->Nodes;
   Result = IsListEmpty (Nodes);
@@ -685,8 +656,6 @@ DppDbGetPropertyBuffer (
       }
     }
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -915,7 +884,7 @@ EfiDevicePathPropertyDatabaseMain (
     DevicePathPropertyData = AllocatePool (sizeof (*DevicePathPropertyData));
 
     // BUG: Compare against != NULL.
-    ASSERT (DevicePathPropertyData); // By Apple.
+    ASSERT (DevicePathPropertyData);
 
     DevicePathPropertyData->Signature = DEVICE_PATH_PROPERTY_DATA_SIGNATURE;
 
@@ -1074,8 +1043,6 @@ EfiDevicePathPropertyDatabaseMain (
 
         DevicePathPropertyData->Modified = FALSE;
 
-        // BUG: Protocol is never uninstalled.
-
         Handle = NULL;
         Status = gBS->InstallProtocolInterface (
                         &Handle,
@@ -1084,7 +1051,7 @@ EfiDevicePathPropertyDatabaseMain (
                         &DevicePathPropertyData->Protocol
                         );
 
-        ASSERT_EFI_ERROR (Status); // By Apple.
+        ASSERT_EFI_ERROR (Status);
       } else {
         gBS->FreePool ((VOID *)DevicePathPropertyData);
       }

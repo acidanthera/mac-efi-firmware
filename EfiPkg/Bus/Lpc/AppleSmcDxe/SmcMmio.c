@@ -16,7 +16,6 @@
 #include <IndustryStandard/AppleSmc.h>
 
 #include <Library/BaseLib.h>
-#include <Library/DebugLib.h>
 #include <Library/IoLib.h>
 #include <Library/TimerLib.h>
 
@@ -79,7 +78,6 @@ SmcWriteDataSizeMmio (
   IN UINT32       Size
   )
 {
-  ASSERT (Size > 0);
 
   MmioWrite8 ((UINTN)(BaseAddress + SMC_MMIO_WRITE_DATA_SIZE), (UINT8)Size);
 
@@ -172,9 +170,6 @@ TimeoutWaitingForStatusFlagClearMmio (
 
   SMC_STATUS SmcStatus;
 
-  ASSERT (Flag != 0);
-  ASSERT (Iterations > 0);
-
   SmcStatus = SmcReadKeyStatusMmio ((UINTN)BaseAddress);
 
   while (TRUE) {
@@ -196,8 +191,6 @@ TimeoutWaitingForStatusFlagClearMmio (
     SmcStatus = SmcReadKeyStatusMmio ((UINTN)BaseAddress);
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -212,9 +205,6 @@ TimeoutWaitingForStatusFlagSetMmio (
   EFI_STATUS Status;
 
   SMC_STATUS SmcStatus;
-
-  ASSERT (Flag != 0);
-  ASSERT (Iterations > 0);
 
   SmcStatus = SmcReadKeyStatusMmio ((UINTN)BaseAddress);
 
@@ -236,8 +226,6 @@ TimeoutWaitingForStatusFlagSetMmio (
 
     SmcStatus = SmcReadKeyStatusMmio ((UINTN)BaseAddress);
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -288,8 +276,6 @@ sub_5FB (
   }
 
 Done:
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -324,8 +310,6 @@ ClearArbitration (
                  );
     }
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -371,9 +355,6 @@ SmcReadValueMmio (
   SMC_DATA_SIZE KeySize;
   UINT8         Index;
 
-  ASSERT (Size != NULL);
-  ASSERT (Value != NULL);
-
   Status = ClearArbitration (BaseAddress);
 
   if (!EFI_ERROR (Status)) {
@@ -410,7 +391,7 @@ SmcReadValueMmio (
   }
 
   if (Status == EFI_TIMEOUT) {
-	  Status = EFI_SMC_TIMEOUT_ERROR;
+    Status = EFI_SMC_TIMEOUT_ERROR;
   } else if (Status == SmcInvalidSize) {
     Status = EFI_SMC_INVALID_SIZE;
   } else {
@@ -418,10 +399,6 @@ SmcReadValueMmio (
   }
 
 Done:
-  if (Status != EFI_SMC_NOT_FOUND) {
-    ASSERT_EFI_ERROR (Status);
-  }
-
   return Status;
 }
 
@@ -438,10 +415,6 @@ SmcWriteValueMmio (
 
   UINTN      Index;
   SMC_RESULT Result;
-
-  ASSERT (Size > 0);
-  ASSERT (Size <= SMC_MAX_DATA_SIZE);
-  ASSERT (Value != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -470,10 +443,6 @@ SmcWriteValueMmio (
                : EFI_STATUS_FROM_SMC_RESULT (Result));
   }
 
-  if (Status != EFI_SMC_NOT_FOUND) {
-    ASSERT_EFI_ERROR (Status);
-  }
-
   return Status;
 }
 
@@ -488,8 +457,6 @@ SmcGetKeyFromIndexMmio (
   EFI_STATUS Status;
 
   SMC_RESULT Result;
-
-  ASSERT (Key != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -525,8 +492,6 @@ SmcGetKeyFromIndexMmio (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -543,10 +508,6 @@ SmcGetKeyInfoMmio (
   EFI_STATUS Status;
 
   SMC_RESULT Result;
-
-  ASSERT (Size != NULL);
-  ASSERT (Type != NULL);
-  ASSERT (Attributes != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -595,10 +556,6 @@ SmcGetKeyInfoMmio (
     }
   }
 
-  if (Status != EFI_SMC_NOT_FOUND) {
-    ASSERT_EFI_ERROR (Status);
-  }
-
   return Status;
 }
 
@@ -632,8 +589,6 @@ SmcFlashTypeMmio (
              ? EFI_SMC_TIMEOUT_ERROR
              : EFI_STATUS_FROM_SMC_RESULT (Result));
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -666,10 +621,6 @@ SmcFlashWriteMmio (
   SMC_RESULT Result;
   UINT32     RemainingSize;
   UINT32     IterartionDataSize;
-
-  ASSERT (Size > 0);
-  ASSERT (Size <= SMC_FLASH_SIZE_MAX);
-  ASSERT (Data != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -758,8 +709,6 @@ SmcFlashWriteMmio (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -781,10 +730,6 @@ SmcFlashAuthMmio (
   SMC_RESULT Result;
   UINT32     RemainingSize;
   UINT32     IterartionDataSize;
-
-  ASSERT (Size > 0);
-  ASSERT (Size <= SMC_FLASH_SIZE_MAX);
-  ASSERT (Data != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -873,8 +818,6 @@ SmcFlashAuthMmio (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -938,8 +881,6 @@ SmcResetMmio (
   Mmio = SmcMmioInterface (BaseAddress);
 
   Status = (Mmio ? EFI_STATUS_FROM_SMC_RESULT (Result) : EFI_SUCCESS);
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

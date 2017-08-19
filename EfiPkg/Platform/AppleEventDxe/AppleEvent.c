@@ -35,13 +35,6 @@
     APPLE_EVENT_HANDLE_PRIVATE_SIGNATURE                    \
     )
 
-// ASSERT_APPLE_EVENT_HANDLE_SIGNATURE
-#define ASSERT_APPLE_EVENT_HANDLE_SIGNATURE(Handle)      \
-  ASSERT (                                               \
-    ((APPLE_EVENT_HANDLE_PRIVATE *)(Handle))->Signature  \
-      == APPLE_EVENT_HANDLE_PRIVATE_SIGNATURE            \
-    )
-
 // APPLE_EVENT_HANDLE_PRIVATE
 typedef struct {
   UINT32                      Signature;       ///< 
@@ -158,8 +151,6 @@ InternalCreatePollEvents (
 {
   EFI_STATUS Status;
 
-  ASSERT (mNumberOfEventHandles == 0);
-
   Status = EventCreateSimplePointerPollEvent ();
 
   if (!EFI_ERROR (Status)) {
@@ -169,8 +160,6 @@ InternalCreatePollEvents (
       EventCancelSimplePointerPollEvent ();
     }
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -198,10 +187,6 @@ EventRegisterHandler (
   EFI_STATUS                 Status;
 
   APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
-
-  ASSERT (Handle != NULL);
-  ASSERT (NotifyFunction != NULL);
-  ASSERT (Type != APPLE_EVENT_TYPE_NONE);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -246,8 +231,6 @@ EventRegisterHandler (
   }
 
 Done:
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -262,9 +245,6 @@ EventUnregisterHandler (
 
   LIST_ENTRY                 *EventHandleEntry;
   APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
-
-  ASSERT (Handle != NULL);
-  ASSERT_APPLE_EVENT_HANDLE_SIGNATURE (Handle);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -293,8 +273,6 @@ EventUnregisterHandler (
   if (mNumberOfEventHandles == 0) {
     InternalCancelPollEvents ();
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -338,11 +316,6 @@ EventSetEventName (
   UINTN      AllocationSize;
   CHAR8      *EventName;
 
-  ASSERT (Handle != NULL);
-  ASSERT_APPLE_EVENT_HANDLE_SIGNATURE (Handle);
-  ASSERT (Name != NULL);
-  ASSERT (Name[0] != '\0');
-
   Status = EFI_INVALID_PARAMETER;
 
   if ((Handle != NULL) && (Name != NULL)) {
@@ -359,8 +332,6 @@ EventSetEventName (
       Status = EFI_SUCCESS;
     }
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -400,9 +371,6 @@ InternalUnregisterHandlers (
   }
 }
 
-// APPLE_EVENT_PROTOCOL_REVISION
-#define APPLE_EVENT_PROTOCOL_REVISION  0x07
-
 // mAppleEventProtocol
 STATIC APPLE_EVENT_PROTOCOL mAppleEventProtocol = {
   APPLE_EVENT_PROTOCOL_REVISION,
@@ -434,8 +402,6 @@ AppleEventUnload (
                   (VOID *)&mAppleEventProtocol
                   );
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -459,8 +425,6 @@ AppleEventMain (
 
   EFI_LOADED_IMAGE_PROTOCOL *LoadedImage;
 
-  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gAppleEventProtocolGuid);
-
   LoadedImage = NULL;
   Status      = gBS->InstallProtocolInterface (
                        &ImageHandle,
@@ -468,6 +432,8 @@ AppleEventMain (
                        EFI_NATIVE_INTERFACE,
                        (VOID *)&mAppleEventProtocol
                        );
+
+  // BUG: Use the EDK2 inf to handle unload.
 
   if (!EFI_ERROR (Status)) {
     Status = gBS->HandleProtocol (
@@ -492,7 +458,5 @@ AppleEventMain (
   }
 
 Done:
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }

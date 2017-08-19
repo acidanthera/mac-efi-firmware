@@ -30,8 +30,6 @@ EventLibCreateTimerEvent (
 
   EFI_STATUS Status;
 
-  ASSERT (NotifyTpl > TPL_CALLBACK);
-
   Event = NULL;
 
   if (NotifyTpl > TPL_CALLBACK) {
@@ -45,16 +43,12 @@ EventLibCreateTimerEvent (
                     &Event
                     );
 
-    ASSERT_EFI_ERROR (Status);
-
     if (!EFI_ERROR (Status)) {
       Status = gBS->SetTimer (
                       Event,
                       (SignalPeriodic ? TimerPeriodic : TimerRelative),
                       TriggerTime
                       );
-
-      ASSERT_EFI_ERROR (Status);
 
       if (EFI_ERROR (Status)) {
         gBS->CloseEvent (Event);
@@ -93,15 +87,9 @@ EventLibCancelEvent (
 {
   EFI_STATUS Status;
 
-  ASSERT (Event != NULL);
-
   Status = gBS->SetTimer (Event, TimerCancel, 0);
-
-  ASSERT_EFI_ERROR (Status);
 
   if (!EFI_ERROR (Status)) {
     Status = gBS->CloseEvent (Event);
-
-    ASSERT_EFI_ERROR (Status);
   }
 }

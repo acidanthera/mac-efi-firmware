@@ -45,7 +45,7 @@ Revision History
 #include <Protocol/UsbIo.h>
 #include <Protocol/ComponentName.h>
 #include <Protocol/ComponentName2.h>
-#include <Guid/HotPlugDevice.h>
+#include <Protocol/HotPlugDevice.h>
 #include <Guid/StatusCodeDataTypeId.h>
 #include <Protocol/StatusCode.h>
 

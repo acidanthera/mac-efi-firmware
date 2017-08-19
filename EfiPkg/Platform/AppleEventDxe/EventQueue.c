@@ -59,9 +59,6 @@ InternalSignalAndCloseQueueEvent (
   VOID
   )
 {
-  ASSERT (mQueueEventCreated);
-  ASSERT (mQueueEvent != NULL);
-
   gBS->SignalEvent (mQueueEvent);
 
   if (mQueueEventCreated && (mQueueEvent != NULL)) {
@@ -82,8 +79,6 @@ InternalQueueEventNotifyFunction (
 
   LIST_ENTRY        *EventQueueEntry;
   APPLE_EVENT_QUEUE *EventQueue;
-
-  ASSERT (Event != NULL);
 
   if (mQueueEventCreated) {
     do {
@@ -134,8 +129,6 @@ InternalCreateQueueEvent (
                   &mQueueEvent
                   );
 
-  ASSERT_EFI_ERROR (Status);
-
   if (!EFI_ERROR (Status)) {
     mQueueEventCreated = TRUE;
   }
@@ -153,10 +146,7 @@ EventCreateAppleEventQueueInfo (
 {
   APPLE_EVENT_INFORMATION *QueueInfo;
 
-  EFI_TIME                      CreationTime;
-
-  ASSERT (EventData.Raw != 0);
-  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
+  EFI_TIME                CreationTime;
 
   QueueInfo = AllocateZeroPool (sizeof (*QueueInfo));
 
@@ -183,8 +173,6 @@ EventCreateAppleEventQueueInfo (
     }
   }
 
-  ASSERT (QueueInfo != NULL);
-
   return QueueInfo;
 }
 
@@ -197,9 +185,6 @@ EventAddEventToQueue (
   EFI_STATUS        Status;
 
   APPLE_EVENT_QUEUE *EventQueue;
-
-  ASSERT (mQueueEventCreated);
-  ASSERT (mQueueEvent != NULL);
 
   if (mQueueEventCreated) {
     do {
@@ -232,9 +217,6 @@ EventCreateEventQueue (
 
   APPLE_EVENT_INFORMATION *Information;
 
-  ASSERT (EventData.Raw != 0);
-  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
-
   Status = EFI_INVALID_PARAMETER;
 
   if (EventData.Raw != 0) {
@@ -253,8 +235,6 @@ EventCreateEventQueue (
       Status = EFI_SUCCESS;
     }
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }

@@ -24,7 +24,6 @@
   MdePkg/MdePkg.dec
   EfiPkg/EfiPkg.dec
   IntelFrameworkPkg/IntelFrameworkPkg.dec
-  UefiCpuPkg/UefiCpuPkg.dec
 
 [Guids]
   gApplePlatformProducerNameGuid              ## SOMETIMES_CONSUMES

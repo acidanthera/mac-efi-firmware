@@ -29,9 +29,6 @@
 // KEY_PRESENT_MAP_UNITS
 #define KEY_PRESENT_MAP_UNITS  256
 
-// APPLE_SMC_IO_PROTOCOL_REVISION
-#define APPLE_SMC_IO_PROTOCOL_REVISION  0x33
-
 // NEXT_SMC_ADDRESS
 #define NEXT_SMC_ADDRESS(Address)                         \
   ((((Address) & 0xFF0000) | (((Address) >> 16) >> 8))    \
@@ -75,8 +72,6 @@ InternalIsKeyPresent (
   SMC_KEY_TYPE         Type;
   SMC_KEY_ATTRIBUTES   Attributes;
   SMC_KEY_PRESENCE_MAP *Buffer;
-
-  ASSERT (This != NULL);
 
   SmcDev = SMC_DEV_FROM_THIS (This);
 
@@ -140,10 +135,6 @@ InternalSmcReadValue (
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
 
-  ASSERT (This != NULL);
-  ASSERT (Size > 0);
-  ASSERT (Value != NULL);
-
   Status = EFI_INVALID_PARAMETER;
 
   if (mSoftwareSmc) {
@@ -202,16 +193,9 @@ InternalSmcReadValue (
             } else if (Result == SmcSuccess) {
               Status = EFI_SUCCESS;
 
-              if (Key == SMC_MAKE_KEY ('R', 'P', 'l', 't')) {
-                // BUG: No need to set Status to EFI_SUCCESS.
-                Status = EFI_SUCCESS;
-
-                if (*(UINT64 *)&Value == SMC_MAKE_KEY ('5', '0', '5', 'j')) {
-                  // BUG: No need to set Status to EFI_SUCCESS.
-                  Status = EFI_SUCCESS;
-
+              if ((Key == SMC_MAKE_KEY ('R', 'P', 'l', 't'))
+               && (*(UINT64 *)&Value == SMC_MAKE_KEY ('5', '0', '5', 'j'))) {
                   ((CHAR8 *)&Value)[2] = '\0';
-                }
               }
             } else {
               Status = EFIERR (Result);
@@ -222,10 +206,6 @@ InternalSmcReadValue (
         }
       }
     }
-  }
-
-  if ((Status != EFI_NOT_FOUND) && (Status != EFI_SMC_NOT_FOUND)) {
-    ASSERT_EFI_ERROR (Status);
   }
 
   return Status;
@@ -247,10 +227,6 @@ InternalSmcWriteValue (
   BOOLEAN    KeyPresent;
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
-
-  ASSERT (This != NULL);
-  ASSERT (Size > 0);
-  ASSERT (Value != NULL);
 
   if (mSoftwareSmc) {
     Status = SmcIoVirtualSmcWriteValue (This, Key, Size, Value);
@@ -320,10 +296,6 @@ InternalSmcWriteValue (
     }
   }
 
-  if ((Status != EFI_NOT_FOUND) && (Status != EFI_SMC_NOT_FOUND)) {
-    ASSERT_EFI_ERROR (Status);
-  }
-
   return Status;
 }
 
@@ -339,9 +311,6 @@ InternalSmcMakeKey (
   EFI_STATUS Status;
 
   UINTN      Index;
-
-  ASSERT (Name != NULL);
-  ASSERT (Key != NULL);
 
   if (mSoftwareSmc) {
     Status = SmcIoVirtualSmcMakeKey (Name, Key);
@@ -367,8 +336,6 @@ InternalSmcMakeKey (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -384,9 +351,6 @@ InternalSmcGetKeyCount (
   EFI_STATUS Status;
 
   SMC_KEY    Key;
-
-  ASSERT (This != NULL);
-  ASSERT (Count != NULL);
 
   Key = 0;
 
@@ -405,8 +369,6 @@ InternalSmcGetKeyCount (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -424,9 +386,6 @@ InternalSmcGetKeyFromIndex (
 
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
-
-  ASSERT (This != NULL);
-  ASSERT (Key != NULL);
 
   if (mSoftwareSmc) {
     Status = SmcIoVirtualSmcGetKeyFromIndex (This, Index, Key);
@@ -473,10 +432,6 @@ InternalSmcGetKeyFromIndex (
     }
   }
 
-  if (Status != EFI_SMC_NOT_FOUND) {
-    ASSERT_EFI_ERROR (Status);
-  }
-
   return Status;
 }
 
@@ -496,11 +451,6 @@ InternalSmcGetKeyInfo (
 
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
-
-  ASSERT (This != NULL);
-  ASSERT (Size != NULL);
-  ASSERT (Type != NULL);
-  ASSERT (Attributes != NULL);
 
   if (mSoftwareSmc) {
     Status = SmcIoVirtualSmcGetKeyInfo (This, Key, Size, Type, Attributes);
@@ -561,8 +511,6 @@ InternalSmcGetKeyInfo (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -580,8 +528,6 @@ InternalSmcReset (
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
   BOOLEAN    Mmio;
-
-  ASSERT (This != NULL);
 
   if (mSoftwareSmc) {
     Status = SmcIoVirtualSmcReset (This, Mode);
@@ -626,8 +572,6 @@ InternalSmcReset (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -644,8 +588,6 @@ InternalSmcFlashType (
 
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
-
-  ASSERT (This != NULL);
 
   if (mSoftwareSmc) {
     Status = SmcIoVirtualSmcFlashType (This, Type);
@@ -684,8 +626,6 @@ InternalSmcFlashType (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -705,10 +645,6 @@ InternalSmcFlashWrite (
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
   SMC_DATA   Value;
-
-  ASSERT (This != NULL);
-  ASSERT (Size > 0);
-  ASSERT (Data != NULL);
 
   if (mSoftwareSmc) {
     Status = SmcIoVirtualSmcFlashWrite (This, Unknown, Size, Data);
@@ -772,8 +708,6 @@ InternalSmcFlashWrite (
       }
     }
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -848,8 +782,6 @@ InternalSmcFlashAuth (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -861,8 +793,6 @@ InternalSmcUnsupported (
   VOID
   )
 {
-  ASSERT (FALSE);
-
   return EFI_UNSUPPORTED;
 }
 
@@ -893,8 +823,6 @@ InternalSmcUnknown2 (
 
   SMC_DEV    *SmcDev;
 
-  ASSERT (This != NULL);
-
   SmcDev = SMC_DEV_FROM_THIS (This);
   Status = EfiAcquireLockOrFail (&SmcDev->Lock);
 
@@ -902,8 +830,6 @@ InternalSmcUnknown2 (
     // Status = sub_10D4 (Ukn1, Ukn2);
     EfiReleaseLock (&SmcDev->Lock);
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -922,8 +848,6 @@ InternalSmcUnknown3 (
 
   SMC_DEV    *SmcDev;
 
-  ASSERT (This != NULL);
-
   SmcDev = SMC_DEV_FROM_THIS (This);
 
   Status = EfiAcquireLockOrFail (&SmcDev->Lock);
@@ -932,8 +856,6 @@ InternalSmcUnknown3 (
     // Status = sub_1125 (Ukn1, Ukn2);
     EfiReleaseLock (&SmcDev->Lock);
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -960,8 +882,6 @@ InternalSmcUnknown4 (
     EfiReleaseLock (&SmcDev->Lock);
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -977,8 +897,6 @@ InternalSmcUnknown5 (
   EFI_STATUS Status;
 
   SMC_DEV    *SmcDev;
-
-  ASSERT (This != NULL);
 
   SmcDev = SMC_DEV_FROM_THIS (This);
 
@@ -1034,15 +952,14 @@ AppleSmcMain (
   UINT16      Value;
   SMC_DEV     *SmcDevChild;
 
-  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gAppleSmcIoProtocolGuid);
-
   SmcDev = AllocateZeroPool (sizeof (*SmcDev));
 
   Status = EFI_OUT_OF_RESOURCES;
 
   if (SmcDev != NULL) {
     SmcDev->KeyPresenceMap = AllocateZeroPool (
-                              KEY_PRESENT_MAP_UNITS * sizeof (*SmcDev->KeyPresenceMap)
+                              KEY_PRESENT_MAP_UNITS
+                                * sizeof (*SmcDev->KeyPresenceMap)
                               );
 
     if (SmcDev->KeyPresenceMap != NULL) {
@@ -1056,8 +973,6 @@ AppleSmcMain (
         (VOID *)&AppleSmcIoProtocolTemplate,
         sizeof (AppleSmcIoProtocolTemplate)
         );
-
-      // BUG: Protocol is never uninstalled.
 
       Status = gBS->InstallProtocolInterface (
                       &SmcDev->Handle,
@@ -1115,19 +1030,19 @@ AppleSmcMain (
         for (Index = 1; Index < NumberOfSmcDevices; ++Index) {
           SmcIndex = Index;
           Status   = InternalSmcWriteValue (
-                        &SmcDev->SmcIo,
-                        SMC_KEY_NUM,
-                        sizeof (SmcIndex),
-                        (VOID *)&SmcIndex
-                        );
+                       &SmcDev->SmcIo,
+                       SMC_KEY_NUM,
+                       sizeof (SmcIndex),
+                       (VOID *)&SmcIndex
+                       );
 
           if (!EFI_ERROR (Status)) {
             Status = SmcIoVirtualSmcReadValue (
-                        &SmcDev->SmcIo,
-                        SMC_KEY_ADR,
-                        sizeof (SmcAddress),
-                        (VOID *)&SmcAddress
-                        );
+                       &SmcDev->SmcIo,
+                       SMC_KEY_ADR,
+                       sizeof (SmcAddress),
+                       (VOID *)&SmcAddress
+                       );
 
             if (!EFI_ERROR (Status)) {
               // BUG: If one child cannot be allocated, the driver exits
@@ -1137,12 +1052,13 @@ AppleSmcMain (
 
               if (SmcDevChild != NULL) {
                 SmcDevChild->KeyPresenceMap = AllocateZeroPool (
-                                               KEY_PRESENT_MAP_UNITS * sizeof (*SmcDev->KeyPresenceMap)
-                                               );
+                                                KEY_PRESENT_MAP_UNITS
+                                                  * sizeof (*SmcDev->KeyPresenceMap)
+                                                );
               
                 if (SmcDev->KeyPresenceMap != NULL) {
                   SmcDevChild->MaxKeyPresenceMapLength = KEY_PRESENT_MAP_UNITS;
-                  SmcDevChild->Signature              = SMC_DEV_SIGNATURE;
+                  SmcDevChild->Signature               = SMC_DEV_SIGNATURE;
 
                   EfiInitializeLock (&SmcDevChild->Lock, TPL_NOTIFY);
 
@@ -1154,8 +1070,6 @@ AppleSmcMain (
 
                   SmcDevChild->SmcIo.Index   = Index;
                   SmcDevChild->SmcIo.Address = NEXT_SMC_ADDRESS (SmcAddress);
-
-                  // BUG: Protocol is never uninstalled.
 
                   Status = gBS->InstallProtocolInterface (
                                   &SmcDevChild->Handle,

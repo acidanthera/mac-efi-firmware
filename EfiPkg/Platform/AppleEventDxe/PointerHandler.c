@@ -131,14 +131,9 @@ InternalRegisterSimplePointerInterface (
   SIMPLE_POINTER_INSTANCE *Instance;
   UINTN                   Index;
 
-  ASSERT (Handle != NULL);
-  ASSERT (SimplePointer != NULL);
-
   Instance = AllocateZeroPool (
                (mNumberOfPointerProtocols + 1) * sizeof (*Instance)
                );
-
-  ASSERT (Instance != NULL);
 
   if (Instance != NULL) {
     CopyMem (
@@ -179,24 +174,19 @@ STATIC
 VOID
 InternalRemoveUninstalledInstances (
   IN OUT SIMPLE_POINTER_INSTANCE  **Instances,
-  IN     UINTN                  *NumberOfInstances,
-  IN     EFI_GUID               *Protocol
+  IN     UINTN                    *NumberOfInstances,
+  IN     EFI_GUID                 *Protocol
   )
 {
-  EFI_STATUS            Status;
+  EFI_STATUS              Status;
 
-  UINTN                 NumberHandles;
-  EFI_HANDLE            *Buffer;
+  UINTN                   NumberHandles;
+  EFI_HANDLE              *Buffer;
   SIMPLE_POINTER_INSTANCE *Instance;
-  UINTN                 Index;
-  UINTN                 NumberOfMatches;
-  UINTN                 Index2;
+  UINTN                   Index;
+  UINTN                   NumberOfMatches;
+  UINTN                   Index2;
   SIMPLE_POINTER_INSTANCE *InstanceBuffer;
-
-  ASSERT (Instances != NULL);
-  ASSERT (NumberOfInstances != NULL);
-  ASSERT (*NumberOfInstances > 0);
-  ASSERT (Protocol != NULL);
 
   Status = gBS->LocateHandleBuffer (
                   ByProtocol,
@@ -205,8 +195,6 @@ InternalRemoveUninstalledInstances (
                   &NumberHandles,
                   &Buffer
                   );
-
-  ASSERT_EFI_ERROR (Status);
 
   if (!EFI_ERROR (Status)) {
     if (*NumberOfInstances > 0) {
@@ -308,8 +296,6 @@ InternalSimplePointerInstallNotifyFunction (
                     );
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   if (!EFI_ERROR (Status)) {
     if (NumberHandles > 0) {
       Index = 0;
@@ -320,8 +306,6 @@ InternalSimplePointerInstallNotifyFunction (
                         &gEfiSimplePointerProtocolGuid,
                         (VOID **)&SimplePointer
                         );
-
-        ASSERT_EFI_ERROR (Status);
 
         if (!EFI_ERROR (Status)) {
           InternalRegisterSimplePointerInterface (Buffer[Index], SimplePointer);
@@ -366,8 +350,6 @@ EventCreateSimplePointerInstallNotifyEvent (
       InternalSimplePointerInstallNotifyFunction (NULL, NULL);
     }
   }
-
-  ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
@@ -416,8 +398,6 @@ InternalGetScreenResolution (
     }
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -431,8 +411,6 @@ InternalGetUiScaleData (
   INT64 AbsoluteValue;
   INTN  Value;
   INT64 Factor;
-
-  ASSERT (Movement != 0);
 
   AbsoluteValue = ((Movement < 0) ? -Movement : Movement);
   Value         = HighBitSet64 (AbsoluteValue);
@@ -458,8 +436,6 @@ InternalCreatePointerEventQueueInformation (
 {
   UINT32           FinalEventType;
   APPLE_EVENT_DATA EventData;
-
-  ASSERT (EventType != APPLE_EVENT_TYPE_NONE);
 
   FinalEventType = APPLE_EVENT_TYPE_MOUSE_MOVED;
 
@@ -491,12 +467,10 @@ InternalHandleButtonInteraction (
   )
 {
   APPLE_EVENT_INFORMATION *Information;
-  INT32                         ValueMovement;
-  INT32                         HorizontalMovement;
-  INT32                         VerticalMovement;
-  APPLE_EVENT_TYPE              EventType;
-
-  ASSERT (Pointer != NULL);
+  INT32                   ValueMovement;
+  INT32                   HorizontalMovement;
+  INT32                   VerticalMovement;
+  APPLE_EVENT_TYPE        EventType;
 
   if (!EFI_ERROR (PointerStatus)) {
     if (!Pointer->PreviousButton) {
@@ -609,22 +583,20 @@ InternalSimplePointerPollNotifyFunction (
   IN VOID       *Context
   )
 {
-  APPLE_MODIFIER_MAP            Modifiers;
-  UINTN                         Index;
-  SIMPLE_POINTER_INSTANCE       *Instance;
-  EFI_SIMPLE_POINTER_PROTOCOL   *SimplePointer;
-  EFI_STATUS                    Status;
-  EFI_SIMPLE_POINTER_STATE      State;
-  INT64                         UiScaleX;
-  INT64                         UiScaleY;
-  INT64                         MovementY;
-  INT64                         MovementX;
-  DIMENSION                     Resolution;
-  INTN                          Result;
-  APPLE_EVENT_INFORMATION *Information;
-  APPLE_EVENT_DATA              EventData;
-
-  ASSERT (Event != NULL);
+  APPLE_MODIFIER_MAP          Modifiers;
+  UINTN                       Index;
+  SIMPLE_POINTER_INSTANCE     *Instance;
+  EFI_SIMPLE_POINTER_PROTOCOL *SimplePointer;
+  EFI_STATUS                  Status;
+  EFI_SIMPLE_POINTER_STATE    State;
+  INT64                       UiScaleX;
+  INT64                       UiScaleY;
+  INT64                       MovementY;
+  INT64                       MovementX;
+  DIMENSION                   Resolution;
+  INTN                        Result;
+  APPLE_EVENT_INFORMATION     *Information;
+  APPLE_EVENT_DATA            EventData;
 
   Modifiers = InternalGetModifierStrokes ();
 
@@ -812,8 +784,6 @@ EventCreateSimplePointerPollEvent (
     Status = EFI_SUCCESS;
   }
 
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 
@@ -833,10 +803,6 @@ EventSetCursorPositionImpl (
   )
 {
   EFI_STATUS Status;
-
-  ASSERT (Position != NULL);
-  ASSERT ((Position->Horizontal < mResolution.Horizontal)
-       && (Position->Vertical < mResolution.Vertical));
 
   if (!mScreenResolutionSet) {
     Status = InternalGetScreenResolution ();
@@ -858,7 +824,5 @@ EventSetCursorPositionImpl (
   }
 
 Done:
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }

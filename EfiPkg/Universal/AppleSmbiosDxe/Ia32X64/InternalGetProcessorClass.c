@@ -18,14 +18,78 @@
 
 #include <IndustryStandard/AppleSmBios.h>
 
-#include <Register/Cpuid.h>
+/**
+  CPUID Processor Brand String
+
+  @param   EAX  CPUID_BRAND_STRING1 (0x80000002)
+
+  @retval  EAX  Processor Brand String in type CPUID_BRAND_STRING_DATA.
+  @retval  EBX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+  @retval  ECX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+  @retval  EDX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+
+  <b>Example usage</b>
+  @code
+  CPUID_BRAND_STRING_DATA  Eax;
+  CPUID_BRAND_STRING_DATA  Ebx;
+  CPUID_BRAND_STRING_DATA  Ecx;
+  CPUID_BRAND_STRING_DATA  Edx;
+
+  AsmCpuid (CPUID_BRAND_STRING1, &Eax.Uint32, &Ebx.Uint32, &Ecx.Uint32, &Edx.Uint32);
+  @endcode
+**/
+#define CPUID_BRAND_STRING1 0x80000002
+
+/**
+  CPUID Processor Brand String
+
+  @param   EAX  CPUID_BRAND_STRING2 (0x80000003)
+
+  @retval  EAX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+  @retval  EBX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+  @retval  ECX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+  @retval  EDX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+
+  <b>Example usage</b>
+  @code
+  CPUID_BRAND_STRING_DATA  Eax;
+  CPUID_BRAND_STRING_DATA  Ebx;
+  CPUID_BRAND_STRING_DATA  Ecx;
+  CPUID_BRAND_STRING_DATA  Edx;
+
+  AsmCpuid (CPUID_BRAND_STRING2, &Eax.Uint32, &Ebx.Uint32, &Ecx.Uint32, &Edx.Uint32);
+  @endcode
+**/
+#define CPUID_BRAND_STRING2 0x80000003
+
+/**
+  CPUID Processor Brand String
+
+  @param   EAX  CPUID_BRAND_STRING3 (0x80000004)
+
+  @retval  EAX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+  @retval  EBX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+  @retval  ECX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+  @retval  EDX  Processor Brand String Continued in type CPUID_BRAND_STRING_DATA.
+
+  <b>Example usage</b>
+  @code
+  CPUID_BRAND_STRING_DATA  Eax;
+  CPUID_BRAND_STRING_DATA  Ebx;
+  CPUID_BRAND_STRING_DATA  Ecx;
+  CPUID_BRAND_STRING_DATA  Edx;
+
+  AsmCpuid (CPUID_BRAND_STRING3, &Eax.Uint32, &Ebx.Uint32, &Ecx.Uint32, &Edx.Uint32);
+  @endcode
+**/
+#define CPUID_BRAND_STRING3 0x80000004
 
 // CPUID_BRAND_STRING
 typedef struct {
-  CPUID_BRAND_STRING_DATA Eax;
-  CPUID_BRAND_STRING_DATA Ebx;
-  CPUID_BRAND_STRING_DATA Ecx;
-  CPUID_BRAND_STRING_DATA Edx;
+  UINT32 Eax;
+  UINT32 Ebx;
+  UINT32 Ecx;
+  UINT32 Edx;
 } CPUID_BRAND_STRING;
 
 // InternalGetProcessorClass
@@ -46,10 +110,10 @@ InternalGetProcessorClass (
   for (Index = CPUID_BRAND_STRING1; Index != CPUID_BRAND_STRING3; ++Index) {
     AsmCpuid (
       Index,
-      &BrandStringBuffer.Eax.Uint32,
-      &BrandStringBuffer.Ebx.Uint32,
-      &BrandStringBuffer.Ecx.Uint32,
-      &BrandStringBuffer.Edx.Uint32
+      &BrandStringBuffer.Eax,
+      &BrandStringBuffer.Ebx,
+      &BrandStringBuffer.Ecx,
+      &BrandStringBuffer.Edx
       );
 
     CopyMem (

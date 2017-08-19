@@ -91,8 +91,6 @@ SmcIoSmcWriteCommand (
   Status = EFI_SUCCESS;
 
 Done:
-  ASSERT_EFI_ERROR (Status);
-
   return Status;
 }
 

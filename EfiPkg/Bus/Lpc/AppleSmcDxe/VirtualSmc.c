@@ -113,10 +113,6 @@ SmcIoVirtualSmcReadValue (
   SMC_KEY_VALUE *Walker;
   UINTN         Index;
 
-  ASSERT (This != NULL);
-  ASSERT (Size > 0);
-  ASSERT (Value != NULL);
-
   Status = EFI_INVALID_PARAMETER;
 
   if ((This != NULL) && (Value != NULL)) {
@@ -149,10 +145,6 @@ SmcIoVirtualSmcReadValue (
     }
   }
 
-  if ((Status != EFI_NOT_FOUND) && (Status != EFI_SMC_NOT_FOUND)) {
-    ASSERT_EFI_ERROR (Status);
-  }
-
   return Status;
 }
 
@@ -175,7 +167,7 @@ SmcIoVirtualSmcMakeKey (
   OUT SMC_KEY  *Key
   )
 {
-  // BUG: Not implemented.
+  // TODO: Implement.
 
   return EFI_SUCCESS;
 }
@@ -187,7 +179,7 @@ SmcIoVirtualSmcGetKeyCount (
   OUT UINT32                 *Count
   )
 {
-  // BUG: Not implemented.
+  // TODO: Implement.
 
   return EFI_SUCCESS;
 }
@@ -200,7 +192,7 @@ SmcIoVirtualSmcGetKeyFromIndex (
   OUT SMC_KEY                *Key
   )
 {
-  // BUG: NOt implemented.
+  // TODO: Implement.
 
   return EFI_SUCCESS;
 }
@@ -215,7 +207,7 @@ SmcIoVirtualSmcGetKeyInfo (
   OUT SMC_KEY_ATTRIBUTES     *Attributes
   )
 {
-  // BUG: Not implemented.
+  // TODO: Implement.
 
   return EFI_SUCCESS;
 }
