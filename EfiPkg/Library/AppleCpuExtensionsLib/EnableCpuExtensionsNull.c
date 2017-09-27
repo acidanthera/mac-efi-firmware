@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 2017, Apple Inc.  All rights reserved.<BR>
+  Copyright (c) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -11,11 +11,13 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#include <AppleMacEfi.h>
+#include <Base.h>
 
-// AppleEnableSseAvx
+#include <Library/AppleCpuExtensionsLib.h>
+
+// AppleEnableCpuExtensions
 VOID
-AppleEnableSseAvx (
+AppleEnableCpuExtensions (
   VOID
   )
 {

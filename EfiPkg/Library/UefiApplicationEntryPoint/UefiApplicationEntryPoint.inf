@@ -28,13 +28,27 @@
 [Sources]
   ApplicationEntryPoint.c
 
+[Sources.IA32]
+  Ia32/_ModuleEntryPoint.S | GCC
+  Ia32/_ModuleEntryPoint.S | XCODE
+  Ia32/_ModuleEntryPoint.S | RCVT
+
+[Sources.X64]
+  X64/_ModuleEntryPoint.S | GCC
+  X64/_ModuleEntryPoint.S | XCODE
+  X64/_ModuleEntryPoint.S | RCVT
+
+[Sources.IA32, Sources.X64]
+  _ModuleEntryPoint.c | MSFT
+  _ModuleEntryPoint.c | INTEL
+
 
 [Packages]
   MdePkg/MdePkg.dec
   EfiPkg/EfiPkg.dec
 
 [LibraryClasses]
-  AppleEntryPoint
+  AppleCpuExtensionsLib
   UefiBootServicesTableLib
   DebugLib
   BaseLib

@@ -1,5 +1,5 @@
 ## @file
-# Copyright (c) 2017, Apple Inc.  All rights reserved.<BR>
+# Copyright (c) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 #
 # This program and the accompanying materials have not been licensed.
 # Neither is its usage, its redistribution, in source or binary form,
@@ -10,28 +10,32 @@
 # distributed is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 #
-#
+#  
 ##
 
 [Defines]
-  INF_VERSION    = 0x00010005
-  BASE_NAME      = DxeAppleEntryPoint
-  MODULE_TYPE    = UEFI_DRIVER
-  VERSION_STRING = 1.0
-  LIBRARY_CLASS  = AppleEntryPoint|DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SAL_DRIVER UEFI_DRIVER SMM_CORE DXE_SMM_DRIVER UEFI_APPLICATION
+  BASE_NAME     = AppleInterruptLib
+  MODULE_TYPE   = UEFI_DRIVER
+  INF_VERSION   = 0x00010005
+  LIBRARY_CLASS = AppleInterruptLib
 
 [Packages]
   MdePkg/MdePkg.dec
   EfiPkg/EfiPkg.dec
 
-[Sources]
-  DxeAppleEntryPoint.c
+[Sources.IA32]
+  Ia32/Interrupt.nasm | MSFT
+  Ia32/Interrupt.nasm | INTEL
+  Ia32/Interrupt.nasm | RVCT
+  Ia32/Interrupt.S    | GCC
+  Ia32/Interrupt.S    | XCODE
 
-[Sources.IA32, Sources.X64]
-  Ia32X64/AppleEnableSseAvx.c
-  Ia32X64/EnableSseAvx.nasm
-  Ia32X64/StackVerification.c
+[Sources.X64]
+  X64/Interrupt.nasm | MSFT
+  X64/Interrupt.nasm | INTEL
+  X64/Interrupt.nasm | RVCT
+  X64/Interrupt.S    | GCC
+  X64/Interrupt.S    | XCODE
 
 [Sources.ARM, Sources.AARCH64, Sources.IPF, Sources.EBC]
-  AppleEnableSseAvx.c
-  StackVerification.c
+  InterruptNull.c

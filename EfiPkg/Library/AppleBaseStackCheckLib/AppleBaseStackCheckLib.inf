@@ -1,0 +1,50 @@
+## @file
+#  Stack Check Library
+#
+#  Stack Check Library
+#
+#  Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php.
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+##
+
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = AppleBaseStackCheckLib
+  MODULE_TYPE    = BASE
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS  = NULL
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  PcdLib
+
+[FixedPcd]
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask  ## CONSUMES
+
+[Sources]
+  AppleBaseStackCheckLibNull.c
+  AppleBaseStackCheckLibGcc.c | GCC
+  AppleBaseStackCheckLibGcc.c | XCODE
+  AppleBaseStackCheckLibGcc.c | RVCT
+
+[Sources.IA32]
+  Ia32/CheckStackCanary.S | GCC
+  Ia32/CheckStackCanary.S | XCODE
+  Ia32/CheckStackCanary.S | RVCT
+
+[Sources.X64]
+  X64/CheckStackCanary.S | GCC
+  X64/CheckStackCanary.S | XCODE
+  X64/CheckStackCanary.S | RVCT

@@ -111,6 +111,6 @@ DataHubLogApplePlatformData (
 
     FreePool ((VOID *)Record);
   } else {
-    ASSERT (FALSE); // By Apple.
+    ASSERT (FALSE);
   }
 }

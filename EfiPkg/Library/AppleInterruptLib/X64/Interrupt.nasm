@@ -13,21 +13,22 @@
 ;
 ;------------------------------------------------------------------------------
 
+    DEFAULT REL
     SECTION .text
 
 ;------------------------------------------------------------------------------
-; // InternalAsmEnableSseAvx
+; // AppleInterrupt
 ; VOID
 ; EFIAPI
-; InternalAsmEnableSseAvx (
-;   VOID
+; AppleInterrupt (
+;   IN UINT32  FunctiondId,
+;   ...
 ;   );
 ;------------------------------------------------------------------------------
-global ASM_PFX(InternalAsmEnableSseAvx)
-ASM_PFX(InternalAsmEnableSseAvx):
-    xor     ecx, ecx
-    xgetbv
-    or      eax, 6
-    xor     ecx, ecx
-    xsetbv
-    ret
+global ASM_PFX(AppleInterrupt)
+ASM_PFX(AppleInterrupt):
+    push    rbp
+    mov     rbp, rsp
+    int     21h
+    pop     rbp
+    retn

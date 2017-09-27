@@ -14,28 +14,37 @@
 ##
 
 [Defines]
-  BASE_NAME   = AppleKeyMapAggregatorDxe
-  FILE_GUID   = 1612CCDF-2549-466A-BF6F-D06DAAE60958
-  MODULE_TYPE = UEFI_DRIVER
-  ENTRY_POINT = AppleKeyMapAggregatorMain
+  BASE_NAME   = ApplePlatformInfoDatabase
+  FILE_GUID   = 8B24E4D4-C84C-4FFC-81E5-D3EACC3F08D
+  MODULE_TYPE = DXE_DRIVER
+  ENTRY_POINT = ApplePlatformInfoDatabaseDxeMain
   INF_VERSION = 0x00010005
 
 [Packages]
   MdePkg/MdePkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
   EfiPkg/EfiPkg.dec
-  EfiMiscPkg/EfiMiscPkg.dec
+
+[Guids]
+  gAppleHob1Guid   ## SOMETIMES_CONSUMES
+  gAppleFile1Guid  ## SOMETIMES_CONSUMES
 
 [Protocols]
-  gAppleKeyMapDatabaseProtocolGuid    ## PRODUCES
-  gAppleKeyMapAggregatorProtocolGuid  ## PRODUCES
+  gApplePlatformInfoDatabaseProtocolGuid  ## PRODUCES
+  gEfiFirmwareVolumeProtocolGuid
 
 [LibraryClasses]
-  BaseLib
   BaseMemoryLib
   DebugLib
+  DevicePathLib
+  HobLib
+  MemoryAllocationLib
   UefiBootServicesTableLib
   UefiDriverEntryPoint
-  MemoryAllocationLib
+  UefiLib
 
 [Sources]
-  AppleKeyMapAggregator.c
+  ApplePlatformInfoDatabase.c
+
+[Depex]
+  gEfiPcdProtocolGuid

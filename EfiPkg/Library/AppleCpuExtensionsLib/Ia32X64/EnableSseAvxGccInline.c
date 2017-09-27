@@ -1,5 +1,5 @@
 /** @file
-  Copyright (c) 2017, Apple Inc.  All rights reserved.<BR>
+  Copyright (c) 2005 - 2017, Apple Inc.  All rights reserved.<BR>
 
   This program and the accompanying materials have not been licensed.
   Neither is its usage, its redistribution, in source or binary form,
@@ -11,39 +11,21 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#include <AppleMacEfi.h>
-
-#include <Library/BaseLib.h>
+#include <Base.h>
 
 // InternalAsmEnableSseAvx
 VOID
-EFIAPI
 InternalAsmEnableSseAvx (
-  VOID
-  );
-
-// AppleEnableSseAvx
-VOID
-AppleEnableSseAvx (
   VOID
   )
 {
-  UINTN Cr4;
-
-  Cr4 = AsmReadCr4 ();
-
-  //
-  // check CR4.OSXSAVE[Bit 18]
-  //
-  if ((Cr4 & BIT18) != 0) {
-    //
-    // set CR4.OSXSAVE[Bit 18]
-    //
-    AsmWriteCr4 (Cr4 | BIT18);
-
-    //
-    //  enable SSE and AVX
-    //
-    InternalAsmEnableSseAvx ();
-  }
+  __asm__ __volatile__ (
+    "xor     %ecx, %ecx\n\t"
+    // xgetbv
+    ".byte   0x0F, 0x01, 0xD0\n\t"
+    "orl     $0x06, %eax\n\t"
+    "xor     %ecx, %ecx\n\t"
+    // xsetbv
+    ".byte   0x0F, 0x01, 0xD1"
+    );
 }

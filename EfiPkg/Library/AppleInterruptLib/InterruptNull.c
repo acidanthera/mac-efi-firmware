@@ -11,17 +11,15 @@
   OR CONDITIONS OF ANY KIND, either express or implied.
 **/
 
-#include <AppleMacEfi.h>
+#include <Base.h>
 
-#include "AppleEntryPointInternal.h"
-
-// AppleEntryPoint
-VOID
-AppleEntryPoint (
-  IN EFI_HANDLE        ImageHandle,
-  IN EFI_SYSTEM_TABLE  *SystemTable
+// AppleInterrupt
+RETURN_STATUS
+EFIAPI
+AppleInterrupt (
+  IN UINT32  FunctiondId,
+  ...
   )
 {
-  AppleInitializeStackVerification ();
+  return RETURN_SUCCESS;
 }
-

@@ -40,9 +40,6 @@ InternalGetBackgroundColor (
   IN OUT UINT32  *BackgroundColor
   );
 
-// USER_THEME_INTERFACE_PROTOCOL_REVISION
-#define USER_THEME_INTERFACE_PROTOCOL_REVISION  0x01
-
 // mUserInterfaceThemeProtocol
 STATIC EFI_USER_INTERFACE_THEME_PROTOCOL mUserInterfaceThemeProtocol = {
   USER_THEME_INTERFACE_PROTOCOL_REVISION,
@@ -130,8 +127,6 @@ InternalGetBackgroundColor (
   EFI_STATUS Status;
 
   UINTN      DataSize;
-
-  ASSERT (BackgroundColor != NULL);
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -237,8 +232,6 @@ UserInterfaceThemeDriverMain (
     (VOID *)&BackgroundColor,
     sizeof (BackgroundColor)
     );
-
-  // BUG: Protocol is never uninstalled.
 
   Handle = NULL;
   

@@ -13,104 +13,11 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
 #include <Uefi.h>
+#include <Library/AppleCpuExtensionsLib.h>
 #include <Library/UefiApplicationEntryPoint.h>
-#include <Library/AppleEntryPoint.h>
 #include <Library/BaseLib.h>
 #include <Library/DebugLib.h>
 #include <Library/UefiBootServicesTableLib.h>
-
-
-/**
-  Entry point to UEFI Application.
-
-  This function is the entry point for a UEFI Application. This function must call
-  ProcessLibraryConstructorList(), ProcessModuleEntryPointList(), and ProcessLibraryDestructorList().
-  The return value from ProcessModuleEntryPointList() is returned.
-  If _gUefiDriverRevision is not zero and SystemTable->Hdr.Revision is less than _gUefiDriverRevison,
-  then return EFI_INCOMPATIBLE_VERSION.
-
-  @param  ImageHandle                The image handle of the UEFI Application.
-  @param  SystemTable                A pointer to the EFI System Table.
-
-  @retval  EFI_SUCCESS               The UEFI Application exited normally.
-  @retval  EFI_INCOMPATIBLE_VERSION  _gUefiDriverRevision is greater than SystemTable->Hdr.Revision.
-  @retval  Other                     Return value from ProcessModuleEntryPointList().
-
-**/
-STATIC
-EFI_STATUS
-EFIAPI
-InternalModuleEntryPoint (
-  IN EFI_HANDLE        ImageHandle,
-  IN EFI_SYSTEM_TABLE  *SystemTable
-  )
-{
-  EFI_STATUS                 Status;
-
-  if (_gUefiDriverRevision != 0) {
-    //
-    // Make sure that the EFI/UEFI spec revision of the platform is >= EFI/UEFI spec revision of the application.
-    //
-    if (SystemTable->Hdr.Revision < _gUefiDriverRevision) {
-      return EFI_INCOMPATIBLE_VERSION;
-    }
-  }
-
-  //
-  // Enable SSE and AVX
-  //
-  AppleEnableSseAvx ();
-
-  //
-  // Call constructor for all libraries.
-  //
-  ProcessLibraryConstructorList (ImageHandle, SystemTable);
-
-  //
-  // Call the module's entry point
-  //
-  Status = ProcessModuleEntryPointList (ImageHandle, SystemTable);
-
-  //
-  // Process destructor for all libraries.
-  //
-  ProcessLibraryDestructorList (ImageHandle, SystemTable);
-
-  //
-  // Return the return status code from the driver entry point
-  //
-  return Status;
-}
-
-
-/**
-  Entry point to UEFI Application.
-
-  This function is the entry point for a UEFI Application. This function must call
-  ProcessLibraryConstructorList(), ProcessModuleEntryPointList(), and ProcessLibraryDestructorList().
-  The return value from ProcessModuleEntryPointList() is returned.
-  If _gUefiDriverRevision is not zero and SystemTable->Hdr.Revision is less than _gUefiDriverRevison,
-  then return EFI_INCOMPATIBLE_VERSION.
-
-  @param  ImageHandle                The image handle of the UEFI Application.
-  @param  SystemTable                A pointer to the EFI System Table.
-
-  @retval  EFI_SUCCESS               The UEFI Application exited normally.
-  @retval  EFI_INCOMPATIBLE_VERSION  _gUefiDriverRevision is greater than SystemTable->Hdr.Revision.
-  @retval  Other                     Return value from ProcessModuleEntryPointList().
-
-**/
-EFI_STATUS
-EFIAPI
-_ModuleEntryPoint (
-  IN EFI_HANDLE        ImageHandle,
-  IN EFI_SYSTEM_TABLE  *SystemTable
-  )
-{
-  AppleEntryPoint (ImageHandle, SystemTable);
-
-  return InternalModuleEntryPoint (ImageHandle, SystemTable);
-}
 
 
 /**
@@ -137,7 +44,22 @@ Exit (
 
 
 /**
-  Required by the EBC compiler and identical in functionality to _ModuleEntryPoint(). 
+  Naming required by the EBC compiler.
+
+  Entry point to UEFI Application.
+
+  This function is the entry point for a UEFI Application. This function must call
+  ProcessLibraryConstructorList(), ProcessModuleEntryPointList(), and ProcessLibraryDestructorList().
+  The return value from ProcessModuleEntryPointList() is returned.
+  If _gUefiDriverRevision is not zero and SystemTable->Hdr.Revision is less than _gUefiDriverRevison,
+  then return EFI_INCOMPATIBLE_VERSION.
+
+  @param  ImageHandle                The image handle of the UEFI Application.
+  @param  SystemTable                A pointer to the EFI System Table.
+
+  @retval  EFI_SUCCESS               The UEFI Application exited normally.
+  @retval  EFI_INCOMPATIBLE_VERSION  _gUefiDriverRevision is greater than SystemTable->Hdr.Revision.
+  @retval  Other                     Return value from ProcessModuleEntryPointList().
 
   @param  ImageHandle  The image handle of the UEFI Application.
   @param  SystemTable  A pointer to the EFI System Table.
@@ -154,5 +76,39 @@ EfiMain (
   IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
-  return _ModuleEntryPoint (ImageHandle, SystemTable);
+  EFI_STATUS                 Status;
+
+  if (_gUefiDriverRevision != 0) {
+    //
+    // Make sure that the EFI/UEFI spec revision of the platform is >= EFI/UEFI spec revision of the application.
+    //
+    if (SystemTable->Hdr.Revision < _gUefiDriverRevision) {
+      return EFI_INCOMPATIBLE_VERSION;
+    }
+  }
+
+  //
+  // Enable SSE and AVX
+  //
+  AppleEnableCpuExtensions ();
+
+  //
+  // Call constructor for all libraries.
+  //
+  ProcessLibraryConstructorList (ImageHandle, SystemTable);
+
+  //
+  // Call the module's entry point
+  //
+  Status = ProcessModuleEntryPointList (ImageHandle, SystemTable);
+
+  //
+  // Process destructor for all libraries.
+  //
+  ProcessLibraryDestructorList (ImageHandle, SystemTable);
+
+  //
+  // Return the return status code from the driver entry point
+  //
+  return Status;
 }

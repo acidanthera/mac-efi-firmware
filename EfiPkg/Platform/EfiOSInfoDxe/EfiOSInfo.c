@@ -39,9 +39,6 @@ STATIC UINTN mBootVTdEnabled = 0;
 // mAppleOSLoadedSignaled
 STATIC BOOLEAN mAppleOSLoadedSignaled = FALSE;
 
-// EFI_OS_INFO_PROTOCOL_REVISION
-#define EFI_OS_INFO_PROTOCOL_REVISION  0x03
-
 // InternalOSInfoSet
 STATIC
 VOID
@@ -77,9 +74,6 @@ OSInfoOSName (
 
   CHAR8 *Buffer;
 
-  ASSERT (OSName != NULL);
-  ASSERT (OSName[0] != '\0');
-
   Size   = AsciiStrSize (OSName);
   Buffer = AllocateCopyPool (Size, (CONST VOID *)OSName);
 
@@ -99,9 +93,6 @@ OSInfoOSVendor (
 
   CHAR8 *Buffer;
 
-  ASSERT (OSVendor != NULL);
-  ASSERT (OSVendor[0] != '\0');
-
   Size   = AsciiStrSize (OSVendor);
   Buffer = AllocateCopyPool (Size, (CONST VOID *)OSVendor);
 
@@ -117,8 +108,6 @@ OSInfoSetBootVTdEnabled (
   IN UINTN  *BootVTdEnabled
   )
 {
-  ASSERT (BootVTdEnabled != NULL);
-
   // BUG: Check BootVTdEnabled for NULL.
 
   mBootVTdEnabled = *BootVTdEnabled;
@@ -131,8 +120,6 @@ OSInfoGetBootVTdEnabled (
   OUT UINTN  *BootVTdEnabled
   )
 {
-  ASSERT (BootVTdEnabled != NULL);
-
   // BUG: Check BootVTdEnabled for NULL.
 
   *BootVTdEnabled = mBootVTdEnabled;
@@ -161,7 +148,6 @@ EfiOSInfoMain (
     OSInfoSetBootVTdEnabled,
     OSInfoGetBootVTdEnabled
   };
-  ASSERT_PROTOCOL_ALREADY_INSTALLED (NULL, &gEfiOSInfoProtocolGuid);
 
   return gBS->InstallProtocolInterface (
                 ImageHandle,

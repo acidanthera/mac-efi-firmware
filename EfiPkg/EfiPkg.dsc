@@ -21,6 +21,12 @@
   SUPPORTED_ARCHITECTURES = IA32|IPF|X64|EBC|ARM|AARCH64
   BUILD_TARGETS           = DEBUG|NOOPT|RELEASE
   SKUID_IDENTIFIER        = DEFAULT
+  OUTPUT_DIRECTORY        = BuildResults/J137
+
+  DEFINE STACK_PROTECTOR_ENABLE = TRUE
+
+  DEFINE PEI_LTO_ENABLE = TRUE
+  DEFINE DXE_LTO_ENABLE = TRUE
 
 [LibraryClasses]
   #
@@ -48,8 +54,8 @@
   #
   # Misc
   #
-  DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
-  DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf  
+  DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf
+  DebugLib|EfiPkg/Library/AppleBaseDebugLibInterrupt/AppleBaseDebugLibInterrupt.inf
   #
   # Generic Modules
   #
@@ -58,11 +64,18 @@
   #
   # Apple
   #
+  AppleCpuExtensionsLib|EfiPkg/Library/AppleCpuExtensionsLib/AppleCpuExtensionsLib.inf
   AppleDataHubLib|EfiPkg/Library/AppleDataHubLib/AppleDataHubLib.inf
-  AppleEntryPoint|EfiPkg/Library/AppleEntryPoint/DxeAppleEntryPoint.inf
   AppleEventLib|EfiPkg/Library/AppleEventLib/AppleEventLib.inf
+  AppleInterruptLib|EfiPkg/Library/AppleInterruptLib/AppleInterruptLib.inf
   AppleSmbiosLib|EfiPkg/Library/AppleSmbiosLib/AppleSmbiosLib.inf
   BiosIdLib|EfiPkg/Library/BiosIdLib/BiosIdLib.inf
+
+  #
+  # Since software stack checking may be heuristically enabled by the compiler
+  # include BaseStackCheckLib unconditionally.
+  #
+  NULL|EfiPkg/Library/AppleBaseStackCheckLib/AppleBaseStackCheckLib.inf
 
 [LibraryClasses.common.PEI_CORE]
   HobLib|MdePkg/Library/PeiHobLib/PeiHobLib.inf
@@ -86,44 +99,44 @@
 [LibraryClasses.common.DXE_CORE]
   HobLib|MdePkg/Library/DxeCoreHobLib/DxeCoreHobLib.inf
   MemoryAllocationLib|MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationLib.inf
-  DebugPrintErrorLevelLib|MdeModulePkg/Library/DxeDebugPrintErrorLevelLib/DxeDebugPrintErrorLevelLib.inf
+  DebugPrintErrorLevelLib|EfiPkg/Library/AppleDxeDebugPrintErrorLevelLib/AppleDxeDebugPrintErrorLevelLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
 
 [LibraryClasses.IA32.DXE_CORE, LibraryClasses.X64.DXE_CORE, LibraryClasses.IA32.DXE_DRIVER, LibraryClasses.X64.DXE_DRIVER, LibraryClasses.IA32.DXE_RUNTIME_DRIVER, LibraryClasses.X64.DXE_RUNTIME_DRIVER, LibraryClasses.IA32.DXE_SMM_DRIVER, LibraryClasses.X64.DXE_SMM_DRIVER, LibraryClasses.IA32.UEFI_DRIVER, LibraryClasses.X64.UEFI_DRIVER, LibraryClasses.IA32.UEFI_APPLICATION, LibraryClasses.X64.UEFI_APPLICATION]
   TimerLib|EfiPkg/Library/AcpiTscTimerLib/DxeTscTimerLib.inf
 
 [LibraryClasses.common.DXE_DRIVER]
-  HobLib|EfiPkg/Library/DxeHobLib/DxeHobLib.inf
+  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
-  DebugPrintErrorLevelLib|MdeModulePkg/Library/DxeDebugPrintErrorLevelLib/DxeDebugPrintErrorLevelLib.inf
+  DebugPrintErrorLevelLib|EfiPkg/Library/AppleDxeDebugPrintErrorLevelLib/AppleDxeDebugPrintErrorLevelLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
 
 [LibraryClasses.common.DXE_RUNTIME_DRIVER]
-  HobLib|EfiPkg/Library/DxeHobLib/DxeHobLib.inf
+  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
-  DebugPrintErrorLevelLib|MdeModulePkg/Library/DxeDebugPrintErrorLevelLib/DxeDebugPrintErrorLevelLib.inf
+  DebugPrintErrorLevelLib|EfiPkg/Library/AppleDxeDebugPrintErrorLevelLib/AppleDxeDebugPrintErrorLevelLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
 
 [LibraryClasses.common.SMM_CORE]
-  HobLib|EfiPkg/Library/DxeHobLib/DxeHobLib.inf
+  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   MemoryAllocationLib|MdeModulePkg/Library/PiSmmCoreMemoryAllocationLib/PiSmmCoreMemoryAllocationLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
 
 [LibraryClasses.common.DXE_SMM_DRIVER]
-  HobLib|EfiPkg/Library/DxeHobLib/DxeHobLib.inf
+  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   MemoryAllocationLib|MdePkg/Library/SmmMemoryAllocationLib/SmmMemoryAllocationLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
 
 [LibraryClasses.common.UEFI_DRIVER]
-  HobLib|EfiPkg/Library/DxeHobLib/DxeHobLib.inf
+  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
-  DebugPrintErrorLevelLib|MdeModulePkg/Library/DxeDebugPrintErrorLevelLib/DxeDebugPrintErrorLevelLib.inf
+  DebugPrintErrorLevelLib|EfiPkg/Library/AppleDxeDebugPrintErrorLevelLib/AppleDxeDebugPrintErrorLevelLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
 
 [LibraryClasses.common.UEFI_APPLICATION]
-  HobLib|EfiPkg/Library/DxeHobLib/DxeHobLib.inf
+  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
-  DebugPrintErrorLevelLib|MdeModulePkg/Library/DxeDebugPrintErrorLevelLib/DxeDebugPrintErrorLevelLib.inf
+  DebugPrintErrorLevelLib|EfiPkg/Library/AppleDxeDebugPrintErrorLevelLib/AppleDxeDebugPrintErrorLevelLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
 
 [LibraryClasses.ARM, LibraryClasses.AARCH64]
@@ -134,15 +147,18 @@
   #
   NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
 
-  #
-  # Since software stack checking may be heuristically enabled by the compiler
-  # include BaseStackCheckLib unconditionally.
-  #
-  NULL|MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
-
   ArmLib|ArmPkg/Library/ArmLib/ArmBaseLib.inf
   TimerLib|ArmPkg/Library/ArmArchTimerLib/ArmArchTimerLib.inf
   ArmGenericTimerCounterLib|ArmPkg/Library/ArmGenericTimerPhyCounterLib/ArmGenericTimerPhyCounterLib.inf
+
+[PcdsFixedAtBuild]
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x11
+
+  ## Indicates the maximum node number of linked list.<BR><BR>
+  #  0  - No node number check for linked list.<BR>
+  #  >0 - Maximum node number of linked list.<BR>
+  # @Prompt Maximum Length of Linked List.
+  gEfiMdePkgTokenSpaceGuid.PcdMaximumLinkedListLength|0
 
 [Components]
   EfiPkg/Bus/Lpc/AppleSmcDxe/AppleSmcDxe.inf
@@ -150,22 +166,42 @@
   EfiPkg/Platform/AppleBootPolicyDxe/AppleBootPolicyDxe.inf
   EfiPkg/Platform/AppleEventDxe/AppleEventDxe.inf
   EfiPkg/Platform/AppleKeyMapAggregatorDxe/AppleKeyMapAggregatorDxe.inf
+  EfiPkg/Platform/ApplePlatformInfoDatabase/Dxe/ApplePlatformInfoDatabaseDxe.inf
   EfiPkg/Platform/EfiDevicePathPropertyDatabaseDxe/EfiDevicePathPropertyDatabaseDxe.inf
   EfiPkg/Platform/EfiOSInfoDxe/EfiOSInfoDxe.inf
   EfiPkg/Platform/UserInterfaceThemeDriverDxe/UserInterfaceThemeDriverDxe.inf
 
   EfiPkg/Universal/AppleSmbiosDxe/AppleSmbiosDxe.inf
 
+  EfiPkg/Library/AppleBaseDebugLibInterrupt/AppleBaseDebugLibInterrupt.inf
+  EfiPkg/Library/AppleCpuExtensionsLib/AppleCpuExtensionsLib.inf
   EfiPkg/Library/AppleDataHubLib/AppleDataHubLib.inf
-  EfiPkg/Library/AppleEntryPoint/DxeAppleEntryPoint.inf
   EfiPkg/Library/AppleEventLib/AppleEventLib.inf
+  EfiPkg/Library/AppleInterruptLib/AppleInterruptLib.inf
   EfiPkg/Library/AppleSmbiosLib/AppleSmbiosLib.inf
   EfiPkg/Library/BiosIdLib/BiosIdLib.inf
-  EfiPkg/Library/DxeHobLib/DxeHobLib.inf
+  EfiPkg/Library/AppleDxeDebugPrintErrorLevelLib/AppleDxeDebugPrintErrorLevelLib.inf
   EfiPkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
   EfiPkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
+
+  StoragePkg/PartitionDxe/PartitionDxe.inf
+
+  UsbPkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
 
 [Components.IA32, Components.X64]
   EfiPkg/Library/AcpiTscTimerLib/BaseTscTimerLib.inf
   EfiPkg/Library/AcpiTscTimerLib/DxeTscTimerLib.inf
   EfiPkg/Library/AcpiTscTimerLib/PeiTscTimerLib.inf
+
+[BuildOptions]
+  XCODE:*_*_*_PLATFORM_FLAGS = -fstack-protector
+
+!if $(PEI_LTO_ENABLE)
+  XCODE:*_*_IA32_PLATFORM_FLAGS = -flto
+  XCODE:*_*_*_DLINK_FLAGS       = -object_path_lto $(DEST_DIR_DEBUG)/$(BASE_NAME).lto
+!endif
+
+!if $(DXE_LTO_ENABLE)
+  XCODE:*_*_X64_PLATFORM_FLAGS = -flto
+  XCODE:*_*_*_DLINK_FLAGS      = -object_path_lto $(DEST_DIR_DEBUG)/$(BASE_NAME).lto
+!endif
