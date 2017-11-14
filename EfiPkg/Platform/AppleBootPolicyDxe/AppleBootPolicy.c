@@ -28,6 +28,9 @@
 #include <Library/PrintLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 
+EFI_GUID gAppleApfsVolumeGuid;
+EFI_GUID gAppleApfsContainerGuid;
+
 ///
 /// An array of file paths to search for in case no file is blessed.
 ///
@@ -128,7 +131,9 @@ InternalGetBlessedSystemFilePath (
                        );
 
       if (!EFI_ERROR (Status)) {
-        *FilePath = (FILEPATH_DEVICE_PATH *)DuplicateDevicePath (DevPath.DevPath);
+        *FilePath = (FILEPATH_DEVICE_PATH *)DuplicateDevicePath (
+                                              DevPath.DevPath
+                                              );
       }
 
       gBS->FreePool ((VOID *)DevPath.DevPath);
@@ -211,11 +216,11 @@ InternalGetFilePathName (
       if ((DevicePathType (DevPathNode) == MEDIA_DEVICE_PATH)
        && (DevicePathSubType (DevPathNode) == MEDIA_FILEPATH_DP)) {
         FilePath     = (FILEPATH_DEVICE_PATH *)DevPathNode;
-        PathNameSize = StrSize (FilePath->PathName);
+        PathNameSize = StrSize (&FilePath->PathName[0]);
         PathName     = AllocatePool (PathNameSize);
 
         if (PathName != NULL) {
-          StrCpy (PathName, FilePath->PathName);
+          StrCpy (PathName, &FilePath->PathName[0]);
         } else {
           Status = EFI_OUT_OF_RESOURCES;
         }
@@ -264,7 +269,7 @@ InternalAppendBootPathName (
 
 STATIC
 EFI_STATUS
-Internalsub_2669 (
+InternalGetApfsVolumeInfo (
   IN  EFI_HANDLE  Device,
   OUT EFI_GUID    *Guid,
   OUT EFI_GUID    *Guid2,
@@ -291,7 +296,7 @@ Internalsub_2669 (
     if (!EFI_ERROR (Status)) {
       Status = EFI_NOT_FOUND;
 
-      FileInfo = InternalGetFileInfo (Root, NULL);
+      FileInfo = InternalGetFileInfo (Root, &gAppleApfsContainerGuid);
 
       if (FileInfo != NULL) {
         CopyGuid (
@@ -304,7 +309,7 @@ Internalsub_2669 (
         Status = EFI_SUCCESS;
       }
 
-      FileInfo = InternalGetFileInfo (Root, NULL);
+      FileInfo = InternalGetFileInfo (Root, &gAppleApfsVolumeGuid);
 
       if (FileInfo != NULL) {
         CopyGuid (
@@ -330,9 +335,9 @@ Internalsub_27DD (
   IN  EFI_HANDLE                      Device,
   IN  EFI_FILE_PROTOCOL               *Root,
   IN  EFI_GUID                        *Guid,
-  IN  CHAR16                          *String,
+  IN  CHAR16                          *VolumeUuidString,
   OUT CONST EFI_DEVICE_PATH_PROTOCOL  **DevicePath,
-  OUT EFI_HANDLE                      *UnknHandle
+  OUT EFI_HANDLE                      *VolumeHandle
   )
 {
   EFI_STATUS                      Status;
@@ -342,16 +347,13 @@ Internalsub_27DD (
   UINTN                           Index;
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
   EFI_FILE_PROTOCOL               *HandleRoot;
-  VOID                            *FileInfo;
+  VOID                            *ContainerInfo;
   BOOLEAN                         Result;
-  VOID                            *FileInfo2;
+  VOID                            *VolumeInfo;
   CHAR16                          StartOfBuffer[38];
   EFI_FILE_PROTOCOL               *NewHandle;
-  EFI_FILE_INFO                   *FileInfo3;
+  EFI_FILE_INFO                   *VolumeDirectoryInfo;
   FILEPATH_DEVICE_PATH            *FilePath;
-  UINTN                           DevPathSize1;
-  UINTN                           DevPathSize2;
-  EFI_DEVICE_PATH_PROTOCOL        *NewDevPath;
 
   Status =  gBS->LocateHandleBuffer (
                    ByProtocol,
@@ -376,24 +378,24 @@ Internalsub_27DD (
           Status = FileSystem->OpenVolume (FileSystem, &HandleRoot);
 
           if (!EFI_ERROR (Status)) {
-            FileInfo = InternalGetFileInfo (HandleRoot, NULL);
+            ContainerInfo = InternalGetFileInfo (HandleRoot, &gAppleApfsContainerGuid);
 
-            if (FileInfo != NULL) {
-              Result = CompareGuid ((EFI_GUID *)((UINTN)FileInfo + 4), Guid);
+            if (ContainerInfo != NULL) {
+              Result = CompareGuid ((EFI_GUID *)((UINTN)ContainerInfo + 4), Guid);
 
               if (Result) {
-                FileInfo2 = InternalGetFileInfo (HandleRoot, NULL);
+                VolumeInfo = InternalGetFileInfo (HandleRoot, &gAppleApfsVolumeGuid);
 
-                if (FileInfo2 != NULL) {
+                if (VolumeInfo != NULL) {
                   UnicodeSPrint (
                     &StartOfBuffer[0],
                     sizeof (StartOfBuffer),
                     L"%g", 
-                    (EFI_GUID *)((UINTN)FileInfo2 + 4)
+                    (EFI_GUID *)((UINTN)VolumeInfo + 4)
                     );
 
-                  if (StrStr (String, &StartOfBuffer[0]) != NULL) {
-                    *UnknHandle = HandleBuffer[Index];
+                  if (StrStr (VolumeUuidString, &StartOfBuffer[0]) != NULL) {
+                    *VolumeHandle = HandleBuffer[Index];
                   }
 
                   Status = Root->Open (
@@ -405,13 +407,13 @@ Internalsub_27DD (
                                    );
 
                   if (!EFI_ERROR (Status)) {
-                    FileInfo3 = InternalGetFileInfo (
-                                  NewHandle,
-                                  &gEfiFileInfoGuid
-                                  );
+                    VolumeDirectoryInfo = InternalGetFileInfo (
+                                            NewHandle,
+                                            &gEfiFileInfoGuid
+                                            );
 
-                    if (FileInfo3 != NULL) {
-                      if ((FileInfo3->Attribute & EFI_FILE_DIRECTORY) != 0) {
+                    if (VolumeDirectoryInfo != NULL) {
+                      if ((VolumeDirectoryInfo->Attribute & EFI_FILE_DIRECTORY) != 0) {
                         FilePath = NULL;
 
                         Status = InternalAppendBootPathName (
@@ -420,56 +422,25 @@ Internalsub_27DD (
                                    &FilePath
                                    );
 
-                        if (!EFI_ERROR (Status) && (FilePath != NULL)) {
-                          NewDevPath = NULL;
-
-                          if (*DevicePath != NULL) {
-                            if (IsDevicePathValid (*DevicePath, 0)
-                             && IsDevicePathValid (FilePath, 0)) {
-                              DevPathSize1 = GetDevicePathSize (*DevicePath);
-                              DevPathSize2 = GetDevicePathSize (FilePath);
-
-                              NewDevPath = AllocatePool (
-                                             (DevPathSize1 + DevPathSize2)
-                                             );
-
-                              if (NewDevPath != NULL) {
-                                NewDevPath = CopyMem (
-                                                (VOID *)NewDevPath,
-                                                (VOID *)*DevicePath,
-                                                DevPathSize1
-                                                );
-
-                                while (IsDevicePathEnd (NewDevPath)) {
-                                  NewDevPath = NextDevicePathNode (NewDevPath);
-                                }
-
-                                NewDevPath->Type = HARDWARE_DEVICE_PATH;
-
-                                NewDevPath = NextDevicePathNode (NewDevPath);
-
-                                CopyMem (
-                                  (VOID *)NewDevPath,
-                                  (VOID *)FilePath,
-                                  DevPathSize2
-                                  );
-                              }
-                            }
-                          } else {
-                            NewDevPath = DuplicateDevicePath (FilePath);
-                          }
-
-                          *DevicePath = NewDevPath;
+                        if (!EFI_ERROR (Status)) {
+                          *DevicePath = AppendDevicePathInstance (
+                                          *DevicePath,
+                                          (CONST EFI_DEVICE_PATH_PROTOCOL *)FilePath
+                                          );
                         }
                       }
 
-                      FreePool (FileInfo3);
+                      FreePool (VolumeDirectoryInfo);
                     }
                   }
                 }
+
+                if (VolumeInfo != NULL) {
+                  FreePool ((VOID *)VolumeInfo);
+                }
               }
 
-              FreePool (FileInfo);
+              FreePool (ContainerInfo);
             }
 
             HandleRoot->Close (HandleRoot);
@@ -579,10 +550,10 @@ Policy2 (
     Status = FileSystem->OpenVolume (FileSystem, &Root);
 
     if (!EFI_ERROR (Status)) {
-      FileInfo = InternalGetFileInfo (Root, NULL);
+      FileInfo = InternalGetFileInfo (Root, &gAppleApfsVolumeGuid);
 
       if (FileInfo != NULL) {
-        FileInfo2 = InternalGetFileInfo (Root, NULL);
+        FileInfo2 = InternalGetFileInfo (Root, &gAppleApfsContainerGuid);
 
         if (FileInfo2 != NULL) {
           Status = InternalGetBlessedSystemFilePath (Root, FilePath);
@@ -739,7 +710,7 @@ Policy3 (
           Status = FileSystem->OpenVolume (FileSystem, &Root);
 
           if (!EFI_ERROR (Status)) {
-            FileInfo = InternalGetFileInfo (Root, NULL);
+            FileInfo = InternalGetFileInfo (Root, &gAppleApfsContainerGuid);
 
             if (FileInfo != NULL) {
               FilePath = NULL;
@@ -855,7 +826,7 @@ Policy5 (
         Status = EFI_NOT_FOUND;
 
         for (Index = 0; Index < NoHandles; ++Index) {
-          Status = Internalsub_2669 (
+          Status = InternalGetApfsVolumeInfo (
                      HandleBuffer[Index],
                      &Guid1,
                      &Guid2,
