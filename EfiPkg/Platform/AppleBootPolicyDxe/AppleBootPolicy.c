@@ -692,8 +692,8 @@ Policy3 (
               goto Done;
             }
           } else {
-            if (!(BufferWalker[Index] >= L'0') && (BufferWalker[Index] <= L'9')
-             && !(BufferWalker[Index] >= L'A') && (BufferWalker[Index] <= L'F')
+            if (!((VolumeUuidStr[Index] >= L'0') && (VolumeUuidStr[Index] <= L'9'))
+             && !((VolumeUuidStr[Index] >= L'A') && (VolumeUuidStr[Index] <= L'F'))
              ) {
               goto Done;
             }
