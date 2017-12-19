@@ -25,6 +25,8 @@
   EfiPkg/EfiPkg.dec
 
 [Guids]
+  gAppleApfsContainerInfoGuid        ## SOMETIMES_CONSUMES
+  gAppleApfsVolumeInfoGuid           ## SOMETIMES_CONSUMES
   gAppleBlessedSystemFileInfoGuid    ## SOMETIMES_CONSUMES
   gAppleBlessedSystemFolderInfoGuid  ## SOMETIMES_CONSUMES
   gEfiFileInfoGuid                   ## SOMETIMES_CONSUMES

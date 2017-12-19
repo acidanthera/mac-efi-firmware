@@ -14,22 +14,32 @@
 
 #include <AppleMacEfi.h>
 
+#include <Guid/AppleApfsInfo.h>
 #include <Guid/AppleBless.h>
 #include <Guid/FileInfo.h>
 
-#include <Protocol/AppleBootPolicy.h>
 #include <Protocol/SimpleFileSystem.h>
+#include <Protocol/AppleBootPolicy.h>
 
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
-#include <Library/DebugLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PrintLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 
-EFI_GUID gAppleApfsVolumeGuid;
-EFI_GUID gAppleApfsContainerGuid;
+typedef struct {
+  EFI_HANDLE             Handle;
+  GUID                   ContainerGuid;
+  GUID                   VolumeGuid;
+  APPLE_APFS_VOLUME_ROLE VolumeRole;
+} APFS_VOLUME_INFO;
+
+typedef struct {
+  EFI_HANDLE        Handle;
+  CHAR16            *VolumeDirName;
+  EFI_FILE_PROTOCOL *Root;
+} APFS_VOLUME_ROOT;
 
 ///
 /// An array of file paths to search for in case no file is blessed.
@@ -44,8 +54,44 @@ STATIC CONST CHAR16 *mBootPathNames[] = {
 EFI_STATUS
 EFIAPI
 BootPolicyGetBootFile (
-  IN     EFI_HANDLE            Device,
-  IN OUT FILEPATH_DEVICE_PATH  **FilePath
+  IN     EFI_HANDLE                      Device,
+  IN OUT CONST EFI_DEVICE_PATH_PROTOCOL  **FilePath
+  );
+
+EFI_STATUS
+EFIAPI
+BootPolicyGetBootFileEx (
+  IN  EFI_HANDLE                Device,
+  IN  UINT32                    Unused, OPTIONAL
+  OUT EFI_DEVICE_PATH_PROTOCOL  **FilePath
+  );
+
+EFI_STATUS
+EFIAPI
+BootPolicyGetBootInfo (
+  IN  EFI_DEVICE_PATH_PROTOCOL  *DevicePath,
+  OUT CHAR16                    **BootPathName,
+  OUT EFI_HANDLE                Device,
+  OUT EFI_HANDLE                *ApfsVolumeHandle
+  );
+
+EFI_STATUS
+EFIAPI
+BootPolicyGetPathNameOnApfsRecovery (
+  IN  EFI_DEVICE_PATH_PROTOCOL  *DevicePath,
+  IN  CONST CHAR16              *PathName,
+  OUT CONST CHAR16              **FullPathName,
+  OUT UINTN                     *Unknown,
+  IN  EFI_FILE_PROTOCOL         **Root,
+  OUT EFI_HANDLE                *DeviceHandle
+  );
+
+EFI_STATUS
+EFIAPI
+BootPolicyGetApfsRecoveryVolumes (
+  IN  EFI_HANDLE  Handle,
+  OUT VOID        **Volumes,
+  OUT UINTN       *NumberOfEntries
   );
 
 ///
@@ -53,7 +99,11 @@ BootPolicyGetBootFile (
 ///
 STATIC APPLE_BOOT_POLICY_PROTOCOL mAppleBootPolicyProtocol = {
   APPLE_BOOT_POLICY_PROTOCOL_REVISION,
-  BootPolicyGetBootFile
+  BootPolicyGetBootFile,
+  BootPolicyGetBootFileEx,
+  BootPolicyGetBootInfo,
+  BootPolicyGetPathNameOnApfsRecovery,
+  BootPolicyGetApfsRecoveryVolumes
 };
 
 /**
@@ -69,7 +119,7 @@ STATIC
 BOOLEAN
 InternalFileExists (
   IN EFI_FILE_HANDLE  Root,
-  IN CHAR16           *FileName
+  IN CONST CHAR16     *FileName
   )
 {
   BOOLEAN         Exists;
@@ -80,7 +130,7 @@ InternalFileExists (
   Status = Root->Open (
                    Root,
                    &FileHandle,
-                   FileName,
+                   (CHAR16 *)FileName,
                    EFI_FILE_MODE_READ,
                    0
                    );
@@ -96,12 +146,11 @@ InternalFileExists (
   return Exists;
 }
 
-// InternalGetBlessedSystemFilePath
 STATIC
 EFI_STATUS
 InternalGetBlessedSystemFilePath (
-  IN  EFI_FILE_PROTOCOL     *Root,
-  OUT FILEPATH_DEVICE_PATH  **FilePath
+  IN  EFI_FILE_PROTOCOL               *Root,
+  OUT CONST EFI_DEVICE_PATH_PROTOCOL  **FilePath
   )
 {
   EFI_STATUS       Status;
@@ -131,9 +180,7 @@ InternalGetBlessedSystemFilePath (
                        );
 
       if (!EFI_ERROR (Status)) {
-        *FilePath = (FILEPATH_DEVICE_PATH *)DuplicateDevicePath (
-                                              DevPath.DevPath
-                                              );
+        *FilePath = DuplicateDevicePath (DevPath.DevPath);
       }
 
       gBS->FreePool ((VOID *)DevPath.DevPath);
@@ -145,7 +192,6 @@ InternalGetBlessedSystemFilePath (
   return Status;
 }
 
-// InternalGetFileInfo
 STATIC
 VOID *
 InternalGetFileInfo (
@@ -240,9 +286,9 @@ InternalGetFilePathName (
 STATIC
 EFI_STATUS
 InternalAppendBootPathName (
-  IN  EFI_HANDLE            Device,
-  IN  EFI_FILE_PROTOCOL     *Root,
-  OUT FILEPATH_DEVICE_PATH  **FilePath
+  IN  EFI_HANDLE                      Device,
+  IN  EFI_FILE_PROTOCOL               *Root,
+  OUT CONST EFI_DEVICE_PATH_PROTOCOL  **DevicePath
   )
 {
   EFI_STATUS   Status;
@@ -255,8 +301,8 @@ InternalAppendBootPathName (
   for (Index = 0; Index < ARRAY_SIZE (mBootPathNames); ++Index) {
     PathName = mBootPathNames[Index];
 
-    if (InternalFileExists (Root, (CHAR16 *)PathName)) {
-      *FilePath = (FILEPATH_DEVICE_PATH *)FileDevicePath (Device, PathName);
+    if (InternalFileExists (Root, PathName)) {
+      *DevicePath = FileDevicePath (Device, PathName);
 
       Status = EFI_SUCCESS;
 
@@ -270,17 +316,18 @@ InternalAppendBootPathName (
 STATIC
 EFI_STATUS
 InternalGetApfsVolumeInfo (
-  IN  EFI_HANDLE  Device,
-  OUT EFI_GUID    *Guid,
-  OUT EFI_GUID    *Guid2,
-  OUT UINT32      *Unknown
+  IN  EFI_HANDLE              Device,
+  OUT EFI_GUID                *ContainerGuid,
+  OUT EFI_GUID                *VolumeGuid,
+  OUT APPLE_APFS_VOLUME_ROLE  *VolumeRole
 )
 {
   EFI_STATUS                      Status;
 
   EFI_FILE_PROTOCOL               *Root;
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-  VOID                            *FileInfo;
+  APPLE_APFS_CONTAINER_INFO       *ApfsContainerInfo;
+  APPLE_APFS_VOLUME_INFO          *ApfsVolumeInfo;
 
   Root = NULL;
 
@@ -296,30 +343,33 @@ InternalGetApfsVolumeInfo (
     if (!EFI_ERROR (Status)) {
       Status = EFI_NOT_FOUND;
 
-      FileInfo = InternalGetFileInfo (Root, &gAppleApfsContainerGuid);
+      ApfsContainerInfo = InternalGetFileInfo (
+                            Root,
+                            &gAppleApfsContainerInfoGuid
+                            );
 
-      if (FileInfo != NULL) {
+      if (ApfsContainerInfo != NULL) {
         CopyGuid (
-          Guid,
-          (EFI_GUID *)((UINTN)FileInfo + 4)
+          ContainerGuid,
+          &ApfsContainerInfo->Uuid
           );
 
-        FreePool (FileInfo);
+        FreePool ((VOID *)ApfsContainerInfo);
         
         Status = EFI_SUCCESS;
       }
 
-      FileInfo = InternalGetFileInfo (Root, &gAppleApfsVolumeGuid);
+      ApfsVolumeInfo = InternalGetFileInfo (Root, &gAppleApfsVolumeInfoGuid);
 
-      if (FileInfo != NULL) {
+      if (ApfsVolumeInfo != NULL) {
         CopyGuid (
-          Guid2,
-          (EFI_GUID *)((UINTN)FileInfo + 4)
+          VolumeGuid,
+          &ApfsVolumeInfo->Uuid
           );
 
-        *Unknown = (UINT32)((UINTN)FileInfo + 4 + sizeof (EFI_GUID));
+        *VolumeRole = ApfsVolumeInfo->Role;
 
-        FreePool (FileInfo);
+        FreePool ((VOID *)ApfsVolumeInfo);
       }
 
       Root->Close (Root);
@@ -331,13 +381,13 @@ InternalGetApfsVolumeInfo (
 
 STATIC
 EFI_STATUS
-Internalsub_27DD (
-  IN  EFI_HANDLE                      Device,
-  IN  EFI_FILE_PROTOCOL               *Root,
-  IN  EFI_GUID                        *Guid,
-  IN  CHAR16                          *VolumeUuidString,
-  OUT CONST EFI_DEVICE_PATH_PROTOCOL  **DevicePath,
-  OUT EFI_HANDLE                      *VolumeHandle
+InternalGetApfsBootFile (
+  IN  EFI_HANDLE                Device,
+  IN  EFI_FILE_PROTOCOL         *Root,
+  IN  CONST GUID                *ContainerUuid,
+  IN  CONST CHAR16              *VolumeUuid,
+  OUT EFI_DEVICE_PATH_PROTOCOL  **DevicePath,
+  OUT EFI_HANDLE                *VolumeHandle
   )
 {
   EFI_STATUS                      Status;
@@ -347,13 +397,22 @@ Internalsub_27DD (
   UINTN                           Index;
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
   EFI_FILE_PROTOCOL               *HandleRoot;
-  VOID                            *ContainerInfo;
-  BOOLEAN                         Result;
-  VOID                            *VolumeInfo;
-  CHAR16                          StartOfBuffer[38];
+  APPLE_APFS_CONTAINER_INFO       *ContainerInfo;
+  BOOLEAN                         Equal;
+  APPLE_APFS_VOLUME_INFO          *VolumeInfo;
+  CHAR16                          DirPathNameBuffer[38];
   EFI_FILE_PROTOCOL               *NewHandle;
   EFI_FILE_INFO                   *VolumeDirectoryInfo;
-  FILEPATH_DEVICE_PATH            *FilePath;
+  CONST EFI_DEVICE_PATH_PROTOCOL  *FilePath;
+  CONST CHAR16                    *FilePathName;
+  UINTN                           GuidPathNameSize;
+  BOOLEAN                         DirectoryExists;
+  UINTN                           BootFileNameSize;
+  CHAR16                          *FullPathName;
+  UINTN                           DevPathSize;
+  EFI_DEVICE_PATH_PROTOCOL        *DevPath;
+  EFI_DEVICE_PATH_PROTOCOL        *DevPathWalker;
+  INTN                            Result;
 
   Status =  gBS->LocateHandleBuffer (
                    ByProtocol,
@@ -364,92 +423,163 @@ Internalsub_27DD (
                    );
 
   if (!EFI_ERROR (Status)) {
-    if (NumberOfHandles == 0) {
-      Status = EFI_NOT_FOUND;
-    } else {
-      for (Index = 0; Index < NumberOfHandles; ++Index) {
-        Status = gBS->HandleProtocol (
-                        HandleBuffer[Index],
-                        &gEfiSimpleFileSystemProtocolGuid,
-                        (VOID **)&FileSystem
-                        );
+    Status = EFI_NOT_FOUND;
+
+    for (Index = 0; Index < NumberOfHandles; ++Index) {
+      Status = gBS->HandleProtocol (
+                      HandleBuffer[Index],
+                      &gEfiSimpleFileSystemProtocolGuid,
+                      (VOID **)&FileSystem
+                      );
+
+      if (!EFI_ERROR (Status)) {
+        Status = FileSystem->OpenVolume (FileSystem, &HandleRoot);
 
         if (!EFI_ERROR (Status)) {
-          Status = FileSystem->OpenVolume (FileSystem, &HandleRoot);
+          ContainerInfo = InternalGetFileInfo (
+                            HandleRoot,
+                            &gAppleApfsContainerInfoGuid
+                            );
 
-          if (!EFI_ERROR (Status)) {
-            ContainerInfo = InternalGetFileInfo (HandleRoot, &gAppleApfsContainerGuid);
+          if (ContainerInfo != NULL) {
+            Equal = CompareGuid (&ContainerInfo->Uuid, ContainerUuid);
 
-            if (ContainerInfo != NULL) {
-              Result = CompareGuid ((EFI_GUID *)((UINTN)ContainerInfo + 4), Guid);
+            if (Equal) {
+              VolumeInfo = InternalGetFileInfo (
+                              HandleRoot,
+                              &gAppleApfsVolumeInfoGuid
+                              );
 
-              if (Result) {
-                VolumeInfo = InternalGetFileInfo (HandleRoot, &gAppleApfsVolumeGuid);
+              if (VolumeInfo != NULL) {
+                UnicodeSPrint (
+                  &DirPathNameBuffer[0],
+                  sizeof (DirPathNameBuffer),
+                  L"%g", 
+                  &VolumeInfo->Uuid
+                  );
 
-                if (VolumeInfo != NULL) {
-                  UnicodeSPrint (
-                    &StartOfBuffer[0],
-                    sizeof (StartOfBuffer),
-                    L"%g", 
-                    (EFI_GUID *)((UINTN)VolumeInfo + 4)
-                    );
-
-                  if (StrStr (VolumeUuidString, &StartOfBuffer[0]) != NULL) {
-                    *VolumeHandle = HandleBuffer[Index];
-                  }
-
-                  Status = Root->Open (
-                                   Root,
-                                   &NewHandle,
-                                   &StartOfBuffer[0],
-                                   EFI_FILE_MODE_READ,
-                                   0
-                                   );
-
-                  if (!EFI_ERROR (Status)) {
-                    VolumeDirectoryInfo = InternalGetFileInfo (
-                                            NewHandle,
-                                            &gEfiFileInfoGuid
-                                            );
-
-                    if (VolumeDirectoryInfo != NULL) {
-                      if ((VolumeDirectoryInfo->Attribute & EFI_FILE_DIRECTORY) != 0) {
-                        FilePath = NULL;
-
-                        Status = InternalAppendBootPathName (
-                                   Device,
-                                   NewHandle,
-                                   &FilePath
-                                   );
-
-                        if (!EFI_ERROR (Status)) {
-                          *DevicePath = AppendDevicePathInstance (
-                                          *DevicePath,
-                                          (CONST EFI_DEVICE_PATH_PROTOCOL *)FilePath
-                                          );
-                        }
-                      }
-
-                      FreePool (VolumeDirectoryInfo);
-                    }
-                  }
+                if (StrStr (VolumeUuid, &DirPathNameBuffer[0]) != NULL) {
+                  *VolumeHandle = HandleBuffer[Index];
                 }
 
-                if (VolumeInfo != NULL) {
-                  FreePool ((VOID *)VolumeInfo);
+                // BUG: NewHandle is not closed.
+                Status = Root->Open (
+                                 Root,
+                                 &NewHandle,
+                                 &DirPathNameBuffer[0],
+                                 EFI_FILE_MODE_READ,
+                                 0
+                                 );
+
+                if (!EFI_ERROR (Status)) {
+                  VolumeDirectoryInfo = InternalGetFileInfo (
+                                          NewHandle,
+                                          &gEfiFileInfoGuid
+                                          );
+
+                  if (VolumeDirectoryInfo != NULL) {
+                    if ((VolumeDirectoryInfo->Attribute & EFI_FILE_DIRECTORY) != 0) {
+                      FilePath = NULL;
+
+                      Status = EFI_NOT_FOUND;
+
+                      DirectoryExists = FALSE;
+                        
+                      for (Index = 0; Index < ARRAY_SIZE (mBootPathNames); ++Index) {
+                        FilePathName = mBootPathNames[Index];
+
+                        DirectoryExists = InternalFileExists (
+                                            NewHandle,
+                                            (FilePathName[0] == L'\\')
+                                              ? &FilePathName[1]
+                                              : &FilePathName[0]
+                                            );
+
+                        if (DirectoryExists) {
+                          NewHandle->Close (NewHandle);
+
+                          GuidPathNameSize = (StrSize (&DirPathNameBuffer[0]) + 1);
+                          BootFileNameSize = StrSize (FilePathName);
+
+                          FullPathName = AllocateZeroPool (
+                                           GuidPathNameSize + BootFileNameSize
+                                           );
+
+                          if (FullPathName != NULL) {
+                            if (FullPathName[0] != L'\\') {
+                              StrCpy (FullPathName, L"\\");
+                            }
+
+                            StrCat (FullPathName, &DirPathNameBuffer[0]);
+                            StrCat (FullPathName, FilePathName);
+
+                            FilePath = FileDevicePath (Device, FullPathName);
+
+                            FreePool ((VOID *)FullPathName);
+
+                            if (FilePath != NULL) {
+                              Status = EFI_SUCCESS;
+
+                              DevPathSize = GetDevicePathSize (FilePath);
+                              DevPath     = *DevicePath;
+
+                              do {
+                                DevPathWalker = GetNextDevicePathInstance (
+                                                  &DevPath,
+                                                  &DevPathSize
+                                                  );
+
+                                if (DevPathWalker == NULL) {
+                                  *DevicePath = AppendDevicePath (
+                                                  *DevicePath,
+                                                  FilePath
+                                                  );
+
+                                  break;
+                                }
+
+                                if ((DevPathSize == 0)
+                                 || (DevPathWalker == FilePath)) {
+                                  FreePool ((VOID *)DevPathWalker);
+
+                                  break;
+                                }
+
+                                Result = CompareMem (
+                                            (VOID *)DevPathWalker,
+                                            (VOID *)FilePath,
+                                            DevPathSize
+                                            );
+
+                                FreePool ((VOID *)DevPathWalker);
+                              } while (Result != 0);
+                            }
+                          }
+
+                          break;
+                        }
+                      }
+                    }
+
+                    FreePool ((VOID *)VolumeDirectoryInfo);
+                  }
                 }
               }
 
-              FreePool (ContainerInfo);
+              if (VolumeInfo != NULL) {
+                FreePool ((VOID *)VolumeInfo);
+              }
             }
 
-            HandleRoot->Close (HandleRoot);
+            FreePool ((VOID *)ContainerInfo);
           }
+
+          HandleRoot->Close (HandleRoot);
         }
       }
-
-      FreePool (HandleBuffer);
     }
+
+    FreePool ((VOID *)HandleBuffer);
   }
 
   return Status;
@@ -481,8 +611,8 @@ Internalsub_27DD (
 EFI_STATUS
 EFIAPI
 BootPolicyGetBootFile (
-  IN     EFI_HANDLE            Device,
-  IN OUT FILEPATH_DEVICE_PATH  **FilePath
+  IN     EFI_HANDLE                      Device,
+  IN OUT CONST EFI_DEVICE_PATH_PROTOCOL  **FilePath
   )
 {
   EFI_STATUS                      Status;
@@ -525,18 +655,19 @@ BootPolicyGetBootFile (
 
 EFI_STATUS
 EFIAPI
-Policy2 (
-  IN  EFI_HANDLE            Device,
-      VOID                  *Unused,
-  OUT FILEPATH_DEVICE_PATH  **FilePath
+BootPolicyGetBootFileEx (
+  IN  EFI_HANDLE                Device,
+  IN  UINT32                    Unused, OPTIONAL
+  OUT EFI_DEVICE_PATH_PROTOCOL  **FilePath
   )
 {
   EFI_STATUS                      Status;
 
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
   EFI_FILE_PROTOCOL               *Root;
-  VOID                            *FileInfo;
-  VOID                            *FileInfo2;
+  APPLE_APFS_CONTAINER_INFO       *ContainerInfo;
+  APPLE_APFS_VOLUME_INFO          *VolumeInfo;
+  EFI_STATUS                      Status2;
 
   *FilePath = NULL;
 
@@ -550,33 +681,39 @@ Policy2 (
     Status = FileSystem->OpenVolume (FileSystem, &Root);
 
     if (!EFI_ERROR (Status)) {
-      FileInfo = InternalGetFileInfo (Root, &gAppleApfsVolumeGuid);
+      VolumeInfo = InternalGetFileInfo (Root, &gAppleApfsVolumeInfoGuid);
 
-      if (FileInfo != NULL) {
-        FileInfo2 = InternalGetFileInfo (Root, &gAppleApfsContainerGuid);
+      if (VolumeInfo != NULL) {
+        ContainerInfo = InternalGetFileInfo (Root, &gAppleApfsContainerInfoGuid);
 
-        if (FileInfo2 != NULL) {
-          Status = InternalGetBlessedSystemFilePath (Root, FilePath);
+        if (ContainerInfo != NULL) {
+          Status = EFI_NOT_FOUND;
 
-          if (EFI_ERROR (Status)) {
-            Status = InternalGetFilePathName (Root);
+          if ((VolumeInfo->Role & APPLE_APFS_VOLUME_ROLE_PREBOOT) != 0) {
+            Status2 = InternalGetBlessedSystemFilePath (Root, FilePath);
+
+            if (EFI_ERROR (Status2)) {
+              Status2 = InternalGetFilePathName (Root);
+            }
+
+            Status = InternalGetApfsBootFile (
+                       Device,
+                       Root,
+                       &ContainerInfo->Uuid,
+                       NULL,
+                       FilePath,
+                       NULL
+                       );
+
+            if (!EFI_ERROR (Status2)) {
+              Status = Status2;
+            }
           }
 
-          Internalsub_27DD (
-            Device,
-            Root,
-            (GUID *)((UINTN)FileInfo2 + 4),
-            NULL,
-            (CONST EFI_DEVICE_PATH_PROTOCOL **)FilePath,
-            NULL
-            );
-
-          FreePool ((VOID *)FileInfo2);
-        } else {
-          Status = EFI_NOT_FOUND;
+          FreePool ((VOID *)ContainerInfo);
         }
 
-        FreePool ((VOID *)FileInfo);
+        FreePool ((VOID *)VolumeInfo);
 
         Root->Close (Root);
       } else {
@@ -590,55 +727,91 @@ Policy2 (
   return Status;
 }
 
-EFI_STATUS
-EFIAPI
-Policy3 (
-  IN  EFI_DEVICE_PATH_PROTOCOL  *DevicePath,
-  OUT CHAR16                    **PathName,
-  OUT EFI_HANDLE                *Device,
-  OUT EFI_HANDLE                *Handle
+STATIC
+BOOLEAN
+IsValidGuidString (
+  IN CONST CHAR16  *String
   )
 {
-  EFI_STATUS Status;
-
-  EFI_HANDLE lDevice;
-  UINTN      Size;
-  CHAR16       *Buffer;
-  FILEPATH_DEVICE_PATH *FilePath;
-  CHAR16 *Slash;
-  UINTN Len;
-  CHAR16 *BufferWalker;
+  UINTN Length;
   UINTN Index;
-  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-  EFI_FILE_PROTOCOL *Root;
-  VOID *FileInfo;
 
-  *PathName = NULL;
-  *Device   = NULL;
-  *Handle   = NULL;
+  Length = StrLen (String);
+
+  if (Length >= 36) {
+    for (Index = 0; Index < 36; ++Index) {
+      if (
+        ((Index == 8) || (Index == 12) || (Index == 16) || (Index == 20))
+        ) {
+        if (String[Index] != '-') {
+          return FALSE;
+        }
+      }
+      else {
+        if (!((String[Index] >= L'0') && (String[Index] <= L'9'))
+          && !((String[Index] >= L'A') && (String[Index] <= L'F'))
+          ) {
+          return FALSE;
+        }
+      }
+    }
+
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+EFI_STATUS
+EFIAPI
+BootPolicyGetBootInfo (
+  IN  EFI_DEVICE_PATH_PROTOCOL  *DevicePath,
+  OUT CHAR16                    **BootPathName,
+  OUT EFI_HANDLE                *Device,
+  OUT EFI_HANDLE                *ApfsVolumeHandle
+  )
+{
+  EFI_STATUS                      Status;
+
+  EFI_HANDLE                      DeviceHandle;
+  UINTN                           Size;
+  CHAR16                          *PathName;
+  CONST FILEPATH_DEVICE_PATH      *FilePath;
+  CHAR16                          *Slash;
+  UINTN                           Len;
+  CHAR16                          *FilePathName;
+  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
+  EFI_FILE_PROTOCOL               *Root;
+  APPLE_APFS_CONTAINER_INFO       *ContainerInfo;
+  EFI_DEVICE_PATH_PROTOCOL        *BootDevicePath;
+
+  *BootPathName = NULL;
+  *Device       = NULL;
+  *ApfsVolumeHandle = NULL;
 
   Status = gBS->LocateDevicePath (
                   &gEfiSimpleFileSystemProtocolGuid,
                   &DevicePath,
-                  &lDevice
+                  &DeviceHandle
                   );
 
   if (!EFI_ERROR (Status)) {
-    *Device = lDevice;
+    *Device = DeviceHandle;
 
     if ((DevicePathType (DevicePath) == MEDIA_DEVICE_PATH)
      && (DevicePathSubType (DevicePath) == MEDIA_FILEPATH_DP)) {
-      FilePath = (FILEPATH_DEVICE_PATH *)DevicePath;
+      FilePath = (CONST FILEPATH_DEVICE_PATH *)DevicePath;
 
       Size = DevicePathNodeLength (DevicePath);
 
-      Buffer = AllocateZeroPool ((Size - SIZE_OF_FILEPATH_DEVICE_PATH) + 1);
+      // BUG: Only set the last char to \0 for performance.
+      PathName = AllocateZeroPool ((Size - SIZE_OF_FILEPATH_DEVICE_PATH) + 1);
 
       Status = EFI_OUT_OF_RESOURCES;
 
-      if (Buffer != NULL) {
+      if (PathName != NULL) {
         CopyMem (
-          (VOID *)Buffer,
+          (VOID *)PathName,
           (VOID *)FilePath->PathName,
           (Size - SIZE_OF_FILEPATH_DEVICE_PATH)
           );
@@ -646,62 +819,42 @@ Policy3 (
         Slash = StrStr (FilePath->PathName, L"\\");
 
         if (Slash != NULL) {
-          Len = StrLen (Buffer);
+          Len = StrLen (PathName);
 
-          if (Buffer[Len - 1] != L'\\') {
-            BufferWalker = &Buffer[Len - 1];
+          // BUG: Len may be 0.
+          // what if there is no \\ in the string?
+          FilePathName = &PathName[Len - 1];
 
-            do {
-              BufferWalker[0] = L'\0';
-              --BufferWalker;
-
-            } while (*BufferWalker != L'\\');
+          while (*FilePathName != L'\\') {
+            *FilePathName = L'\0';
+            --FilePathName;
           }
         } else {
-          StrCpy (Buffer, L"\\");
+          StrCpy (PathName, L"\\");
         }
       } else {
         return EFI_OUT_OF_RESOURCES;
       }
     } else {
-      Size = StrSize (L"\\");
-
-      Buffer = AllocateZeroPool (Size + 1);
+      // BUG: + 1 is unnecessary.
+      PathName = AllocateZeroPool (sizeof (L"\\") + 1);
 
       // BUG: Buffer should be checked.
 
-      StrCpy (Buffer, L"\\");
+      StrCpy (PathName, L"\\");
     }
 
-    BufferWalker = &Buffer[1];
+    FilePathName = &PathName[0];
 
-    if (Buffer[0] != L'\\') {
-      BufferWalker = Buffer;
+    if (PathName[0] == L'\\') {
+      FilePathName = &PathName[1];
     }
 
-    // BUG: Check for NULL-terminator, not pointer?
-    if (BufferWalker != NULL) {
-      Len = StrLen (BufferWalker);
-
-      if (Len >= 36) {
-        for (Index = 0; Index < 36; ++Index) {
-          if (
-            ((Index == 8) || (Index == 12) || (Index == 16) || (Index == 20))
-            ) {
-            if (BufferWalker[Index] != '-') {
-              goto Done;
-            }
-          } else {
-            if (!((VolumeUuidStr[Index] >= L'0') && (VolumeUuidStr[Index] <= L'9'))
-             && !((VolumeUuidStr[Index] >= L'A') && (VolumeUuidStr[Index] <= L'F'))
-             ) {
-              goto Done;
-            }
-          }
-        }
-
+    // This cannot be FALSE.
+    if (FilePathName != NULL) {
+      if (IsValidGuidString (FilePathName)) {
         Status = gBS->HandleProtocol (
-                        lDevice,
+                        DeviceHandle,
                         &gEfiSimpleFileSystemProtocolGuid,
                         (VOID **)&FileSystem
                         );
@@ -710,187 +863,331 @@ Policy3 (
           Status = FileSystem->OpenVolume (FileSystem, &Root);
 
           if (!EFI_ERROR (Status)) {
-            FileInfo = InternalGetFileInfo (Root, &gAppleApfsContainerGuid);
+            ContainerInfo = InternalGetFileInfo (
+                              Root,
+                              &gAppleApfsContainerInfoGuid
+                              );
 
-            if (FileInfo != NULL) {
-              FilePath = NULL;
+            if (ContainerInfo != NULL) {
+              BootDevicePath = NULL;
 
-              Internalsub_27DD (
-                lDevice,
+              InternalGetApfsBootFile (
+                DeviceHandle,
                 Root,
-                (GUID *)((UINTN)FileInfo + 4),
-                BufferWalker,
-                (CONST EFI_DEVICE_PATH_PROTOCOL **)&FilePath,
-                Handle
+                &ContainerInfo->Uuid,
+                FilePathName,
+                &BootDevicePath,
+                ApfsVolumeHandle
                 );
 
-              if (FilePath != NULL) {
-                FreePool (FilePath);
+              if (BootDevicePath != NULL) {
+                FreePool ((VOID *)BootDevicePath);
               }
 
-              FreePool (FileInfo);
+              FreePool ((VOID *)ContainerInfo);
             }
           }
         }
       }
     }
 
-  Done:
-    *PathName = Buffer;
+    *BootPathName = PathName;
   }
 
   return Status;
 }
 
-// Policy4
 EFI_STATUS
 EFIAPI
-Policy4 (
-
-)
+BootPolicyGetPathNameOnApfsRecovery (
+  IN  EFI_DEVICE_PATH_PROTOCOL  *DevicePath,
+  IN  CONST CHAR16              *PathName,
+  OUT CONST CHAR16              **FullPathName,
+  OUT UINTN                     *Unknown,
+  IN  EFI_FILE_PROTOCOL         **Root,
+  OUT EFI_HANDLE                *DeviceHandle
+  )
 {
-  
+  EFI_STATUS                      Result;
+
+  EFI_STATUS                      Status;
+
+  CHAR16                          *BootPathName;
+  EFI_HANDLE                      Device;
+  EFI_HANDLE                      VolumeHandle;
+
+  GUID                            ContainerGuid;
+  GUID                            VolumeGuid;
+  APPLE_APFS_VOLUME_ROLE          VolumeRole;
+
+  GUID                            ContainerGuid2;
+  GUID                            VolumeGuid2;
+  APPLE_APFS_VOLUME_ROLE          VolumeRole2;
+
+  UINTN                           NoHandles;
+  EFI_HANDLE                      *HandleBuffer;
+  UINTN                           Index;
+
+  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
+
+  CHAR16                          *FullPathBuffer;
+  UINTN                           FullPathNameSize;
+
+  EFI_FILE_PROTOCOL               *NewHandle;
+
+  EFI_FILE_INFO                   *FileInfo;
+
+  Result = EFI_INVALID_PARAMETER;
+
+  NewHandle     = NULL;
+  *Root         = NULL;
+  *FullPathName = NULL;
+  *Unknown      = 0;
+
+  if ((PathName != NULL) && (DevicePath != NULL)) {
+    Result = EFI_NOT_FOUND;
+
+    Status = BootPolicyGetBootInfo (
+               DevicePath,
+               &BootPathName,
+               &Device,
+               &VolumeHandle
+               );
+
+    if (!EFI_ERROR (Status)) {
+      Status = InternalGetApfsVolumeInfo (
+                 VolumeHandle,
+                 &ContainerGuid,
+                 &VolumeGuid,
+                 &VolumeRole
+                 );
+
+      if (!EFI_ERROR (Status)) {
+        Result = gBS->LocateHandleBuffer (
+                        ByProtocol,
+                        &gEfiSimpleFileSystemProtocolGuid,
+                        NULL,
+                        &NoHandles,
+                        &HandleBuffer
+                        );
+
+        if (!EFI_ERROR (Result)) {
+          Result = EFI_NOT_FOUND;
+
+          for (Index = 0; Index < NoHandles; ++Index) {
+            Result = InternalGetApfsVolumeInfo (
+                       HandleBuffer[Index],
+                       &ContainerGuid2,
+                       &VolumeGuid2,
+                       &VolumeRole2
+                       );
+
+            if (!EFI_ERROR (Result)
+             && VolumeRole2 == APPLE_APFS_VOLUME_ROLE_RECOVERY
+             && CompareGuid (&ContainerGuid2, &ContainerGuid)) {
+              Result = gBS->HandleProtocol (
+                              HandleBuffer[Index],
+                              &gEfiSimpleFileSystemProtocolGuid,
+                              (VOID **)&FileSystem
+                              );
+
+              if (!EFI_ERROR (Result)) {
+                Result = FileSystem->OpenVolume (FileSystem, Root);
+
+                if (!EFI_ERROR (Result)) {
+                  FullPathNameSize  = StrSize (PathName);
+                  // BUG: Buffer seems to be too large.
+                  FullPathNameSize += 40 * sizeof (*FullPathBuffer);
+                  // BUG: Only set the last character to \0.
+                  FullPathBuffer    = AllocateZeroPool (FullPathNameSize);
+
+                  UnicodeSPrint (
+                    FullPathBuffer,
+                    FullPathNameSize,
+                    L"%g%s",
+                    &VolumeGuid,
+                    PathName
+                    );
+
+                  Result = (*Root)->Open (
+                                      *Root,
+                                      &NewHandle,
+                                      FullPathBuffer,
+                                      EFI_FILE_MODE_READ,
+                                      0
+                                      );
+
+                  if (!EFI_ERROR (Result)) {
+                    FileInfo = InternalGetFileInfo (
+                                 NewHandle,
+                                 &gEfiFileInfoGuid
+                                 );
+
+                    // BUG: Return an error code if FALSE.
+                    if (FileInfo != NULL) {
+                      if ((FileInfo->Attribute & EFI_FILE_DIRECTORY) != 0) {
+                        *FullPathName = FullPathBuffer;
+                        *DeviceHandle = HandleBuffer[Index];
+
+                        // BUG: NewHandle is not closed.
+
+                        FreePool ((VOID *)FileInfo);
+
+                        break;
+                      }
+
+                      FreePool ((VOID *)FileInfo);
+                    }
+
+                    NewHandle->Close (NewHandle);
+                  }
+                }
+              }
+            }
+          }
+
+          FreePool ((VOID *)HandleBuffer);
+        }
+      }
+    }
+  }
+
+  return Result;
 }
 
-typedef struct {
-  EFI_HANDLE Handle;
-  EFI_GUID   DiskGuid;
-  EFI_GUID   VolumeGuid;
-  UINT32     Uint32;
-} APFS_VOLUME_INFO;
-
-typedef struct {
-  EFI_HANDLE        Handle;
-  CHAR16            *VolumeDirName;
-  EFI_FILE_PROTOCOL *Root;
-} APFS_VOLUME_ROOT;
-
-// Policy5
 EFI_STATUS
 EFIAPI
-Policy5 (
+BootPolicyGetApfsRecoveryVolumes (
   IN  EFI_HANDLE  Handle,
-  OUT VOID        **Sth,
+  OUT VOID        **Volumes,
   OUT UINTN       *NumberOfEntries
   )
 {
-  EFI_STATUS       Status;
+  EFI_STATUS                      Status;
 
-  UINTN            NoHandles;
-  EFI_HANDLE       *HandleBuffer;
-  APFS_VOLUME_INFO *VolumeInfo;
-  GUID             **DiskGuids;
-  GUID             UnusedGuid; // BUG: This variable is never used.
-  UINTN            Index;
-  EFI_GUID         Guid1;
-  EFI_GUID         Guid2;
-  UINT32           Unknown;
-  UINTN            Index2;
-  UINTN            NumberOfGuids;
-  UINTN            NumberOfBuffer1;
-  APFS_VOLUME_ROOT **Memory;
-  UINTN            Index3;
-  UINTN            Index4;
-  BOOLEAN          GuidPresent;
+  UINTN                           NumberOfHandles;
+  EFI_HANDLE                      *HandleBuffer;
+  APFS_VOLUME_INFO                *VolumeInfo;
+  GUID                            **ContainerGuids;
+  GUID                            UnusedGuid; // BUG: This variable is never used.
+  UINTN                           Index;
+  EFI_GUID                        ContainerGuid;
+  EFI_GUID                        VolumeGuid;
+  APPLE_APFS_VOLUME_ROLE          VolumeRole;
+  UINTN                           Index2;
+  UINTN                           NumberOfContainers;
+  UINTN                           NumberOfVolumeInfo;
+  APFS_VOLUME_ROOT                **ApfsVolumes;
+  UINTN                           Index3;
+  UINTN                           Index4;
+  BOOLEAN                         GuidPresent;
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-  EFI_FILE_PROTOCOL *Root;
-  EFI_FILE_PROTOCOL *NewHandle;
-  CHAR16            String[80];
-  EFI_FILE_INFO     *FileInfo;
+  EFI_FILE_PROTOCOL               *Root;
+  EFI_FILE_PROTOCOL               *NewHandle;
+  CHAR16                          String[40];
+  EFI_FILE_INFO                   *FileInfo;
+  APFS_VOLUME_ROOT                *ApfsRoot;
 
   Status = gBS->LocateHandleBuffer (
                   ByProtocol,
                   &gEfiSimpleFileSystemProtocolGuid,
                   NULL,
-                  &NoHandles,
+                  &NumberOfHandles,
                   &HandleBuffer
                   );
 
   if (!EFI_ERROR (Status)) {
     Status = EFI_NOT_FOUND;
 
-    if (NoHandles > 0) {
-      VolumeInfo = AllocateZeroPool (NoHandles * sizeof (*VolumeInfo));
+    if (NumberOfHandles > 0) {
+      VolumeInfo = AllocateZeroPool (NumberOfHandles * sizeof (*VolumeInfo));
 
       Status = EFI_OUT_OF_RESOURCES;
 
       if (VolumeInfo != NULL) {
         // BUG: The previous allocation is verified, this isn't.
-        DiskGuids = AllocateZeroPool (NoHandles * sizeof (**DiskGuids));
+        ContainerGuids = AllocateZeroPool (
+                           NumberOfHandles * sizeof (**ContainerGuids)
+                           );
 
         ZeroMem ((VOID *)&UnusedGuid, sizeof (UnusedGuid));
 
-        NumberOfBuffer1 = 0;
-        NumberOfGuids   = 0;
+        NumberOfVolumeInfo = 0;
+        NumberOfContainers = 0;
 
         Status = EFI_NOT_FOUND;
 
-        for (Index = 0; Index < NoHandles; ++Index) {
+        for (Index = 0; Index < NumberOfHandles; ++Index) {
           Status = InternalGetApfsVolumeInfo (
                      HandleBuffer[Index],
-                     &Guid1,
-                     &Guid2,
-                     &Unknown
+                     &ContainerGuid,
+                     &VolumeGuid,
+                     &VolumeRole
                      );
 
           if (!EFI_ERROR (Status)) {
-            VolumeInfo[NumberOfBuffer1].Handle = HandleBuffer[Index];
-
             CopyGuid (
-              &VolumeInfo[NumberOfBuffer1].DiskGuid,
-              &Guid1
+              &VolumeInfo[NumberOfVolumeInfo].ContainerGuid,
+              &ContainerGuid
               );
 
             CopyGuid (
-              &VolumeInfo[NumberOfBuffer1].VolumeGuid,
-              &Guid2
+              &VolumeInfo[NumberOfVolumeInfo].VolumeGuid,
+              &VolumeGuid
               );
 
-            VolumeInfo[NumberOfBuffer1].Uint32 = Unknown;
+            VolumeInfo[NumberOfVolumeInfo].VolumeRole = VolumeRole;
+            VolumeInfo[NumberOfVolumeInfo].Handle     = HandleBuffer[Index];
 
             GuidPresent = FALSE;
 
-            for (Index2 = 0; Index2 < NumberOfGuids; ++Index2) {
-              if (CompareGuid (DiskGuids[Index2], &Guid1)) {
+            for (Index2 = 0; Index2 < NumberOfContainers; ++Index2) {
+              if (CompareGuid (ContainerGuids[Index2], &ContainerGuid)) {
                 GuidPresent = TRUE;
                 break;
               }
             }
 
-            if (!GuidPresent) {
+            if (!GuidPresent || (NumberOfContainers == 0)) {
               CopyGuid (
-                DiskGuids[NumberOfGuids],
-                &VolumeInfo[NumberOfBuffer1].DiskGuid
+                ContainerGuids[NumberOfContainers],
+                &VolumeInfo[NumberOfVolumeInfo].ContainerGuid
                 );
 
               // BUG: This may overwrite the GUID at [0]?
               if ((Index2 != 0) && (HandleBuffer[Index] == Handle)) {
-                CopyGuid (DiskGuids[0], &VolumeInfo[NumberOfBuffer1].DiskGuid);
+                CopyGuid (
+                  ContainerGuids[0],
+                  &VolumeInfo[NumberOfVolumeInfo].ContainerGuid
+                  );
               }
 
-              ++NumberOfGuids;
+              ++NumberOfContainers;
             }
 
-            ++NumberOfBuffer1;
+            ++NumberOfVolumeInfo;
           }
         }
 
-        Status = EFI_NOT_FOUND;
-
-        if (NumberOfBuffer1 != 0) {
-          Memory = AllocateZeroPool (NumberOfBuffer1 * 8 * 3);
+        if (NumberOfVolumeInfo != 0) {
+          ApfsVolumes = AllocateZeroPool (
+                          NumberOfVolumeInfo * sizeof (ApfsVolumes)
+                          );
 
           Status = EFI_OUT_OF_RESOURCES;
 
-          if (Memory != NULL) {
-            *Sth = Memory;
+          if (ApfsVolumes != NULL) {
+            *Volumes         = ApfsVolumes;
             *NumberOfEntries = 0;
 
-            for (Index2 = 0; Index2 < NumberOfGuids; ++Index2) {
-              for (Index3 = 0; Index3 < NumberOfBuffer1; ++Index3) {
-                if (CompareGuid (DiskGuids[Index2], &VolumeInfo[Index3].DiskGuid)
-                  && ((VolumeInfo[Index3].Uint32 & 0x04) != 0)
-                  ) {
+            for (Index2 = 0; Index2 < NumberOfContainers; ++Index2) {
+              for (Index3 = 0; Index3 < NumberOfVolumeInfo; ++Index3) {
+                if (CompareGuid (
+                      ContainerGuids[Index2],
+                      &VolumeInfo[Index3].ContainerGuid
+                      )
+                 && ((VolumeInfo[Index3].VolumeRole & APPLE_APFS_VOLUME_ROLE_RECOVERY) != 0)
+                 ) {
                   Status = gBS->HandleProtocol (
                                   VolumeInfo[Index3].Handle,
                                   &gEfiSimpleFileSystemProtocolGuid,
@@ -901,9 +1198,12 @@ Policy5 (
                     Status = FileSystem->OpenVolume (FileSystem, &Root);
                     
                     if (!EFI_ERROR (Status)) {
-                      for (Index4 = 0; Index4 < NumberOfBuffer1; ++Index4) {
+                      for (Index4 = 0; Index4 < NumberOfVolumeInfo; ++Index4) {
                         if (
-                          CompareGuid (DiskGuids[Index2], &VolumeInfo[Index4].DiskGuid)
+                          CompareGuid (
+                            ContainerGuids[Index2],
+                            &VolumeInfo[Index4].ContainerGuid
+                            )
                           ) {
                           UnicodeSPrint (
                             &String[0],
@@ -913,30 +1213,32 @@ Policy5 (
                             );
 
                           Status = Root->Open (
-                                            Root,
-                                            &NewHandle,
-                                            String,
-                                            EFI_FILE_MODE_READ,
-                                            0
-                                            );
+                                           Root,
+                                           &NewHandle,
+                                           String,
+                                           EFI_FILE_MODE_READ,
+                                           0
+                                           );
 
                           if (!EFI_ERROR (Status)) {
                             FileInfo = InternalGetFileInfo (
-                                          NewHandle,
-                                          &gEfiFileInfoGuid
-                                          );
+                                         NewHandle,
+                                         &gEfiFileInfoGuid
+                                         );
 
                             if ((FileInfo != NULL)
-                              && ((FileInfo->Attribute & EFI_FILE_DIRECTORY) != 0)
-                              ) {
-                              Memory[*NumberOfEntries]->Handle = VolumeInfo[Index3].Handle;
+                             && ((FileInfo->Attribute & EFI_FILE_DIRECTORY) != 0)
+                             ) {
+                              ApfsRoot = ApfsVolumes[*NumberOfEntries];
 
-                              Memory[*NumberOfEntries]->VolumeDirName = AllocateCopyPool (
-                                                               StrSize (String),
-                                                               (VOID *)&String[0]
-                                                               );
+                              ApfsRoot->Handle = VolumeInfo[Index3].Handle;
 
-                              Memory[*NumberOfEntries]->Root = Root;
+                              ApfsRoot->VolumeDirName = AllocateCopyPool (
+                                                          StrSize (String),
+                                                          (VOID *)&String[0]
+                                                          );
+
+                              ApfsRoot->Root = Root;
 
                               ++(*NumberOfEntries);
                             }
@@ -949,9 +1251,9 @@ Policy5 (
               }
             }
 
-            FreePool (VolumeInfo);
-            FreePool (DiskGuids);
-            FreePool (HandleBuffer);
+            FreePool ((VOID *)VolumeInfo);
+            FreePool ((VOID *)ContainerGuids);
+            FreePool ((VOID *)HandleBuffer);
           }
         }
       }
