@@ -15,18 +15,13 @@
 #include <PiDxe.h>
 
 #include <Guid/AppleVariable.h>
-#include <Guid/HobList.h>
 
 #include <Protocol/AppleSmcIo.h>
 #include <Protocol/UserInterfaceTheme.h>
 
-#include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
-#include <Library/DebugLib.h>
 #include <Library/HobLib.h>
-#include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
-#include <Library/UefiLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
 
 // DEFAULT_BACKGROUND_COLOR
@@ -45,9 +40,6 @@ STATIC EFI_USER_INTERFACE_THEME_PROTOCOL mUserInterfaceThemeProtocol = {
   USER_THEME_INTERFACE_PROTOCOL_REVISION,
   InternalGetBackgroundColor
 };
-
-// mList
-STATIC LIST_ENTRY mList = INITIALIZE_LIST_HEAD_VARIABLE (mList);
 
 // mDefaultBackgroundColorPresent
 STATIC BOOLEAN mDefaultBackgroundColorPresent = FALSE;
@@ -176,30 +168,11 @@ UserInterfaceThemeDriverMain (
   IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
-  LIST_ENTRY    *Entry;
-  VOID          *Data;
   EFI_BOOT_MODE BootMode;
   UINTN         DataSize;
   EFI_STATUS    Status;
   UINT32        BackgroundColor;
   EFI_HANDLE    Handle;
-
-  // TODO: / BUG: The ListEntry code does nothing. - Library code! Used by AppleEvent too.
-
-  Entry = mList.ForwardLink;
-
-  if (!IsListEmpty (&mList)) {
-    Entry = GetFirstNode (&mList);
-
-    // BUG: This check is useless, should use do { } while().
-
-    while (!IsNull (&mList, Entry)) {
-      Data  = (VOID *)((UINTN)Entry - 8);
-      Entry = RemoveEntryList (Entry);
-
-      FreePool (Data);
-    }
-  }
 
   mDefaultBackgroundColorPresent = FALSE;
 

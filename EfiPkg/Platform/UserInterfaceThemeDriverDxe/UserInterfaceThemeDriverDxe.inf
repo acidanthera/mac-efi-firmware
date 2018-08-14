@@ -32,13 +32,10 @@
   gEfiUserInterfaceThemeProtocolGuid
 
 [LibraryClasses]
-  BaseLib
   BaseMemoryLib
-  DebugLib
   HobLib
   UefiBootServicesTableLib
   UefiDriverEntryPoint
-  UefiLib
   UefiRuntimeServicesTableLib
 
 [Sources]
