@@ -271,8 +271,6 @@ USBKeyboardDriverBindingStart (
   UsbKeyboardDevice = NULL;
   Found             = FALSE;
 
-  // TODO: Some kind of stack protector code?
-
   //
   // Open USB_IO Protocol
   //
@@ -713,8 +711,6 @@ USBKeyboardDriverBindingStop (
   EFI_STATUS                  Status;
   EFI_SIMPLE_TEXT_INPUT_PROTOCOL *SimpleInput;
   USB_KB_DEV                  *UsbKeyboardDevice;
-
-  // TODO: Some kind of stack protector code?
 
   Status = gBS->OpenProtocol (
                   Controller,
