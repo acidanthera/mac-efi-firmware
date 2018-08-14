@@ -95,13 +95,13 @@ InternalGetProductInfo (
   Status = InternalGetPlatformInfoProtocol ();
 
   if (!EFI_ERROR (Status)) {
-    Size   = 0x0156;
+    Size   = sizeof (*ProductInfoData);
     ProductInfoData = AllocateZeroPool (sizeof (*ProductInfoData));
 
     if (ProductInfoData != NULL) {
       Status = mPlatformInfo->GetFirstData (
                                 mPlatformInfo,
-                                NULL, // TODO
+                                &gAppleProductInfoPlatformInfoGuid,
                                 ProductInfoData,
                                 &Size
                                 );
