@@ -458,7 +458,8 @@ InternalGetApfsBootFile (
                   &VolumeInfo->Uuid
                   );
 
-                if (StrStr (VolumeUuid, &DirPathNameBuffer[0]) != NULL) {
+                if ((VolumeUuid != NULL)
+                 && StrStr (VolumeUuid, &DirPathNameBuffer[0]) != NULL) {
                   *VolumeHandle = HandleBuffer[Index];
                 }
 
@@ -479,11 +480,7 @@ InternalGetApfsBootFile (
 
                   if (VolumeDirectoryInfo != NULL) {
                     if ((VolumeDirectoryInfo->Attribute & EFI_FILE_DIRECTORY) != 0) {
-                      FilePath = NULL;
-
                       Status = EFI_NOT_FOUND;
-
-                      DirectoryExists = FALSE;
                         
                       for (Index = 0; Index < ARRAY_SIZE (mBootPathNames); ++Index) {
                         FilePathName = mBootPathNames[Index];
@@ -496,8 +493,6 @@ InternalGetApfsBootFile (
                                             );
 
                         if (DirectoryExists) {
-                          NewHandle->Close (NewHandle);
-
                           GuidPathNameSize = (StrSize (&DirPathNameBuffer[0]) + 1);
                           BootFileNameSize = StrSize (FilePathName);
 
