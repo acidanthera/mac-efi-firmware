@@ -1002,7 +1002,7 @@ AppleSmcMain (
         if (SmcHob == NULL) {
           Status = SmcIoVirtualSmcReadValue (
                      &SmcDev->SmcIo,
-                     SMC_MAKE_IDENTIFIER ('S', 'P', 'S', 'M'),
+                     SMC_MAKE_KEY ('M', 'S', 'P', 'S'),
                      sizeof (Value),
                      (SMC_DATA *)&Value
                      );
