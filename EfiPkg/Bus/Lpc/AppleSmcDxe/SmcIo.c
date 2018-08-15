@@ -54,6 +54,11 @@ InternalSmcGetKeyInfo (
   OUT SMC_KEY_ATTRIBUTES     *Attributes
   );
 
+// TODO: Figure out and move.
+STATIC CONST EFI_GUID gApplePhysicalSmcHobGuid =
+  { 0xD1B58E22, 0x779B, 0x46AC,
+    { 0x86, 0x7B, 0xF1, 0x59, 0x8D, 0x5E, 0xA0, 0x5A } };
+
 // InternalIsKeyPresent
 STATIC
 BOOLEAN
@@ -997,10 +1002,10 @@ AppleSmcMain (
 
         SmcDev->SmcIo.Mmio = SmcMmioInterface (SmcAddress);
 
-        SmcHob = GetFirstGuidHob (NULL);
+        SmcHob = GetFirstGuidHob (&gApplePhysicalSmcHobGuid);
 
         if (SmcHob == NULL) {
-          Status = SmcIoVirtualSmcReadValue (
+          Status = InternalSmcReadValue (
                      &SmcDev->SmcIo,
                      SMC_MAKE_KEY ('M', 'S', 'P', 'S'),
                      sizeof (Value),
@@ -1017,7 +1022,7 @@ AppleSmcMain (
 
         NumberOfSmcDevices = 1;
 
-        SmcIoVirtualSmcReadValue (
+        InternalSmcReadValue (
           &SmcDev->SmcIo,
           SMC_KEY_NUM,
           sizeof (NumberOfSmcDevices),
@@ -1040,7 +1045,7 @@ AppleSmcMain (
                        );
 
           if (!EFI_ERROR (Status)) {
-            Status = SmcIoVirtualSmcReadValue (
+            Status = InternalSmcReadValue (
                        &SmcDev->SmcIo,
                        SMC_KEY_ADR,
                        sizeof (SmcAddress),
