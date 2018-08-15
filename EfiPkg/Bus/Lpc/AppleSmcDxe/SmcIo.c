@@ -134,6 +134,7 @@ InternalSmcReadValue (
   BOOLEAN    KeyPresent;
   SMC_DEV    *SmcDev;
   SMC_RESULT Result;
+  SMC_DATA   *ValueWalker;
 
   Status = EFI_INVALID_PARAMETER;
 
@@ -167,9 +168,11 @@ InternalSmcReadValue (
                   Status = SmcIoSmcWriteData8 (SmcDev, (SMC_DATA)Size);
 
                   if (!EFI_ERROR (Status)) {
+                    ValueWalker = Value;
+
                     do {
-                      Status = SmcIoSmcReadData8 (SmcDev, Value);
-                      ++Value;
+                      Status = SmcIoSmcReadData8 (SmcDev, ValueWalker);
+                      ++ValueWalker;
 
                       if (EFI_ERROR (Status)) {
                         break;
@@ -194,8 +197,8 @@ InternalSmcReadValue (
               Status = EFI_SUCCESS;
 
               if ((Key == SMC_MAKE_KEY ('R', 'P', 'l', 't'))
-               && (*(UINT64 *)&Value == SMC_MAKE_KEY ('5', '0', '5', 'j'))) {
-                  ((CHAR8 *)&Value)[2] = '\0';
+               && (*(UINT64 *)Value == SMC_MAKE_KEY ('5', '0', '5', 'j'))) {
+                ((CHAR8 *)Value)[2] = '\0';
               }
             } else {
               Status = EFIERR (Result);
