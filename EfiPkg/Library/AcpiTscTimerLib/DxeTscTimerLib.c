@@ -81,6 +81,8 @@ DxeTscTimerLibConstructor (
   if (GuidHob != NULL) {
     DataInHob = GET_GUID_HOB_DATA (GuidHob);
     mTscFrequency = * (UINT64 *) DataInHob;
+  } else {
+    mTscFrequency = InternalCalculateTscFrequency ();
   }
 
   //
