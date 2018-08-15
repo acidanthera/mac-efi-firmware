@@ -252,7 +252,7 @@ InternalSmcWriteValue (
             Status = SmcWriteValueMmio (
                        mSmcMmioAddress,
                        Key,
-                       (UINT32)(SMC_DATA_SIZE)Size,
+                       (UINT32)Size,
                        Value
                        );
           } else {
@@ -277,9 +277,9 @@ InternalSmcWriteValue (
                       }
 
                       --Size;
-                    } while ((SMC_DATA_SIZE)Size > 0);
+                    } while (Size > 0);
 
-                    if ((SMC_DATA_SIZE)Size == 0) {
+                    if (Size == 0) {
                       Status = SmcIoSmcTimeoutWaitingForBusyClear (SmcDev);
                     }
                   }
