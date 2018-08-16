@@ -44,6 +44,7 @@
   gAppleRomInfoGuid                           ## SOMETIMES_CONSUMES
   gAppleVendorVariableGuid                    ## SOMETIMES_CONSUMES
   gAppleFsbFrequencyPlatformInfoIndexHobGuid  ## SOMETIMES_CONSUMES
+  gAppleProductInfoPlatformInfoGuid           ## SOMETIMES_CONSUMES
 
 [Protocols]
   gAppleDiagAccessProtocolGuid            ## SOMETIMES_CONSUMES
