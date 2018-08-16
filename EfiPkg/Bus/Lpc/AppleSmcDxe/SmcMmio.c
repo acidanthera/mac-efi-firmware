@@ -244,13 +244,13 @@ sub_5FB (
 
   SmcStatus = SmcReadKeyStatusMmio ((UINTN)BaseAddress);
 
-  if (SmcStatus >= SMC_STATUS_UKN_0x40) {
+  if (SmcStatus >= SMC_STATUS_READY) {
     SmcWriteCommandMmio ((UINTN)BaseAddress, SmcCmdUnknown1);
 
     Status = EFI_TIMEOUT;
 
     while ((SmcStatus & SMC_STATUS_KEY_DONE) == 0) {
-      MaskedStatus = (SmcStatus & (SMC_STATUS_UKN_0x40 | SMC_STATUS_UKN_0x80));
+      MaskedStatus = (SmcStatus & (SMC_STATUS_READY | SMC_STATUS_UKN_0x80));
 
       while (Iterations == 0) {
         if (MaskedStatus != 0) {
@@ -291,7 +291,7 @@ ClearArbitration (
              BaseAddress,
              (SMC_STATUS_UKN_0x16
                | SMC_STATUS_KEY_DONE
-               | SMC_STATUS_UKN_0x40
+               | SMC_STATUS_READY
                | SMC_STATUS_UKN_0x80),
              1000
              );
@@ -304,7 +304,7 @@ ClearArbitration (
                  BaseAddress,
                  (SMC_STATUS_UKN_0x16
                    | SMC_STATUS_KEY_DONE
-                   | SMC_STATUS_UKN_0x40
+                   | SMC_STATUS_READY
                    | SMC_STATUS_UKN_0x80),
                  1000
                  );

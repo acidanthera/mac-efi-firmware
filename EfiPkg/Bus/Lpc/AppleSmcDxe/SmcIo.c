@@ -899,7 +899,7 @@ EFI_STATUS
 EFIAPI
 InternalSmcUnknown5 (
   IN APPLE_SMC_IO_PROTOCOL  *This,
-  IN UINTN                  Ukn1
+  IN UINT8                  *Data
   )
 {
   EFI_STATUS Status;
