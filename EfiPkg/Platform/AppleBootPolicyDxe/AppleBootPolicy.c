@@ -487,6 +487,12 @@ InternalGetApfsBootFile (
                                            );
 
                           if (FullPathName != NULL) {
+                            //
+                            // BUG: FullPathName[0] cannot be \0 for just
+                            //      having been allocated.  Likely this is
+                            //      supposed to be checking DirPathNameBuffer
+                            //      for the case it's not starting with '\'.
+                            //
                             if (FullPathName[0] != L'\\') {
                               StrCpy (FullPathName, L"\\");
                             }
