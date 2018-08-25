@@ -231,23 +231,26 @@ InternalGetFilePathName (
 {
   EFI_STATUS           Status;
 
-  CONST VOID           *DevPathNode;
+  CONST VOID           *DevicePath;
+  CONST VOID           *DevicePathWalker;
   FILEPATH_DEVICE_PATH *FilePath;
   UINTN                PathNameSize;
   CHAR16               *PathName;
 
   Status = EFI_NOT_FOUND;
 
-  DevPathNode = InternalGetFileInfo (
-                  Root,
-                  &gAppleBlessedSystemFolderInfoGuid
-                  );
+  DevicePath = InternalGetFileInfo (
+                 Root,
+                 &gAppleBlessedSystemFolderInfoGuid
+                 );
 
-  if (DevPathNode != NULL) {
-    while (!IsDevicePathEnd (DevPathNode)) {
-      if ((DevicePathType (DevPathNode) == MEDIA_DEVICE_PATH)
-       && (DevicePathSubType (DevPathNode) == MEDIA_FILEPATH_DP)) {
-        FilePath     = (FILEPATH_DEVICE_PATH *)DevPathNode;
+  if (DevicePath != NULL) {
+    DevicePathWalker = DevicePath;
+
+    while (!IsDevicePathEnd (DevicePathWalker)) {
+      if ((DevicePathType (DevicePathWalker) == MEDIA_DEVICE_PATH)
+       && (DevicePathSubType (DevicePathWalker) == MEDIA_FILEPATH_DP)) {
+        FilePath     = (FILEPATH_DEVICE_PATH *)DevicePathWalker;
         PathNameSize = StrSize (&FilePath->PathName[0]);
         PathName     = AllocatePool (PathNameSize);
 
@@ -260,10 +263,10 @@ InternalGetFilePathName (
         break;
       }
 
-      DevPathNode = NextDevicePathNode (DevPathNode);
+      DevicePathWalker = NextDevicePathNode (DevicePathWalker);
     }
 
-    gBS->FreePool ((VOID *)DevPathNode);
+    gBS->FreePool ((VOID *)DevicePath);
   }
 
   return Status;
