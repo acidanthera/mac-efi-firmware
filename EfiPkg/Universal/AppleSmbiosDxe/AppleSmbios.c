@@ -747,7 +747,6 @@ AppleSmbiosMain (
   CHAR16                         *MachinePersonality;
   VOID                           *FsbFrequency;
   UINT32                         FsbSize;
-  CHAR16                         *Model;
   UINT32                         DevicePathsSupported;
   CHAR8                          *BoardIdCopy;
   UINT8                          BoardRevision;
@@ -1005,13 +1004,12 @@ AppleSmbiosMain (
     }
 
     if (ProductInfo != NULL) {
-      Model    = (CHAR16 *)((UINTN)ProductInfo + 0x56);
-      DataSize = (StrLen (Model) * sizeof (CHAR16));
+      DataSize = (StrLen (ProductInfo->Model) * sizeof (CHAR16));
 
       DataHubLogApplePlatformData (
         L"Model",
         &gAppleModelDataRecordGuid,
-        (VOID *)Model,
+        (VOID *)ProductInfo->Model,
         DataSize
         );
     }
