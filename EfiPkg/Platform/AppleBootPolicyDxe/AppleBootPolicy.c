@@ -776,7 +776,7 @@ BootPolicyGetBootInfo (
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
   EFI_FILE_PROTOCOL               *Root;
   APPLE_APFS_CONTAINER_INFO       *ContainerInfo;
-  EFI_DEVICE_PATH_PROTOCOL        *BootDevicePath;
+  CONST EFI_DEVICE_PATH_PROTOCOL  *BootDevicePath;
 
   *BootPathName = NULL;
   *Device       = NULL;
