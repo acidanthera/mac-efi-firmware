@@ -47,9 +47,9 @@ BootPolicyGetBootFile (
 EFI_STATUS
 EFIAPI
 BootPolicyGetBootFileEx (
-  IN  EFI_HANDLE                Device,
-  IN  UINT32                    Unused, OPTIONAL
-  OUT EFI_DEVICE_PATH_PROTOCOL  **FilePath
+  IN  EFI_HANDLE                      Device,
+  IN  UINT32                          Unused, OPTIONAL
+  OUT CONST EFI_DEVICE_PATH_PROTOCOL  **FilePath
   );
 
 EFI_STATUS
@@ -371,12 +371,12 @@ InternalGetApfsVolumeInfo (
 STATIC
 EFI_STATUS
 InternalGetApfsBootFile (
-  IN  EFI_HANDLE                Device,
-  IN  EFI_FILE_PROTOCOL         *Root,
-  IN  CONST GUID                *ContainerUuid,
-  IN  CONST CHAR16              *VolumeUuid,
-  OUT EFI_DEVICE_PATH_PROTOCOL  **DevicePath,
-  OUT EFI_HANDLE                *VolumeHandle
+  IN  EFI_HANDLE                      Device,
+  IN  EFI_FILE_PROTOCOL               *Root,
+  IN  CONST GUID                      *ContainerUuid,
+  IN  CONST CHAR16                    *VolumeUuid,
+  OUT CONST EFI_DEVICE_PATH_PROTOCOL  **DevicePath,
+  OUT EFI_HANDLE                      *VolumeHandle
   )
 {
   EFI_STATUS                      Status;
@@ -511,7 +511,7 @@ InternalGetApfsBootFile (
                               Status = EFI_SUCCESS;
 
                               DevPathSize = GetDevicePathSize (FilePath);
-                              DevPath     = *DevicePath;
+                              DevPath = (EFI_DEVICE_PATH_PROTOCOL *)*DevicePath;
 
                               do {
                                 DevPathWalker = GetNextDevicePathInstance (
@@ -646,9 +646,9 @@ BootPolicyGetBootFile (
 EFI_STATUS
 EFIAPI
 BootPolicyGetBootFileEx (
-  IN  EFI_HANDLE                Device,
-  IN  UINT32                    Unused, OPTIONAL
-  OUT EFI_DEVICE_PATH_PROTOCOL  **FilePath
+  IN  EFI_HANDLE                      Device,
+  IN  UINT32                          Unused, OPTIONAL
+  OUT CONST EFI_DEVICE_PATH_PROTOCOL  **FilePath
   )
 {
   EFI_STATUS                      Status;
