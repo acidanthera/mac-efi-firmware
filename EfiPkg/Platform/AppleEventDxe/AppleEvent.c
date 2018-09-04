@@ -95,6 +95,37 @@ InternalFlagAllEventsReady (
   }
 }
 
+// InternalSingalEvents
+VOID
+InternalSingalEvents (
+  IN APPLE_EVENT_INFORMATION  *Information
+  )
+{
+  LIST_ENTRY                 *EventHandleEntry;
+  APPLE_EVENT_HANDLE_PRIVATE *EventHandle;
+
+  EventHandleEntry = GetFirstNode (&mEventHandles);
+
+  if (!IsListEmpty (&mEventHandles)) {
+    do {
+      EventHandle = APPLE_EVENT_HANDLE_PRIVATE_FROM_LIST_ENTRY (
+                      EventHandleEntry
+                      );
+
+      if (EventHandle->Registered && EventHandle->Ready
+        && (EventHandle->EventType & Information->EventType)
+        && EventHandle->NotifyFunction != NULL) {
+        EventHandle->NotifyFunction (
+          Information,
+          EventHandle->NotifyContext
+          );
+      }
+
+      EventHandleEntry = GetNextNode (&mEventHandles, EventHandleEntry);
+    } while (!IsNull (&mEventHandles, EventHandleEntry));
+  }
+}
+
 // InternalRemoveUnregisteredEvents
 VOID
 InternalRemoveUnregisteredEvents (

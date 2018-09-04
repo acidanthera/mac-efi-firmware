@@ -19,7 +19,7 @@ EventLibCreateTimerEvent (
 
   Event = NULL;
 
-  if (NotifyTpl > TPL_CALLBACK) {
+  if (NotifyTpl >= TPL_CALLBACK) {
     Status = gBS->CreateEvent (
                     ((NotifyFunction != NULL)
                       ? (EVT_TIMER | EVT_NOTIFY_SIGNAL)

@@ -18,6 +18,8 @@
   gAppleKeyMapAggregatorProtocolGuid
   gEfiConsoleControlProtocolGuid
   gEfiSimplePointerProtocolGuid
+  gEfiUgaDrawProtocolGuid
+  gEfiGraphicsOutputProtocolGuid
 
 [LibraryClasses]
   AppleEventLib

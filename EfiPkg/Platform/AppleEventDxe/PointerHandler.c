@@ -3,6 +3,7 @@
 #include <Guid/AppleVariable.h>
 
 #include <Protocol/GraphicsOutput.h>
+#include <Protocol/UgaDraw.h>
 #include <Protocol/SimplePointer.h>
 
 #include <Library/AppleEventLib.h>
@@ -23,9 +24,9 @@
 // POINTER_POLL_FREQUENCY
 #define POINTER_POLL_FREQUENCY  20000
 
-// MINIMAL_DOUBLE_CLICK_SPEED
+// MAXIMUM_DOUBLE_CLICK_SPEED
 /// (EFI_TIMER_PERIOD_MILLISECONDS (748) / POINTER_POLL_FREQUENCY)
-#define MINIMAL_DOUBLE_CLICK_SPEED  392
+#define MAXIMUM_DOUBLE_CLICK_SPEED  374
 
 // MAXIMAL_CLICK_DURATION
 /// (EFI_TIMER_PERIOD_MILLISECONDS (148) / POINTER_POLL_FREQUENCY)
@@ -362,8 +363,12 @@ InternalGetScreenResolution (
   EFI_STATUS                           Status;
 
   EFI_GRAPHICS_OUTPUT_PROTOCOL         *GraphicsOutput;
+  EFI_UGA_DRAW_PROTOCOL                *UgaDraw;
   EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *Info;
+  UINT32                               HorizontalResolution;
   UINT32                               VerticalResolution;
+  UINT32                               ColorDepth;
+  UINT32                               RefreshRate;
 
   Status = gBS->HandleProtocol (
                   gST->ConsoleOutHandle,
@@ -371,17 +376,43 @@ InternalGetScreenResolution (
                   (VOID **)&GraphicsOutput
                   );
 
-  if (!EFI_ERROR (Status)) {
+  if (Status == EFI_UNSUPPORTED) {
+    //
+    // Fallback to default resolution.
+    //
+    mResolution.Horizontal = 800;
+    mResolution.Vertical   = 600;
+
+    Status = gBS->HandleProtocol (
+                    gST->ConsoleOutHandle,
+                    &gEfiUgaDrawProtocolGuid,
+                    (VOID **)&UgaDraw
+                    );
+
+    if (!EFI_ERROR (Status)) {
+      Status = UgaDraw->GetMode (
+                    &HorizontalResolution,
+                    &VerticalResolution,
+                    &ColorDepth,
+                    &RefreshRate);
+    }
+
+    if (!EFI_ERROR (Status)) {
+      mResolution.Horizontal = HorizontalResolution;
+      mResolution.Vertical   = VerticalResolution;
+      // BUG: mScreenResolutionSet is not set to TRUE even when a legit resolution is read.
+    }
+
+    Status = EFI_SUCCESS;
+  } else if (!EFI_ERROR (Status)) {
     Info                   = GraphicsOutput->Mode->Info;
     mResolution.Horizontal = Info->HorizontalResolution;
+    mResolution.Vertical   = Info->VerticalResolution;
 
-    VerticalResolution   = Info->VerticalResolution;
-    mResolution.Vertical = VerticalResolution;
-
-    if (VerticalResolution == 0) {
-      Status = EFI_NOT_READY;
-    } else {
+    if (Info->VerticalResolution > 0) {
       mScreenResolutionSet = TRUE;
+    } else {
+      Status = EFI_NOT_READY;
     }
   }
 
@@ -426,10 +457,10 @@ InternalCreatePointerEventQueueInformation (
 
   FinalEventType = APPLE_EVENT_TYPE_MOUSE_MOVED;
 
-  if (((UINT8)EventType & APPLE_EVENT_TYPE_MOUSE_MOVED) == 0) {
+  if ((EventType & APPLE_EVENT_TYPE_MOUSE_MOVED) == 0) {
     FinalEventType = APPLE_ALL_MOUSE_EVENTS;
 
-    if (((UINT8)EventType & APPLE_CLICK_MOUSE_EVENTS) != 0) {
+    if ((EventType & APPLE_CLICK_MOUSE_EVENTS) != 0) {
       FinalEventType = APPLE_CLICK_MOUSE_EVENTS;
     }
   }
@@ -489,42 +520,20 @@ InternalHandleButtonInteraction (
       }
 
       if (Pointer->NumberOfStrokes <= MAXIMAL_CLICK_DURATION) {
-        ValueMovement      = (Pointer->PreviousPosition.Horizontal - mCursorPosition.Horizontal);
-        HorizontalMovement = -ValueMovement;
+        HorizontalMovement = ABS(Pointer->PreviousPosition.Horizontal - mCursorPosition.Horizontal);
+        VerticalMovement   = ABS(Pointer->PreviousPosition.Vertical - mCursorPosition.Vertical);
 
-        if ((Pointer->PreviousPosition.Horizontal - mCursorPosition.Horizontal) >= 0) {
-          HorizontalMovement = ValueMovement;
-        }
-
-        ValueMovement    = (Pointer->PreviousPosition.Vertical - mCursorPosition.Vertical);
-        VerticalMovement = -ValueMovement;
-
-        if ((Pointer->PreviousPosition.Vertical - mCursorPosition.Vertical) >= 0) {
-          VerticalMovement = ValueMovement;
-        }
-
-        if ((HorizontalMovement < MINIMAL_MOVEMENT)
-         && (VerticalMovement < MINIMAL_MOVEMENT)) {
+        if ((HorizontalMovement <= MINIMAL_MOVEMENT)
+         && (VerticalMovement <= MINIMAL_MOVEMENT)) {
           EventType = APPLE_EVENT_TYPE_MOUSE_CLICK;
 
           if ((Pointer->PreviousEventType == APPLE_EVENT_TYPE_MOUSE_CLICK)
-           && (Pointer->Polls <= MINIMAL_DOUBLE_CLICK_SPEED)) {
-            ValueMovement      = (Pointer->Position.Horizontal - mCursorPosition.Horizontal);
-            HorizontalMovement = -ValueMovement;
+           && (Pointer->Polls <= MAXIMUM_DOUBLE_CLICK_SPEED)) {
+            HorizontalMovement = ABS(Pointer->Position.Horizontal - mCursorPosition.Horizontal);
+            VerticalMovement   = ABS(Pointer->Position.Vertical - mCursorPosition.Vertical);
 
-            if ((Pointer->Position.Horizontal - mCursorPosition.Horizontal) >= 0) {
-              HorizontalMovement = ValueMovement;
-            }
-
-            ValueMovement    = (Pointer->Position.Vertical - mCursorPosition.Vertical);
-            VerticalMovement = -ValueMovement;
-
-            if ((Pointer->Position.Vertical - mCursorPosition.Vertical) >= 0) {
-              VerticalMovement = ValueMovement;
-            }
-
-            if ((HorizontalMovement < MINIMAL_MOVEMENT)
-             && (VerticalMovement < MINIMAL_MOVEMENT)) {
+            if ((HorizontalMovement <= MINIMAL_MOVEMENT)
+             && (VerticalMovement <= MINIMAL_MOVEMENT)) {
               EventType = APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK;
             }
           }
@@ -539,9 +548,9 @@ InternalHandleButtonInteraction (
           }
 
           if (Pointer->PreviousEventType == APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK) {
-            EventType = ((Pointer->Polls <= MINIMAL_DOUBLE_CLICK_SPEED)
-                            ? APPLE_EVENT_TYPE_MOUSE_CLICK
-                            : APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK);
+            EventType = ((Pointer->Polls <= MAXIMUM_DOUBLE_CLICK_SPEED)
+                            ? APPLE_EVENT_TYPE_MOUSE_DOUBLE_CLICK
+                            : APPLE_EVENT_TYPE_MOUSE_CLICK);
           }
 
           Pointer->PreviousEventType = (UINTN)EventType;
@@ -781,6 +790,8 @@ EventCancelSimplePointerPollEvent (
   )
 {
   EventLibCancelEvent (mSimplePointerPollEvent);
+
+  mSimplePointerPollEvent = NULL;
 }
 
 // EventSetCursorPositionImpl 
@@ -801,6 +812,8 @@ EventSetCursorPositionImpl (
   }
 
   Status = EFI_INVALID_PARAMETER;
+
+  // BUG: Does not check for negative position
 
   if ((Position->Horizontal < mResolution.Horizontal)
    && (Position->Vertical < mResolution.Vertical)) {

@@ -81,6 +81,8 @@ InternalQueueEventNotifyFunction (
     while (!IsNull (&mQueue, EventQueueEntry)) {
       EventQueue = APPLE_EVENT_QUEUE_FROM_LIST_ENTRY (EventQueueEntry);
 
+      InternalSingalEvents (EventQueue->Information);
+
       if (((EventQueue->Information->EventType & APPLE_ALL_KEYBOARD_EVENTS) != 0)
        && (EventQueue->Information->EventData.KeyData != NULL)) {
         FreePool (
@@ -206,7 +208,7 @@ EventCreateEventQueue (
 
   Status = EFI_INVALID_PARAMETER;
 
-  if (EventData.Raw != 0) {
+  if (EventData.Raw != 0 || Modifiers != 0) {
     Information = EventCreateAppleEventQueueInfo (
                     EventData,
                     EventType,

@@ -35,6 +35,9 @@ STATIC EFI_EVENT mKeyStrokePollEvent = NULL;
 // mModifiers
 STATIC APPLE_MODIFIER_MAP mModifiers = 0;
 
+// mPreviousModifiers
+STATIC APPLE_MODIFIER_MAP mPreviousModifiers = 0;
+
 // mInitialized
 STATIC BOOLEAN mInitialized = FALSE;
 
@@ -75,7 +78,7 @@ InternalGetAppleKeyStrokes (
                                                NULL
                                                );
 
-      if (Status == EFI_BUFFER_TOO_SMALL) {
+      if (!EFI_ERROR (Status) || Status == EFI_BUFFER_TOO_SMALL) {
         if (*NumberOfKeyCodes == 0) {
           *KeyCodes = NULL;
         } else {
@@ -569,8 +572,15 @@ InternalAppleEventDataFromCurrentKeyStroke (
                    &InputKey
                    );
 
-    if (!EFI_ERROR (Status) && (NumberOfKeyCodes > 0)) {
-      InternalAppleKeyEventDataFromInputKey (EventData, KeyCodes, &InputKey);
+    if (!EFI_ERROR (Status)) {
+      Status = EFI_SUCCESS;
+      if (NumberOfKeyCodes > 0) {
+        InternalAppleKeyEventDataFromInputKey (EventData, KeyCodes, &InputKey);
+      }
+    }
+
+    if (KeyCodes) {
+      FreePool (KeyCodes);
     }
   }
 
@@ -604,8 +614,8 @@ InternalKeyStrokePollNotifyFunction (
       EventCreateEventQueue (EventData, APPLE_EVENT_TYPE_KEY_DOWN, Modifiers);
     }
 
-    if (mModifiers != Modifiers) {
-      PartialModifers = ((mModifiers ^ Modifiers) & mModifiers);
+    if (mPreviousModifiers != Modifiers) {
+      PartialModifers = ((mPreviousModifiers ^ Modifiers) & mPreviousModifiers);
 
       if (PartialModifers != 0) {
         EventData.KeyData = NULL;
@@ -617,7 +627,7 @@ InternalKeyStrokePollNotifyFunction (
           );
       }
 
-      PartialModifers = (Modifiers & (mModifiers ^ Modifiers));
+      PartialModifers = ((mPreviousModifiers ^ Modifiers) & Modifiers);
 
       if (PartialModifers != 0) {
         EventData.KeyData = NULL;
@@ -629,7 +639,7 @@ InternalKeyStrokePollNotifyFunction (
           );
       }
 
-      mModifiers = Modifiers;
+      mPreviousModifiers = Modifiers;
     }
   }
 }

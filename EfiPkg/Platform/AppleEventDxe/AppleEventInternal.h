@@ -110,6 +110,12 @@ InternalFlagAllEventsReady (
   VOID
   );
 
+// InternalSingalEvents
+VOID
+InternalSingalEvents (
+  IN APPLE_EVENT_INFORMATION  *Information
+  );
+
 // InternalRemoveUnregisteredEvents
 VOID
 InternalRemoveUnregisteredEvents (
