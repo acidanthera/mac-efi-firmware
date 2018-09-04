@@ -391,10 +391,12 @@ InternalGetScreenResolution (
 
     if (!EFI_ERROR (Status)) {
       Status = UgaDraw->GetMode (
-                    &HorizontalResolution,
-                    &VerticalResolution,
-                    &ColorDepth,
-                    &RefreshRate);
+                          UgaDraw,
+                          &HorizontalResolution,
+                          &VerticalResolution,
+                          &ColorDepth,
+                          &RefreshRate
+                          );
     }
 
     if (!EFI_ERROR (Status)) {
