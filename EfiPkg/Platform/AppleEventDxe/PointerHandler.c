@@ -487,7 +487,6 @@ InternalHandleButtonInteraction (
   )
 {
   APPLE_EVENT_INFORMATION *Information;
-  INT32                   ValueMovement;
   INT32                   HorizontalMovement;
   INT32                   VerticalMovement;
   APPLE_EVENT_TYPE        EventType;
