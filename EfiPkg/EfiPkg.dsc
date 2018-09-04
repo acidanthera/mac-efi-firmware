@@ -179,7 +179,8 @@
   EfiPkg/Library/AcpiTscTimerLib/PeiTscTimerLib.inf
 
 [BuildOptions]
-  XCODE:*_*_*_PLATFORM_FLAGS = -fstack-protector
+  # FIXME: Requires implemented ___security_cookie, ___security_check_cookie
+  # XCODE:*_*_*_PLATFORM_FLAGS = -fstack-protector
 
 !if $(PEI_LTO_ENABLE)
   XCODE:*_*_IA32_PLATFORM_FLAGS = -flto

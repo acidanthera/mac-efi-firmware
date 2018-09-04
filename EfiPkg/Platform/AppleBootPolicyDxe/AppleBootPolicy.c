@@ -57,7 +57,7 @@ EFIAPI
 BootPolicyGetBootInfo (
   IN  EFI_DEVICE_PATH_PROTOCOL  *DevicePath,
   OUT CHAR16                    **BootPathName,
-  OUT EFI_HANDLE                Device,
+  OUT EFI_HANDLE                *Device,
   OUT EFI_HANDLE                *ApfsVolumeHandle
   );
 
@@ -680,7 +680,10 @@ BootPolicyGetBootFileEx (
           Status = EFI_NOT_FOUND;
 
           if ((VolumeInfo->Role & APPLE_APFS_VOLUME_ROLE_PREBOOT) != 0) {
-            Status2 = InternalGetBlessedSystemFilePath (Root, FilePath);
+            Status2 = InternalGetBlessedSystemFilePath (
+              Root,
+              (CONST EFI_DEVICE_PATH_PROTOCOL **)FilePath
+              );
 
             if (EFI_ERROR (Status2)) {
               Status2 = InternalGetFilePathName (Root);
@@ -709,7 +712,7 @@ BootPolicyGetBootFileEx (
       } else {
         // BUG: Root should be closed here too.
 
-        Status = BootPolicyGetBootFile (Device, FilePath);
+        Status = BootPolicyGetBootFile (Device, (CONST EFI_DEVICE_PATH_PROTOCOL **)FilePath);
       }
     }
   }
