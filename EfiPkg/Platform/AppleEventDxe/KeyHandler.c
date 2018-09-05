@@ -44,8 +44,8 @@ STATIC BOOLEAN mInitialized = FALSE;
 // mKeyInformation
 STATIC KEY_STROKE_INFORMATION mKeyStrokeInfo[10];
 
-// mPreviouslyCLockOn
-STATIC BOOLEAN mPreviouslyCLockOn = FALSE;
+// mCLockChanged
+STATIC BOOLEAN mCLockChanged = FALSE;
 
 // mAppleKeyMapAggregator
 STATIC APPLE_KEY_MAP_AGGREGATOR_PROTOCOL *mKeyMapAggregator = NULL;
@@ -219,7 +219,7 @@ InternalGetAndRemoveReleasedKeys (
 
   // Add CLock to released keys if applicable and set bool to FALSE.
 
-  if (mPreviouslyCLockOn) {
+  if (mCLockChanged) {
     for (Index = 0; Index < *NumberOfKeyCodes; ++Index) {
       if (KeyCodes[Index] == AppleHidUsbKbUsageKeyCLock) {
         break;
@@ -227,7 +227,7 @@ InternalGetAndRemoveReleasedKeys (
     }
 
     if (*NumberOfKeyCodes == Index) {
-      mPreviouslyCLockOn = FALSE;
+      mCLockChanged = FALSE;
 
       ReleasedKeysBuffer[NumberOfReleasedKeys] = AppleHidUsbKbUsageKeyCLock;
       ++NumberOfReleasedKeys;
@@ -267,39 +267,37 @@ InternalIsCLockOn (
   BOOLEAN                CLockOn;
 
   UINTN                  Index;
-  KEY_STROKE_INFORMATION *KeyInfoWalker;
   UINTN                  Index2;
   KEY_STROKE_INFORMATION *KeyInfo;
 
-  CLockOn = FALSE;
+  //
+  // Check against invalid usage
+  //
+  if (NumberOfKeyCodes == NULL
+    || (*NumberOfKeyCodes != 0 && KeyCodes == NULL)) {
+    return FALSE;
+  }
 
-  if ((NumberOfKeyCodes != NULL)
-   && ((*NumberOfKeyCodes == 0) || (KeyCodes != NULL))) {
-    CLockOn = mCLockOn;
+  //
+  // Return the previous value by default
+  //
+  CLockOn = mCLockOn;
 
-    for (Index = 0; Index < *NumberOfKeyCodes; ++Index) {
-      KeyInfo       = NULL;
-      KeyInfoWalker = &mKeyStrokeInfo[0];
+  for (Index = 0; Index < *NumberOfKeyCodes; ++Index) {
+    KeyInfo = NULL;
 
-      for (Index2 = 0; Index2 < ARRAY_SIZE (mKeyStrokeInfo); ++Index2) {
-        KeyInfo = KeyInfoWalker;
-        ++KeyInfoWalker;
-
-        if (KeyInfoWalker->AppleKeyCode == KeyCodes[Index]) {
-          KeyInfo = KeyInfoWalker;
-
-          break;
-        }
-      }
-
-      if ((Index2 >= ARRAY_SIZE (mKeyStrokeInfo)) || (KeyInfo == NULL)) {
-        if ((KeyCodes[Index] == AppleHidUsbKbUsageKeyCLock)
-         && !mPreviouslyCLockOn) {
-          CLockOn = !mCLockOn;
-        }
-
+    for (Index2 = 0; Index2 < ARRAY_SIZE (mKeyStrokeInfo); ++Index2) {
+      if (mKeyStrokeInfo[Index2].AppleKeyCode == KeyCodes[Index]) {
+        KeyInfo = &mKeyStrokeInfo[Index2];
         break;
       }
+    }
+
+    if (KeyInfo == NULL
+      && KeyCodes[Index] == AppleHidUsbKbUsageKeyCLock
+      && !mCLockChanged) {
+      CLockOn = !mCLockOn;
+      break;
     }
   }
 
@@ -420,7 +418,7 @@ InternalGetCurrentKeyStroke (
 
   if (CLockOn != mCLockOn) {
     mCLockOn           = CLockOn;
-    mPreviouslyCLockOn = TRUE;
+    mCLockChanged      = TRUE;
   }
 
   // Increase the number of strokes for all currently pressed keys.
@@ -658,7 +656,7 @@ InternalInitializeKeyHandler (
 
     mModifiers         = 0;
     mCLockOn           = FALSE;
-    mPreviouslyCLockOn = FALSE;
+    mCLockChanged      = FALSE;
   }
 }
 
