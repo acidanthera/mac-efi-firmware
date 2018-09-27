@@ -243,8 +243,8 @@ Returns:
       PartitionInfo.PartitionNumber = HdDev.PartitionNumber;
       PartitionInfo.PartitionStart  = HdDev.PartitionStart;
       PartitionInfo.PartitionSize   = HdDev.PartitionSize;
-      CopyMem (PartitionInfo.Signature, &(HdDev.Signature[0]), sizeof (UINT32));
-      CopyMem (PartitionInfo.PartitionType, &Mbr->Partition[Index].OSIndicator, sizeof (UINT8));
+      CopyMem (&PartitionInfo.Signature, &(HdDev.Signature[0]), sizeof (UINT32));
+      CopyMem (&PartitionInfo.PartitionType, &Mbr->Partition[Index].OSIndicator, sizeof (UINT8));
 
       // BUG: Check this earlier to increase performance.
       if (HdDev.PartitionStart != 0) {
@@ -315,8 +315,8 @@ Returns:
       PartitionInfo.PartitionNumber = HdDev.PartitionNumber;
       PartitionInfo.PartitionStart  = HdDev.PartitionStart;
       PartitionInfo.PartitionSize   = HdDev.PartitionSize;
-      CopyMem (PartitionInfo.Signature, &(HdDev.Signature[0]), sizeof (UINT32));
-      CopyMem (PartitionInfo.PartitionType, &Mbr->Partition[0].OSIndicator, sizeof (UINT8));
+      CopyMem (&PartitionInfo.Signature, &(HdDev.Signature[0]), sizeof (UINT32));
+      CopyMem (&PartitionInfo.PartitionType, &Mbr->Partition[0].OSIndicator, sizeof (UINT8));
 
       // BUG: Check this earlier to increase performance.
       if (HdDev.PartitionStart != 0) {

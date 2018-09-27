@@ -309,9 +309,9 @@ Returns:
     PartitionInfo.PartitionStart  = HdDev.PartitionStart;
     PartitionInfo.PartitionSize   = HdDev.PartitionSize;
     PartitionInfo.Attributes      = PartEntry[Index].Attributes;
-    CopyMem (PartitionInfo.Signature, HdDev.Signature, 16 * sizeof (UINT8));
+    CopyMem (&PartitionInfo.Signature, HdDev.Signature, sizeof (EFI_GUID));
     CopyMem (PartitionInfo.PartitionName, PartEntry[Index].PartitionName, 36 * sizeof (UINT16));
-    CopyMem (PartitionInfo.PartitionType, &PartEntry[Index].PartitionTypeGUID, sizeof (EFI_GUID));
+    CopyMem (&PartitionInfo.PartitionType, &PartEntry[Index].PartitionTypeGUID, sizeof (EFI_GUID));
 
     Status = PartitionInstallChildHandle (
               This,

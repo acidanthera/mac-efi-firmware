@@ -217,7 +217,8 @@ Returns:
     PartitionInfo.MBRType         = HdDev.MBRType;
     PartitionInfo.PartitionStart  = HdDev.PartitionStart;
     PartitionInfo.PartitionSize   = HdDev.PartitionSize;
-    CopyMem (PartitionInfo.PartitionType, ApmEntry->PartitionType, 32 * sizeof (CHAR8));
+
+    CopyMem (&PartitionInfo.PartitionType, ApmEntry->PartitionType, sizeof(EFI_GUID));
 
     Status = PartitionInstallChildHandle (
               This,
