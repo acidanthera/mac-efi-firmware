@@ -21,9 +21,9 @@
 
 // KEY_STROKE_INFORMATION
 typedef struct {
-  APPLE_KEY_CODE AppleKeyCode;     ///< 
-  UINTN          NumberOfStrokes;  ///< 
-  BOOLEAN        CurrentStroke;    ///< 
+  APPLE_KEY_CODE AppleKeyCode;     ///<
+  UINTN          NumberOfStrokes;  ///<
+  BOOLEAN        CurrentStroke;    ///<
 } KEY_STROKE_INFORMATION;
 
 // mCLockOn
@@ -162,10 +162,10 @@ InternalAppleKeyEventDataFromInputKey (
 
     if (KeyEventData != NULL) {
       KeyEventData->NumberOfKeyPairs = 1;
-      KeyEventData->KeyPair.InputKey = *InputKey;
+      KeyEventData->InputKey = *InputKey;
 
       CopyMem (
-        (VOID *)&KeyEventData->KeyPair.AppleKeyCode,
+        (VOID *)&KeyEventData->AppleKeyCode,
         (VOID *)AppleKeyCode,
         sizeof (*AppleKeyCode)
         );
