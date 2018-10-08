@@ -341,7 +341,7 @@ DppDbSetProperty (
 
   if (Node == NULL) {
     DevicePathSize = GetDevicePathSize (DevicePath);
-    Node           = AllocateZeroPool (sizeof (*Node) + DevicePathSize);
+    Node           = AllocateZeroPool (sizeof (Node->Hdr) + DevicePathSize);
 
     Status = EFI_OUT_OF_RESOURCES;
 
