@@ -565,7 +565,7 @@ DppDbGetPropertyBuffer (
 
       BufferNode = &Buffer->Nodes[0];
 
-      while (!IsNull (&NodeWalker->Hdr.Link, &NodeWalker->Hdr.Link)) {
+      while (!IsNull (Nodes, &NodeWalker->Hdr.Link)) {
         BufferSize = GetDevicePathSize (&NodeWalker->DevicePath);
 
         CopyMem (
