@@ -83,11 +83,6 @@ typedef struct {
 #define EFI_DEVICE_PATH_PROPERTY_VALUE_SIZE(Property)  \
   ((Property)->Value->Hdr.Size - sizeof ((Property)->Value->Hdr))
 
-#define NEXT_EFI_DEVICE_PATH_PROPERTY(Property)                   \
-  (EFI_DEVICE_PATH_PROPERTY *)(                                   \
-    (UINTN)(Property) + EFI_DEVICE_PATH_PROPERTY_SIZE (Property)  \
-    )
-
 // EFI_DEVICE_PATH_PROPERTY
 typedef struct {
   UINTN                         Signature;  ///< 
