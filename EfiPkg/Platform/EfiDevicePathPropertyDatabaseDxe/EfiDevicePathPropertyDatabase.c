@@ -114,40 +114,39 @@ InternalGetPropertyNode (
   )
 {
   EFI_DEVICE_PATH_PROPERTY_NODE *Node;
+
+  EFI_DEVICE_PATH_PROPERTY_NODE *NodeWalker;
   UINTN                         DevicePathSize;
-  BOOLEAN                       IsNodeNull;
   UINTN                         DevicePathSize2;
   INTN                          Result;
 
-  Node = PROPERTY_NODE_FROM_LIST_ENTRY (
-           GetFirstNode (&DevicePathPropertyData->Nodes)
-           );
+  Node = NULL;
+
+  NodeWalker = PROPERTY_NODE_FROM_LIST_ENTRY (
+                 GetFirstNode (&DevicePathPropertyData->Nodes)
+                 );
 
   DevicePathSize = GetDevicePathSize (DevicePath);
 
-  do {
-    IsNodeNull = IsNull (&DevicePathPropertyData->Nodes, &Node->Hdr.Link);
-
-    if (IsNodeNull) {
-      Node = NULL;
-
-      break;
-    }
-
-    DevicePathSize2 = GetDevicePathSize (&Node->DevicePath);
+  while (!IsNull (&DevicePathPropertyData->Nodes, &NodeWalker->Hdr.Link)) {
+    DevicePathSize2 = GetDevicePathSize (&NodeWalker->DevicePath);
 
     if (DevicePathSize == DevicePathSize2) {
-      Result = CompareMem (DevicePath, &Node->DevicePath, DevicePathSize);
+      Result = CompareMem (DevicePath, &NodeWalker->DevicePath, DevicePathSize);
 
       if (Result == 0) {
+        Node = NodeWalker;
         break;
       }
     }
 
-    Node = PROPERTY_NODE_FROM_LIST_ENTRY (
-             GetNextNode (&DevicePathPropertyData->Nodes, &Node->Hdr.Link)
-             );
-  } while (TRUE);
+    NodeWalker = PROPERTY_NODE_FROM_LIST_ENTRY (
+                   GetNextNode (
+                     &DevicePathPropertyData->Nodes,
+                     &NodeWalker->Hdr.Link
+                     )
+                   );
+  }
 
   return Node;
 }
@@ -162,32 +161,30 @@ InternalGetProperty (
 {
   EFI_DEVICE_PATH_PROPERTY *Property;
 
-  BOOLEAN                  IsPropertyNull;
+  EFI_DEVICE_PATH_PROPERTY *PropertyWalker;
   INTN                     Result;
 
-  Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
-               GetFirstNode (&Node->Hdr.Properties)
-               );
+  Property = NULL;
 
-  do {
-    IsPropertyNull = IsNull (&Node->Hdr.Properties, &Property->Link);
+  PropertyWalker = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                     GetFirstNode (&Node->Hdr.Properties)
+                     );
 
-    if (IsPropertyNull) {
-      Property = NULL;
-
-      break;
-    }
-
+  while (!IsNull (&Node->Hdr.Properties, &PropertyWalker->Link)) {
     Result = StrCmp (Name, (CHAR16 *)&Property->Name->Data);
 
     if (Result == 0) {
+      Property = PropertyWalker;
       break;
     }
 
-    Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
-                 GetNextNode (&Node->Hdr.Properties, &Property->Link)
-                 );
-  } while (TRUE);
+    PropertyWalker = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                       GetNextNode (
+                         &Node->Hdr.Properties,
+                         &PropertyWalker->Link
+                         )
+                       );
+  }
 
   return Property;
 }
@@ -523,42 +520,35 @@ DppDbGetPropertyBuffer (
   EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *BufferNode;
   VOID                                 *BufferPtr;
 
-  Nodes  = &(PROPERTY_DATABASE_FROM_PROTOCOL (This))->Nodes;
-  Result = IsListEmpty (Nodes);
+  Nodes = &(PROPERTY_DATABASE_FROM_PROTOCOL (This))->Nodes;
 
-  if (Result) {
+  if (IsListEmpty (Nodes)) {
     *Size  = 0;
     Status = EFI_SUCCESS;
   } else {
     InternalCallProtocol ();
 
     NodeWalker    = PROPERTY_NODE_FROM_LIST_ENTRY (GetFirstNode (Nodes));
-    Result        = IsNull (Nodes, &NodeWalker->Hdr.Link);
     BufferSize    = sizeof (Buffer->Hdr);
     NumberOfNodes = 0;
 
-    while (!Result) {
+    while (!IsNull (Nodes, &NodeWalker->Hdr.Link)) {
       Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
                    GetFirstNode (&NodeWalker->Hdr.Properties)
                    );
 
-      Result = IsNull (&NodeWalker->Hdr.Properties, &Property->Link);
-
-      while (!Result) {
+      while (!IsNull (&NodeWalker->Hdr.Properties, &Property->Link)) {
         BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
 
         Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
                      GetNextNode (&NodeWalker->Hdr.Properties, &Property->Link)
                      );
-
-        Result = IsNull (&NodeWalker->Hdr.Properties, &Property->Link);
       }
 
       NodeWalker = PROPERTY_NODE_FROM_LIST_ENTRY (
                      GetNextNode (Nodes, &NodeWalker->Hdr.Link)
                      );
 
-      Result      = IsNull (Nodes, &NodeWalker->Hdr.Link);
       BufferSize += EFI_DEVICE_PATH_PROPERTY_NODE_SIZE (NodeWalker);
       ++NumberOfNodes;
     }
@@ -576,70 +566,64 @@ DppDbGetPropertyBuffer (
                      GetFirstNode (Nodes)
                      );
 
-      Result = IsNull (&NodeWalker->Hdr.Link, &NodeWalker->Hdr.Link);
       Status = EFI_SUCCESS;
 
-      if (!Result) {
-        BufferNode = &Buffer->Nodes[0];
+      BufferNode = &Buffer->Nodes[0];
 
-        do {
-          BufferSize = GetDevicePathSize (&NodeWalker->DevicePath);
+      while (!IsNull (&NodeWalker->Hdr.Link, &NodeWalker->Hdr.Link)) {
+        BufferSize = GetDevicePathSize (&NodeWalker->DevicePath);
 
+        CopyMem (
+          (VOID *)&BufferNode->DevicePath,
+          (VOID *)&NodeWalker->DevicePath,
+          BufferSize
+          );
+
+        BufferNode->Hdr.NumberOfProperties = (UINT32)NodeWalker->Hdr.NumberOfProperties;
+
+        Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                      GetFirstNode (&NodeWalker->Hdr.Properties)
+                      );
+
+        BufferSize += sizeof (BufferNode->Hdr);
+        BufferPtr   = (VOID *)((UINTN)Buffer + BufferSize);
+
+        while (!IsNull (&NodeWalker->Hdr.Properties, &Property->Link)) {
           CopyMem (
-            (VOID *)&BufferNode->DevicePath,
-            (VOID *)&NodeWalker->DevicePath,
-            BufferSize
+            BufferPtr,
+            (VOID *)Property->Name,
+            (UINTN)Property->Name->Hdr.Size
             );
 
-          BufferNode->Hdr.NumberOfProperties = (UINT32)NodeWalker->Hdr.NumberOfProperties;
+          CopyMem (
+            (VOID *)((UINTN)BufferPtr + (UINTN)Property->Name->Hdr.Size),
+            Property->Value,
+            (UINTN)Property->Value->Hdr.Size
+            );
 
-          Property = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
-                       GetFirstNode (&NodeWalker->Hdr.Properties)
-                       );
+          BufferPtr = (VOID *)(
+                        (UINTN)BufferPtr
+                          + Property->Name->Hdr.Size
+                            + Property->Value->Hdr.Size
+                        );
 
-          Result      = IsNull (&NodeWalker->Hdr.Properties, &Property->Link);
-          BufferSize += sizeof (BufferNode->Hdr);
-          BufferPtr   = (VOID *)((UINTN)Buffer + BufferSize);
-
-          while (!Result) {
-            CopyMem (
-              BufferPtr,
-              (VOID *)Property->Name,
-              (UINTN)Property->Name->Hdr.Size
-              );
-
-            CopyMem (
-              (VOID *)((UINTN)BufferPtr + (UINTN)Property->Name->Hdr.Size),
-              Property->Value,
-              (UINTN)Property->Value->Hdr.Size
-              );
-
-            BufferPtr = (VOID *)(
-                          (UINTN)BufferPtr
-                            + Property->Name->Hdr.Size
-                              + Property->Value->Hdr.Size
+          BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
+          Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
+                          GetNextNode (
+                            &NodeWalker->Hdr.Properties,
+                            &Property->Link
+                            )
                           );
+        }
 
-            BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
-            Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
-                            GetNextNode (
-                              &NodeWalker->Hdr.Properties,
-                              &Property->Link
-                              )
-                            );
+        BufferNode->Hdr.Size = (UINT32)BufferSize;
+        BufferNode           = (EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *)(
+                                  (UINTN)BufferNode + BufferSize
+                                  );
 
-            Result = IsNull (&NodeWalker->Hdr.Properties, &Property->Link);
-          }
-
-          BufferNode->Hdr.Size = (UINT32)BufferSize;
-          BufferNode           = (EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *)(
-                                    (UINTN)BufferNode + BufferSize
-                                    );
-
-          NodeWalker = PROPERTY_NODE_FROM_LIST_ENTRY (
-                         GetNextNode (Nodes, &NodeWalker->Hdr.Link)
-                         );
-        } while (!IsNull (&NodeWalker->Hdr.Link, &NodeWalker->Hdr.Link));
+        NodeWalker = PROPERTY_NODE_FROM_LIST_ENTRY (
+                       GetNextNode (Nodes, &NodeWalker->Hdr.Link)
+                       );
       }
     }
   }
@@ -750,11 +734,14 @@ InternalReadEfiVariableProperties (
 
         Status = EFI_NOT_FOUND;
       } else if (EFI_ERROR (Status)) {
-        if ((Buffer->Hdr.MustBe1 == 1) && (Buffer->Hdr.NumberOfNodes > 0)) {
+        if (Buffer->Hdr.MustBe1 == 1) {
           BufferNode    = &Buffer->Nodes[0];
-          NumberOfNodes = 0;
 
-          do {
+          for (
+            NumberOfNodes = 0;
+            NumberOfNodes < Buffer->Hdr.NumberOfNodes;
+            ++NumberOfNodes
+            ) {
             DataSize = GetDevicePathSize (&BufferNode->DevicePath);
 
             if (BufferNode->Hdr.NumberOfProperties > 0) {
@@ -798,7 +785,7 @@ InternalReadEfiVariableProperties (
             BufferNode = (EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *)(
                            (UINTN)BufferNode + (UINTN)BufferNode->Hdr.Size
                            );
-          } while (NumberOfNodes < Buffer->Hdr.NumberOfNodes);
+          }
         }
 
         gBS->FreePool ((VOID *)Buffer);
