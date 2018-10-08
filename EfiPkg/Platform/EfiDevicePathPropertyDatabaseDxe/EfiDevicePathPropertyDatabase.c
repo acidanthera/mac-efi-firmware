@@ -507,13 +507,13 @@ DppDbGetPropertyBuffer (
   EFI_STATUS                           Status;
 
   LIST_ENTRY                           *Nodes;
-  BOOLEAN                              Result;
+  BOOLEAN                              BufferTooSmall;
   EFI_DEVICE_PATH_PROPERTY_NODE        *NodeWalker;
   UINTN                                BufferSize;
   EFI_DEVICE_PATH_PROPERTY             *Property;
   UINT32                               NumberOfNodes;
   EFI_DEVICE_PATH_PROPERTY_BUFFER_NODE *BufferNode;
-  VOID                                 *BufferPtr;
+  UINT8                                *BufferPtr;
 
   Nodes = &(PROPERTY_DATABASE_FROM_PROTOCOL (This))->Nodes;
 
@@ -548,11 +548,11 @@ DppDbGetPropertyBuffer (
       ++NumberOfNodes;
     }
 
-    Result = (BOOLEAN)(*Size < BufferSize);
+    BufferTooSmall = (BOOLEAN)(*Size < BufferSize);
     *Size  = BufferSize;
     Status = EFI_BUFFER_TOO_SMALL;
 
-    if (!Result) {
+    if (!BufferTooSmall) {
       Buffer->Hdr.Size          = (UINT32)BufferSize;
       Buffer->Hdr.MustBe1       = 1;
       Buffer->Hdr.NumberOfNodes = NumberOfNodes;
@@ -581,7 +581,7 @@ DppDbGetPropertyBuffer (
                       );
 
         BufferSize += sizeof (BufferNode->Hdr);
-        BufferPtr   = (VOID *)((UINTN)Buffer + BufferSize);
+        BufferPtr   = (UINT8 *)((UINTN)Buffer + BufferSize);
 
         while (!IsNull (&NodeWalker->Hdr.Properties, &Property->Link)) {
           CopyMem (
@@ -591,16 +591,12 @@ DppDbGetPropertyBuffer (
             );
 
           CopyMem (
-            (VOID *)((UINTN)BufferPtr + (UINTN)Property->Name->Hdr.Size),
+            (BufferPtr + Property->Name->Hdr.Size),
             Property->Value,
             (UINTN)Property->Value->Hdr.Size
             );
 
-          BufferPtr = (VOID *)(
-                        (UINTN)BufferPtr
-                          + Property->Name->Hdr.Size
-                            + Property->Value->Hdr.Size
-                        );
+          BufferPtr += (Property->Name->Hdr.Size + Property->Value->Hdr.Size);
 
           BufferSize += EFI_DEVICE_PATH_PROPERTY_SIZE (Property);
           Property    = EFI_DEVICE_PATH_PROPERTY_FROM_LIST_ENTRY (
