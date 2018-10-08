@@ -853,6 +853,7 @@ EfiDevicePathPropertyDatabaseMain (
   UINT32                          Attributes;
   EFI_HANDLE                      Handle;
 
+  // BUG: Use LocateHandle to possibly save a buffer allocation.
   Status = gBS->LocateHandleBuffer (
                   ByProtocol,
                   &gEfiDevicePathPropertyDatabaseProtocolGuid,
