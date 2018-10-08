@@ -178,7 +178,7 @@ InternalGetProperty (
       break;
     }
 
-    Result = StrCmp (Name, (CHAR16 *)&Property->Value->Data);
+    Result = StrCmp (Name, (CHAR16 *)&Property->Name->Data);
 
     if (Result == 0) {
       break;
