@@ -344,7 +344,7 @@ DppDbSetProperty (
 
   if (Node == NULL) {
     DevicePathSize = GetDevicePathSize (DevicePath);
-    Node           = AllocateZeroPool (sizeof (Node) + DevicePathSize);
+    Node           = AllocateZeroPool (sizeof (*Node) + DevicePathSize);
 
     Status = EFI_OUT_OF_RESOURCES;
 
@@ -389,7 +389,7 @@ DppDbSetProperty (
   }
 
   Database->Modified = TRUE;
-  Property           = AllocateZeroPool (sizeof (Property));
+  Property           = AllocateZeroPool (sizeof (*Property));
 
   Status = EFI_OUT_OF_RESOURCES;
 
@@ -776,7 +776,7 @@ InternalReadEfiVariableProperties (
                                                             (VOID *)&ValueData->Data,
                                                             (UINTN)(
                                                               ValueData->Hdr.Size
-                                                                - sizeof (ValueData->Hdr.Size)
+                                                                - sizeof (ValueData->Hdr)
                                                               )
                                                             );
 
