@@ -548,7 +548,7 @@ DppDbGetPropertyBuffer (
 
       Status = EFI_SUCCESS;
 
-      BufferNode = &(&Buffer->Nodes)[0];
+      BufferNode = &Buffer->Nodes[0];
 
       while (!IsNull (Nodes, ListWalker)) {
         NodeWalker = PROPERTY_NODE_FROM_LIST_ENTRY (ListWalker);
@@ -705,7 +705,7 @@ InternalReadEfiVariableProperties (
         Status = EFI_NOT_FOUND;
       } else if (EFI_ERROR (Status)) {
         if (Buffer->Hdr.MustBe1 == 1) {
-          BufferNode    = &(&Buffer->Nodes)[0];
+          BufferNode    = &Buffer->Nodes[0];
 
           for (
             NumberOfNodes = 0;

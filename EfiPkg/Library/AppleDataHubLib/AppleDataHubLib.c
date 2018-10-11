@@ -86,8 +86,8 @@ DataHubLogApplePlatformData (
     Record->Hdr.KeySize            = (UINT32)KeySize;
     Record->Hdr.ValueSize          = (UINT32)ValueSize;
 
-    CopyMem ((VOID *)&(&Record->Key)[0], (VOID *)Key, KeySize);
-    CopyMem ((VOID *)((UINTN)&(&Record->Key)[0] + KeySize), Value, ValueSize);
+    CopyMem ((VOID *)&Record->Key[0], (VOID *)Key, KeySize);
+    CopyMem ((VOID *)((UINTN)&Record->Key[0] + KeySize), Value, ValueSize);
 
     DataHubLogData (
       DataRecordGuid,

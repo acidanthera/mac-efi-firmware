@@ -67,7 +67,7 @@ typedef struct {
   UINTN              KeyCodeBufferLength;
   UINTN              NumberOfKeyCodes;
   APPLE_MODIFIER_MAP Modifiers;
-  APPLE_KEY_CODE     KeyCodes[1];
+  APPLE_KEY_CODE     KeyCodes[];
 } APPLE_KEY_STROKES_INFO;
 
 // InternalGetKeyStrokesByIndex
