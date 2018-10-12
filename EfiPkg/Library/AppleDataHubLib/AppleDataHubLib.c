@@ -75,16 +75,16 @@ DataHubLogApplePlatformData (
   APPLE_PLATFORM_DATA_RECORD *Record;
 
   KeySize = (StrLen (Key) * sizeof (*Key));
-  Record  = AllocatePool (sizeof (Record->Hdr) + KeySize + ValueSize);
+  Record  = AllocatePool (sizeof (*Record) + KeySize + ValueSize);
 
   if (Record != NULL) {
-    Record->Hdr.Header.Version     = APPLE_SUBCLASS_VERSION;
-    Record->Hdr.Header.HeaderSize  = sizeof (Record->Hdr);
-    Record->Hdr.Header.Instance    = APPLE_SUBCLASS_INSTANCE;
-    Record->Hdr.Header.SubInstance = APPLE_SUBCLASS_INSTANCE;
-    Record->Hdr.Header.RecordType  = APPLE_SUBCLASS_INSTANCE;
-    Record->Hdr.KeySize            = (UINT32)KeySize;
-    Record->Hdr.ValueSize          = (UINT32)ValueSize;
+    Record->Header.Version     = APPLE_SUBCLASS_VERSION;
+    Record->Header.HeaderSize  = sizeof (*Record);
+    Record->Header.Instance    = APPLE_SUBCLASS_INSTANCE;
+    Record->Header.SubInstance = APPLE_SUBCLASS_INSTANCE;
+    Record->Header.RecordType  = APPLE_SUBCLASS_INSTANCE;
+    Record->KeySize            = (UINT32)KeySize;
+    Record->ValueSize          = (UINT32)ValueSize;
 
     CopyMem ((VOID *)&Record->Key[0], (VOID *)Key, KeySize);
     CopyMem ((VOID *)((UINTN)&Record->Key[0] + KeySize), Value, ValueSize);
@@ -92,8 +92,8 @@ DataHubLogApplePlatformData (
     DataHubLogData (
       DataRecordGuid,
       &gApplePlatformProducerNameGuid,
-      (VOID *)&Record->Hdr,
-      sizeof (Record->Hdr)
+      (VOID *)Record,
+      sizeof (*Record)
       );
 
     FreePool ((VOID *)Record);
