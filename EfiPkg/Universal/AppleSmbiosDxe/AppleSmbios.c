@@ -788,7 +788,9 @@ AppleSmbiosMain (
              (VOID *)AsciiSerialNumber
              );
     }
-
+    //
+    // TODO: HW_MLB is read on other firmwares than IMP apparently.  Verify.
+    //
     InternalGetBoardSerialNumber (&BoardSerialNumber);
 
     if (BoardSerialNumber != NULL) {
