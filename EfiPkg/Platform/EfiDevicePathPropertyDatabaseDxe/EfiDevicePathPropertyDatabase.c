@@ -145,7 +145,7 @@ InternalGetPropertyNode (
 STATIC
 EFI_DEVICE_PATH_PROPERTY *
 InternalGetProperty (
-  IN CHAR16                         *Name,
+  IN CONST CHAR16                   *Name,
   IN EFI_DEVICE_PATH_PROPERTY_NODE  *Node
   )
 {
@@ -244,7 +244,7 @@ EFIAPI
 DppDbGetPropertyValue (
   IN     EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN     EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
-  IN     CHAR16                                      *Name,
+  IN     CONST CHAR16                                *Name,
   OUT    VOID                                        *Value, OPTIONAL
   IN OUT UINTN                                       *Size
   )
@@ -305,7 +305,7 @@ EFIAPI
 DppDbSetProperty (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
-  IN CHAR16                                      *Name,
+  IN CONST CHAR16                                *Name,
   IN VOID                                        *Value,
   IN UINTN                                       Size
   )
@@ -426,7 +426,7 @@ EFIAPI
 DppDbRemoveProperty (
   IN EFI_DEVICE_PATH_PROPERTY_DATABASE_PROTOCOL  *This,
   IN EFI_DEVICE_PATH_PROTOCOL                    *DevicePath,
-  IN CHAR16                                      *Name
+  IN CONST CHAR16                                *Name
   )
 {
   EFI_STATUS                    Status;
@@ -541,7 +541,7 @@ DppDbGetPropertyBuffer (
 
     if (!BufferTooSmall) {
       Buffer->Size          = (UINT32)BufferSize;
-      Buffer->MustBe1       = 1;
+      Buffer->Version       = 1;
       Buffer->NumberOfNodes = NumberOfNodes;
 
       ListWalker = GetFirstNode (Nodes);
@@ -704,7 +704,7 @@ InternalReadEfiVariableProperties (
 
         Status = EFI_NOT_FOUND;
       } else if (EFI_ERROR (Status)) {
-        if (Buffer->MustBe1 == 1) {
+        if (Buffer->Version == 1) {
           BufferNode    = &Buffer->Nodes[0];
 
           for (

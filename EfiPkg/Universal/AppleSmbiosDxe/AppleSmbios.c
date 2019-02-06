@@ -938,8 +938,10 @@ AppleSmbiosMain (
                         &SmbiosHandle
                         );
 
-    if (SmbiosTable.Standard.Hdr != NULL) {
-      InternalGetProcessorClass (&SmbiosTable.Type131->ProcessorType[1]);
+   if (SmbiosTable.Standard.Hdr != NULL) {
+      InternalGetProcessorClass (
+        &SmbiosTable.Type131->ProcessorType.Detail.MajorType
+        );
     }
 
     ZeroMem ((VOID *)&SmcInfo, sizeof (SmcInfo));

@@ -40,16 +40,16 @@ STATIC CONST CHAR16 *mBootPathNames[] = {
 EFI_STATUS
 EFIAPI
 BootPolicyGetBootFile (
-  IN     EFI_HANDLE                      Device,
-  IN OUT CONST EFI_DEVICE_PATH_PROTOCOL  **FilePath
+  IN     EFI_HANDLE                Device,
+  IN OUT EFI_DEVICE_PATH_PROTOCOL  **FilePath
   );
 
 EFI_STATUS
 EFIAPI
 BootPolicyGetBootFileEx (
-  IN  EFI_HANDLE                      Device,
-  IN  UINT32                          Unused, OPTIONAL
-  OUT CONST EFI_DEVICE_PATH_PROTOCOL  **FilePath
+  IN  EFI_HANDLE                Device,
+  IN  UINT32                    Mode,
+  OUT EFI_DEVICE_PATH_PROTOCOL  **FilePath
   );
 
 EFI_STATUS
@@ -66,9 +66,9 @@ EFIAPI
 BootPolicyGetPathNameOnApfsRecovery (
   IN  EFI_DEVICE_PATH_PROTOCOL  *DevicePath,
   IN  CONST CHAR16              *PathName,
-  OUT CONST CHAR16              **FullPathName,
-  OUT UINTN                     *Unknown,
-  IN  EFI_FILE_PROTOCOL         **Root,
+  OUT CHAR16                    **FullPathName,
+  OUT VOID                      **Reserved,
+  OUT EFI_FILE_PROTOCOL         **Root,
   OUT EFI_HANDLE                *DeviceHandle
   );
 
@@ -601,8 +601,8 @@ InternalGetApfsBootFile (
 EFI_STATUS
 EFIAPI
 BootPolicyGetBootFile (
-  IN     EFI_HANDLE                      Device,
-  IN OUT CONST EFI_DEVICE_PATH_PROTOCOL  **FilePath
+  IN     EFI_HANDLE                Device,
+  IN OUT EFI_DEVICE_PATH_PROTOCOL  **FilePath
   )
 {
   EFI_STATUS                      Status;
@@ -646,9 +646,9 @@ BootPolicyGetBootFile (
 EFI_STATUS
 EFIAPI
 BootPolicyGetBootFileEx (
-  IN  EFI_HANDLE                      Device,
-  IN  UINT32                          Unused, OPTIONAL
-  OUT CONST EFI_DEVICE_PATH_PROTOCOL  **FilePath
+  IN  EFI_HANDLE                Device,
+  IN  UINT32                    Mode,
+  OUT EFI_DEVICE_PATH_PROTOCOL  **FilePath
   )
 {
   EFI_STATUS                      Status;
@@ -892,9 +892,9 @@ EFIAPI
 BootPolicyGetPathNameOnApfsRecovery (
   IN  EFI_DEVICE_PATH_PROTOCOL  *DevicePath,
   IN  CONST CHAR16              *PathName,
-  OUT CONST CHAR16              **FullPathName,
-  OUT UINTN                     *Unknown,
-  IN  EFI_FILE_PROTOCOL         **Root,
+  OUT CHAR16                    **FullPathName,
+  OUT VOID                      **Reserved,
+  OUT EFI_FILE_PROTOCOL         **Root,
   OUT EFI_HANDLE                *DeviceHandle
   )
 {
@@ -932,7 +932,7 @@ BootPolicyGetPathNameOnApfsRecovery (
   NewHandle     = NULL;
   *Root         = NULL;
   *FullPathName = NULL;
-  *Unknown      = 0;
+  *Reserved     = 0;
 
   if ((PathName != NULL) && (DevicePath != NULL)) {
     Result = EFI_NOT_FOUND;

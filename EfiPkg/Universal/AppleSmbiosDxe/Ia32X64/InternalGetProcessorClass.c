@@ -123,16 +123,16 @@ InternalGetProcessorClass (
   }
 
   if (AsciiStrCmp (BrandStringWalker, "i7") == 0) {
-    *ProcessorClass = AppleProcessorClassI7;
+    *ProcessorClass = AppleProcessorMajorI7;
   } else if (AsciiStrCmp (BrandStringWalker, "i5") == 0) {
-    *ProcessorClass= AppleProcessorClassI5;
+    *ProcessorClass = AppleProcessorMajorI5;
   } else if (AsciiStrCmp (BrandStringWalker, "i3") == 0) {
-    *ProcessorClass= AppleProcessorClassI3;
+    *ProcessorClass = AppleProcessorMajorI3;
   } else if (AsciiStrCmp (BrandStringWalker, "m3") == 0) {
-    *ProcessorClass= AppleProcessorClassM3;
+    *ProcessorClass = AppleProcessorMajorM3;
   } else if (AsciiStrCmp (BrandStringWalker, "m5") == 0) {
-    *ProcessorClass= AppleProcessorClassM5;
+    *ProcessorClass = AppleProcessorMajorM5;
   } else if (AsciiStrCmp (BrandStringWalker, "m7") == 0) {
-    *ProcessorClass= AppleProcessorClassM7;
+    *ProcessorClass = AppleProcessorMajorM7;
   }
 }
